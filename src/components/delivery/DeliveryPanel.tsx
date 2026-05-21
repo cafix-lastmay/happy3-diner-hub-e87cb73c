@@ -210,26 +210,40 @@ export function DeliveryPanel({ orderId, cafeteriaRefCode }: { orderId: string; 
                   ) : (
                     <div className="mt-2 space-y-2 max-h-64 overflow-y-auto">
                       {drivers.map((d) => {
-                        const dist = distanceKm(fees.lat, fees.lng, d.current_lat, d.current_lng);
+                        const refLat = delivery?.customer_lat ?? fees.lat;
+                        const refLng = delivery?.customer_lng ?? fees.lng;
+                        const dist = distanceKm(refLat, refLng, d.current_lat, d.current_lng);
                         const sel = selectedDriver === d.id;
                         const dis = d.status !== "available";
                         return (
-                          <button key={d.id} type="button" disabled={dis}
-                            onClick={() => setSelectedDriver(d.id)}
-                            className={`w-full flex items-center gap-2 border rounded-md p-2 text-start ${sel ? "border-accent bg-accent/10" : ""} ${dis ? "opacity-50 cursor-not-allowed" : "hover:bg-muted/50"}`}>
-                            {d.photo_url
-                              ? <img src={d.photo_url} alt="" className="h-9 w-9 rounded-full object-cover" />
-                              : <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center"><Bike className="h-4 w-4" /></div>}
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium truncate">{d.full_name}</div>
-                              <div className="text-[11px] text-muted-foreground flex items-center gap-2">
-                                {d.vehicle_type && <span>{t(`driver.vehicle.${d.vehicle_type}`)}</span>}
-                                <span className="inline-flex items-center gap-0.5"><Star className="h-3 w-3" /> {Number(d.rating_avg ?? 0).toFixed(1)}</span>
-                                {dist != null && <span>{dist.toFixed(1)} km</span>}
-                                <span>{t(`driver.status.${d.status}`)}</span>
+                          <div key={d.id}
+                            className={`w-full flex items-center gap-2 border rounded-md p-2 ${sel ? "border-accent bg-accent/10" : ""} ${dis ? "opacity-50" : "hover:bg-muted/50"}`}>
+                            <button type="button" disabled={dis}
+                              onClick={() => setSelectedDriver(d.id)}
+                              className="flex-1 flex items-center gap-2 text-start min-w-0">
+                              {d.photo_url
+                                ? <img src={d.photo_url} alt="" className="h-9 w-9 rounded-full object-cover" />
+                                : <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center"><Bike className="h-4 w-4" /></div>}
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium truncate flex items-center gap-1">
+                                  {d.full_name}
+                                  {d.is_customer_favorite && <Heart className="h-3 w-3 fill-pink-500 text-pink-500" titleAccess={t("favorites.customer_favorite")} />}
+                                  {d.is_cafe_favorite && <Heart className="h-3 w-3 fill-accent text-accent" titleAccess={t("favorites.cafe_favorite")} />}
+                                </div>
+                                <div className="text-[11px] text-muted-foreground flex items-center gap-2 flex-wrap">
+                                  {d.vehicle_type && <span>{t(`driver.vehicle.${d.vehicle_type}`)}</span>}
+                                  <span className="inline-flex items-center gap-0.5"><Star className="h-3 w-3" /> {Number(d.rating_avg ?? 0).toFixed(1)}</span>
+                                  {dist != null && <span>{dist.toFixed(1)} km</span>}
+                                  <span>{t(`driver.status.${d.status}`)}</span>
+                                </div>
                               </div>
-                            </div>
-                          </button>
+                            </button>
+                            <button type="button" onClick={(e) => { e.stopPropagation(); toggleCafeFavorite(d.id, d.is_cafe_favorite); }}
+                              className="p-1.5 rounded-md hover:bg-background"
+                              aria-label={d.is_cafe_favorite ? t("favorites.remove_from_cafe") : t("favorites.add_to_cafe")}>
+                              <Heart className={`h-4 w-4 ${d.is_cafe_favorite ? "fill-accent text-accent" : "text-muted-foreground"}`} />
+                            </button>
+                          </div>
                         );
                       })}
                     </div>
