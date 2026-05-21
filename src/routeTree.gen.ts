@@ -30,10 +30,14 @@ import { Route as SettingsNotificationsRouteImport } from './routes/settings.not
 import { Route as SettingsAccountRouteImport } from './routes/settings.account'
 import { Route as PickupCafeRefRouteImport } from './routes/pickup.$cafeRef'
 import { Route as OwnerWithdrawalsRouteImport } from './routes/owner.withdrawals'
+import { Route as OwnerSettingsRouteImport } from './routes/owner.settings'
 import { Route as OwnerReportsRouteImport } from './routes/owner.reports'
 import { Route as OwnerRechargesRouteImport } from './routes/owner.recharges'
 import { Route as OwnerRecharge_instructionsRouteImport } from './routes/owner.recharge_instructions'
 import { Route as OwnerMarketersRouteImport } from './routes/owner.marketers'
+import { Route as OwnerGrace_periodsRouteImport } from './routes/owner.grace_periods'
+import { Route as OwnerExchange_ratesRouteImport } from './routes/owner.exchange_rates'
+import { Route as OwnerCountriesRouteImport } from './routes/owner.countries'
 import { Route as OwnerCommissionsRouteImport } from './routes/owner.commissions'
 import { Route as OwnerCafeteriasRouteImport } from './routes/owner.cafeterias'
 import { Route as MarketerWithdrawalsRouteImport } from './routes/marketer.withdrawals'
@@ -162,6 +166,11 @@ const OwnerWithdrawalsRoute = OwnerWithdrawalsRouteImport.update({
   path: '/owner/withdrawals',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OwnerSettingsRoute = OwnerSettingsRouteImport.update({
+  id: '/owner/settings',
+  path: '/owner/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OwnerReportsRoute = OwnerReportsRouteImport.update({
   id: '/owner/reports',
   path: '/owner/reports',
@@ -181,6 +190,21 @@ const OwnerRecharge_instructionsRoute =
 const OwnerMarketersRoute = OwnerMarketersRouteImport.update({
   id: '/owner/marketers',
   path: '/owner/marketers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerGrace_periodsRoute = OwnerGrace_periodsRouteImport.update({
+  id: '/owner/grace_periods',
+  path: '/owner/grace_periods',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerExchange_ratesRoute = OwnerExchange_ratesRouteImport.update({
+  id: '/owner/exchange_rates',
+  path: '/owner/exchange_rates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerCountriesRoute = OwnerCountriesRouteImport.update({
+  id: '/owner/countries',
+  path: '/owner/countries',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OwnerCommissionsRoute = OwnerCommissionsRouteImport.update({
@@ -319,10 +343,14 @@ export interface FileRoutesByFullPath {
   '/marketer/withdrawals': typeof MarketerWithdrawalsRoute
   '/owner/cafeterias': typeof OwnerCafeteriasRoute
   '/owner/commissions': typeof OwnerCommissionsRoute
+  '/owner/countries': typeof OwnerCountriesRoute
+  '/owner/exchange_rates': typeof OwnerExchange_ratesRoute
+  '/owner/grace_periods': typeof OwnerGrace_periodsRoute
   '/owner/marketers': typeof OwnerMarketersRoute
   '/owner/recharge_instructions': typeof OwnerRecharge_instructionsRoute
   '/owner/recharges': typeof OwnerRechargesRouteWithChildren
   '/owner/reports': typeof OwnerReportsRoute
+  '/owner/settings': typeof OwnerSettingsRoute
   '/owner/withdrawals': typeof OwnerWithdrawalsRoute
   '/pickup/$cafeRef': typeof PickupCafeRefRoute
   '/settings/account': typeof SettingsAccountRoute
@@ -368,10 +396,14 @@ export interface FileRoutesByTo {
   '/marketer/withdrawals': typeof MarketerWithdrawalsRoute
   '/owner/cafeterias': typeof OwnerCafeteriasRoute
   '/owner/commissions': typeof OwnerCommissionsRoute
+  '/owner/countries': typeof OwnerCountriesRoute
+  '/owner/exchange_rates': typeof OwnerExchange_ratesRoute
+  '/owner/grace_periods': typeof OwnerGrace_periodsRoute
   '/owner/marketers': typeof OwnerMarketersRoute
   '/owner/recharge_instructions': typeof OwnerRecharge_instructionsRoute
   '/owner/recharges': typeof OwnerRechargesRouteWithChildren
   '/owner/reports': typeof OwnerReportsRoute
+  '/owner/settings': typeof OwnerSettingsRoute
   '/owner/withdrawals': typeof OwnerWithdrawalsRoute
   '/pickup/$cafeRef': typeof PickupCafeRefRoute
   '/settings/account': typeof SettingsAccountRoute
@@ -418,10 +450,14 @@ export interface FileRoutesById {
   '/marketer/withdrawals': typeof MarketerWithdrawalsRoute
   '/owner/cafeterias': typeof OwnerCafeteriasRoute
   '/owner/commissions': typeof OwnerCommissionsRoute
+  '/owner/countries': typeof OwnerCountriesRoute
+  '/owner/exchange_rates': typeof OwnerExchange_ratesRoute
+  '/owner/grace_periods': typeof OwnerGrace_periodsRoute
   '/owner/marketers': typeof OwnerMarketersRoute
   '/owner/recharge_instructions': typeof OwnerRecharge_instructionsRoute
   '/owner/recharges': typeof OwnerRechargesRouteWithChildren
   '/owner/reports': typeof OwnerReportsRoute
+  '/owner/settings': typeof OwnerSettingsRoute
   '/owner/withdrawals': typeof OwnerWithdrawalsRoute
   '/pickup/$cafeRef': typeof PickupCafeRefRoute
   '/settings/account': typeof SettingsAccountRoute
@@ -469,10 +505,14 @@ export interface FileRouteTypes {
     | '/marketer/withdrawals'
     | '/owner/cafeterias'
     | '/owner/commissions'
+    | '/owner/countries'
+    | '/owner/exchange_rates'
+    | '/owner/grace_periods'
     | '/owner/marketers'
     | '/owner/recharge_instructions'
     | '/owner/recharges'
     | '/owner/reports'
+    | '/owner/settings'
     | '/owner/withdrawals'
     | '/pickup/$cafeRef'
     | '/settings/account'
@@ -518,10 +558,14 @@ export interface FileRouteTypes {
     | '/marketer/withdrawals'
     | '/owner/cafeterias'
     | '/owner/commissions'
+    | '/owner/countries'
+    | '/owner/exchange_rates'
+    | '/owner/grace_periods'
     | '/owner/marketers'
     | '/owner/recharge_instructions'
     | '/owner/recharges'
     | '/owner/reports'
+    | '/owner/settings'
     | '/owner/withdrawals'
     | '/pickup/$cafeRef'
     | '/settings/account'
@@ -567,10 +611,14 @@ export interface FileRouteTypes {
     | '/marketer/withdrawals'
     | '/owner/cafeterias'
     | '/owner/commissions'
+    | '/owner/countries'
+    | '/owner/exchange_rates'
+    | '/owner/grace_periods'
     | '/owner/marketers'
     | '/owner/recharge_instructions'
     | '/owner/recharges'
     | '/owner/reports'
+    | '/owner/settings'
     | '/owner/withdrawals'
     | '/pickup/$cafeRef'
     | '/settings/account'
@@ -617,10 +665,14 @@ export interface RootRouteChildren {
   MarketerWithdrawalsRoute: typeof MarketerWithdrawalsRoute
   OwnerCafeteriasRoute: typeof OwnerCafeteriasRoute
   OwnerCommissionsRoute: typeof OwnerCommissionsRoute
+  OwnerCountriesRoute: typeof OwnerCountriesRoute
+  OwnerExchange_ratesRoute: typeof OwnerExchange_ratesRoute
+  OwnerGrace_periodsRoute: typeof OwnerGrace_periodsRoute
   OwnerMarketersRoute: typeof OwnerMarketersRoute
   OwnerRecharge_instructionsRoute: typeof OwnerRecharge_instructionsRoute
   OwnerRechargesRoute: typeof OwnerRechargesRouteWithChildren
   OwnerReportsRoute: typeof OwnerReportsRoute
+  OwnerSettingsRoute: typeof OwnerSettingsRoute
   OwnerWithdrawalsRoute: typeof OwnerWithdrawalsRoute
   PickupCafeRefRoute: typeof PickupCafeRefRoute
   SettingsAccountRoute: typeof SettingsAccountRoute
@@ -790,6 +842,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OwnerWithdrawalsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/owner/settings': {
+      id: '/owner/settings'
+      path: '/owner/settings'
+      fullPath: '/owner/settings'
+      preLoaderRoute: typeof OwnerSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/owner/reports': {
       id: '/owner/reports'
       path: '/owner/reports'
@@ -816,6 +875,27 @@ declare module '@tanstack/react-router' {
       path: '/owner/marketers'
       fullPath: '/owner/marketers'
       preLoaderRoute: typeof OwnerMarketersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/grace_periods': {
+      id: '/owner/grace_periods'
+      path: '/owner/grace_periods'
+      fullPath: '/owner/grace_periods'
+      preLoaderRoute: typeof OwnerGrace_periodsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/exchange_rates': {
+      id: '/owner/exchange_rates'
+      path: '/owner/exchange_rates'
+      fullPath: '/owner/exchange_rates'
+      preLoaderRoute: typeof OwnerExchange_ratesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/countries': {
+      id: '/owner/countries'
+      path: '/owner/countries'
+      fullPath: '/owner/countries'
+      preLoaderRoute: typeof OwnerCountriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/owner/commissions': {
@@ -1012,10 +1092,14 @@ const rootRouteChildren: RootRouteChildren = {
   MarketerWithdrawalsRoute: MarketerWithdrawalsRoute,
   OwnerCafeteriasRoute: OwnerCafeteriasRoute,
   OwnerCommissionsRoute: OwnerCommissionsRoute,
+  OwnerCountriesRoute: OwnerCountriesRoute,
+  OwnerExchange_ratesRoute: OwnerExchange_ratesRoute,
+  OwnerGrace_periodsRoute: OwnerGrace_periodsRoute,
   OwnerMarketersRoute: OwnerMarketersRoute,
   OwnerRecharge_instructionsRoute: OwnerRecharge_instructionsRoute,
   OwnerRechargesRoute: OwnerRechargesRouteWithChildren,
   OwnerReportsRoute: OwnerReportsRoute,
+  OwnerSettingsRoute: OwnerSettingsRoute,
   OwnerWithdrawalsRoute: OwnerWithdrawalsRoute,
   PickupCafeRefRoute: PickupCafeRefRoute,
   SettingsAccountRoute: SettingsAccountRoute,
@@ -1038,12 +1122,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

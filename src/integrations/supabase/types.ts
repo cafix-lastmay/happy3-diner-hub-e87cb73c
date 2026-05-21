@@ -399,6 +399,36 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_grace_periods: {
+        Row: {
+          cafeteria_ref_code: string
+          created_at: string
+          created_by: string | null
+          days: number
+          id: string
+          note: string | null
+          start_date: string
+        }
+        Insert: {
+          cafeteria_ref_code: string
+          created_at?: string
+          created_by?: string | null
+          days: number
+          id?: string
+          note?: string | null
+          start_date: string
+        }
+        Update: {
+          cafeteria_ref_code?: string
+          created_at?: string
+          created_by?: string | null
+          days?: number
+          id?: string
+          note?: string | null
+          start_date?: string
+        }
+        Relationships: []
+      }
       delivery_details: {
         Row: {
           assigned_by: string | null
@@ -653,6 +683,35 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "cafeterias"
             referencedColumns: ["ref_code"]
+          },
+        ]
+      }
+      exchange_rates: {
+        Row: {
+          currency_code: string
+          rate_to_usd: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          currency_code: string
+          rate_to_usd: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          currency_code?: string
+          rate_to_usd?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exchange_rates_currency_code_fkey"
+            columns: ["currency_code"]
+            isOneToOne: true
+            referencedRelation: "currencies"
+            referencedColumns: ["code"]
           },
         ]
       }

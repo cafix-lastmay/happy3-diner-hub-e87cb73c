@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { Download } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Download, Plus } from "lucide-react";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import { useRequireRole } from "@/auth/useRequireRole";
 import { supabase } from "@/integrations/supabase/client";
 import { ownerNavItems } from "@/components/owner/ownerNav";
 import { exportCsv } from "@/lib/csv";
+import { CreateChildDialog } from "@/components/owner/CreateChildDialog";
 
 export const Route = createFileRoute("/owner/marketers")({ component: OwnerMarketers });
 
@@ -27,10 +28,10 @@ function OwnerMarketers() {
   const [rows, setRows] = useState<M[]>([]);
   const [q, setQ] = useState("");
 
-  useEffect(() => {
-    if (!ready) return;
+  const load = useCallback(() => {
     supabase.from("marketers").select("*").order("ref_code").then(({ data }) => setRows((data ?? []) as M[]));
-  }, [ready]);
+  }, []);
+  useEffect(() => { if (ready) load(); }, [ready, load]);
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -66,9 +67,12 @@ function OwnerMarketers() {
     <DashboardShell title={t("owner.dashboard.title")} navItems={navItems}>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">{t("owner.nav.marketers")}</h1>
-        <Button onClick={onExport} variant="outline" size="sm" className="gap-2">
-          <Download className="h-4 w-4" />{t("common.export_csv")}
-        </Button>
+        <div className="flex gap-2">
+          <CreateChildDialog entityType="marketer" onDone={load} trigger={
+            <Button size="sm" className="gap-2 bg-accent text-accent-foreground hover:bg-accent/90"><Plus className="h-4 w-4" />{t("owner.create.marketer")}</Button>
+          } />
+          <Button onClick={onExport} variant="outline" size="sm" className="gap-2"><Download className="h-4 w-4" />{t("common.export_csv")}</Button>
+        </div>
       </div>
       <div className="mb-4">
         <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("common.search_placeholder")} />
