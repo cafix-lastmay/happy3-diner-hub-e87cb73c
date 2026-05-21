@@ -99,7 +99,7 @@ Deno.serve(async (req) => {
     const newUserId = created.user!.id;
 
     const { error: caErr } = await admin.from("cafeterias").insert({
-      user_id: newUserId, ref_code: refCode, parent_ref_code: caller.ref_code, signup_type: "created_by_parent",
+      user_id: newUserId, ref_code: refCode, parent_ref_code: parentForCafe.ref_code, signup_type: "created_by_parent",
       name: body.name, country_code: country, currency_code: currency, language,
       address: body.address, phone: body.phone, whatsapp: body.whatsapp, email: body.email,
     });
