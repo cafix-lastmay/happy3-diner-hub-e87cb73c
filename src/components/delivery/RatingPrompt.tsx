@@ -5,12 +5,12 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Star } from "lucide-react";
+import { Star, Heart } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export function RatingPrompt({ orderId, hasDriver }: { orderId: string; hasDriver: boolean }) {
+export function RatingPrompt({ orderId, hasDriver, driverId }: { orderId: string; hasDriver: boolean; driverId?: string | null }) {
   const { t } = useI18n();
   const [phone, setPhone] = useState("");
   const [driverStars, setDriverStars] = useState(0);
@@ -19,6 +19,8 @@ export function RatingPrompt({ orderId, hasDriver }: { orderId: string; hasDrive
   const [cafeComment, setCafeComment] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<{ driver: boolean; cafe: boolean }>({ driver: false, cafe: false });
+  const [isCustFav, setIsCustFav] = useState<boolean | null>(null);
+  const [favBusy, setFavBusy] = useState(false);
 
   useEffect(() => {
     supabase.rpc("get_delivery_rating_status", { _order_id: orderId }).then(({ data }) => {
@@ -26,6 +28,32 @@ export function RatingPrompt({ orderId, hasDriver }: { orderId: string; hasDrive
       if (row) setDone({ driver: row.driver_rated, cafe: row.cafe_rated });
     });
   }, [orderId]);
+
+  useEffect(() => {
+    if (!driverId || !phone.trim()) return;
+    supabase.rpc("is_customer_favorite_driver", { _customer_phone: phone.trim(), _driver_id: driverId })
+      .then(({ data }) => setIsCustFav(Boolean(data)));
+  }, [driverId, phone, done.driver]);
+
+  const toggleCustomerFavorite = async () => {
+    if (!driverId || !phone.trim()) return;
+    setFavBusy(true);
+    const next = !isCustFav;
+    const { error } = await supabase.rpc("toggle_customer_favorite_driver", {
+      _order_id: orderId, _customer_phone: phone.trim(), _driver_id: driverId, _favorite: next,
+    });
+    setFavBusy(false);
+    if (error) {
+      const m = error.message ?? "";
+      if (m.includes("PHONE_MISMATCH")) toast.error(t("rating.phone_mismatch"));
+      else if (m.includes("DRIVER_MISMATCH")) toast.error(t("favorites.driver_mismatch"));
+      else if (m.includes("NOT_DELIVERED")) toast.error(t("rating.not_delivered"));
+      else toast.error(m);
+      return;
+    }
+    setIsCustFav(next);
+    toast.success(t("favorites.toggle_success"));
+  };
 
   const allDone = (!hasDriver || done.driver) && done.cafe;
   if (allDone) {
