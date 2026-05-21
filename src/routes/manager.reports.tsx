@@ -1,7 +1,7 @@
 // Manager: shift reports for the cafeteria they manage.
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ClipboardList, Users, BarChart3, BookOpen, QrCode } from "lucide-react";
+import { getManagerNavItems } from "@/components/manager/managerNav";
 import { DashboardShell } from "@/components/DashboardShell";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
@@ -25,13 +25,7 @@ function ManagerReports() {
   }, [ready, user]);
 
   if (!ready) return null;
-  const navItems = [
-    { to: "/manager", label: t("orders.title"), icon: ClipboardList },
-    { to: "/manager/menu", label: t("cafeteria.nav.menu"), icon: BookOpen },
-    { to: "/manager/tables", label: t("cafeteria.nav.tables"), icon: QrCode },
-    { to: "/manager/staff", label: t("cafeteria.nav.staff"), icon: Users },
-    { to: "/manager/reports", label: t("reports.title"), icon: BarChart3 },
-  ];
+  const navItems = getManagerNavItems(t);
   return (
     <DashboardShell title={t("manager.dashboard.title")} navItems={navItems}>
       <h1 className="text-2xl font-bold mb-6">{t("reports.title")}</h1>
