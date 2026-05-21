@@ -187,19 +187,3 @@ function StarRow({ value, onChange, small }: { value: number; onChange: (n: numb
     </div>
   );
 }
-
-function StarRow({ value, onChange }: { value: number; onChange: (n: number) => void }) {
-  return (
-    <div className="flex gap-1 justify-center">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <button
-          key={n} type="button" onClick={() => onChange(n)}
-          className="p-1 transition-transform hover:scale-110"
-          aria-label={`${n} stars`}
-        >
-          <Star className={`h-7 w-7 ${n <= value ? "fill-accent text-accent" : "text-muted-foreground"}`} />
-        </button>
-      ))}
-    </div>
-  );
-}
