@@ -13,6 +13,8 @@ interface Body {
   override_country_code?: string;
   override_currency_code?: string;
   override_language?: "ar" | "en";
+  // Owner-only: optionally assign a new cafeteria under a specific marketer ref code.
+  parent_ref_code?: string;
   address?: string; phone?: string; whatsapp?: string;
 }
 
