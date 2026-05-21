@@ -227,8 +227,8 @@ export function DeliveryPanel({ orderId, cafeteriaRefCode }: { orderId: string; 
                               <div className="flex-1 min-w-0">
                                 <div className="text-sm font-medium truncate flex items-center gap-1">
                                   {d.full_name}
-                                  {d.is_customer_favorite && <Heart className="h-3 w-3 fill-pink-500 text-pink-500" titleAccess={t("favorites.customer_favorite")} />}
-                                  {d.is_cafe_favorite && <Heart className="h-3 w-3 fill-accent text-accent" titleAccess={t("favorites.cafe_favorite")} />}
+                                  {d.is_customer_favorite && <Heart aria-label={t("favorites.customer_favorite")} className="h-3 w-3 fill-pink-500 text-pink-500" />}
+                                  {d.is_cafe_favorite && <Heart aria-label={t("favorites.cafe_favorite")} className="h-3 w-3 fill-accent text-accent" />}
                                 </div>
                                 <div className="text-[11px] text-muted-foreground flex items-center gap-2 flex-wrap">
                                   {d.vehicle_type && <span>{t(`driver.vehicle.${d.vehicle_type}`)}</span>}
