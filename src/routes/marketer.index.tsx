@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Network, Percent, Banknote, Plus, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Network, Percent, Banknote, Plus, BarChart3, ChevronLeft } from "lucide-react";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
