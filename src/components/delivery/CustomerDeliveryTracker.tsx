@@ -14,6 +14,7 @@ interface Status {
   order_id: string; short_code: string; order_status: string;
   delivery_status: DeliveryStatus; fee_amount: number; total: number; eta_minutes: number | null;
   responded_at: string | null; on_the_way_at: string | null;
+  driver_id: string | null;
   driver: { name: string; phone: string | null; photo_url: string | null; vehicle_type: string | null; rating_avg: number } | null;
 }
 
@@ -99,7 +100,7 @@ export function CustomerDeliveryTracker({ orderId, shortCode, currency, onNewOrd
         )}
 
         {done && (
-          <RatingPrompt orderId={orderId} hasDriver={!!data?.driver} />
+          <RatingPrompt orderId={orderId} hasDriver={!!data?.driver} driverId={data?.driver_id ?? null} />
         )}
 
         {(done || cancelled) && (
