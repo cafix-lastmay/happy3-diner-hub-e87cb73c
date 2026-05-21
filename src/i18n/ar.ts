@@ -788,6 +788,14 @@ export const ar = {
   "rating.submit": "إرسال التقييم",
   "rating.submitted": "شكراً لتقييمك!",
   "rating.thanks": "شكراً، تم استلام تقييمك.",
+  "marketer.nav.reports": "تقارير المقارنة",
+  "marketer.reports.title": "تقارير مقارنة الأبناء",
+  "marketer.reports.total": "إجمالي العمولات",
+  "marketer.reports.txs": "عدد العمولات",
+  "driver.tabs.deliveries": "التوصيلات والمحفظة",
+  "driver.tabs.map": "الخريطة والكافيتريات",
+  "driver.tabs.profile": "ملفي الشخصي",
+  "cafeteria.nav.pricing": "التسعير",
 };
 
 
