@@ -605,6 +605,13 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
                             <div className="font-bold text-accent whitespace-nowrap">{Number(eff.price).toFixed(2)}</div>
                           </div>
                           {eff.description && <p className="text-xs text-muted-foreground line-clamp-2">{eff.description}</p>}
+                          {(it as any).rating_count > 0 && (
+                            <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                              <Star className="h-3 w-3 fill-accent text-accent" />
+                              <span className="font-semibold text-foreground">{Number((it as any).rating_avg).toFixed(1)}</span>
+                              <span>({(it as any).rating_count})</span>
+                            </div>
+                          )}
                           <div className="mt-2 flex flex-wrap gap-1 items-center">
                             <Badge variant={eff.is_visible ? "default" : "secondary"} className="text-[10px]">
                               {eff.is_visible ? t("menu.available") : t("menu.unavailable")}
