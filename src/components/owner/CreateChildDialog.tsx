@@ -29,6 +29,7 @@ export function CreateChildDialog({ entityType, trigger, onDone }: Props) {
     name: "", email: "", password: "",
     phone: "", whatsapp: "", address: "",
     override_country_code: "", override_currency_code: "", override_language: "ar" as "ar" | "en",
+    parent_ref_code: "",
   });
 
   useEffect(() => {
@@ -62,7 +63,7 @@ export function CreateChildDialog({ entityType, trigger, onDone }: Props) {
     const refCode = (data as { ref_code: string }).ref_code;
     toast.success(`${t("common.success")} — ${refCode}`);
     setOpen(false);
-    setForm({ name: "", email: "", password: "", phone: "", whatsapp: "", address: "", override_country_code: "", override_currency_code: "", override_language: "ar" });
+    setForm({ name: "", email: "", password: "", phone: "", whatsapp: "", address: "", override_country_code: "", override_currency_code: "", override_language: "ar", parent_ref_code: "" });
     onDone?.(refCode);
   };
 
@@ -103,6 +104,16 @@ export function CreateChildDialog({ entityType, trigger, onDone }: Props) {
             <div className="space-y-1"><Label>{t("common.phone")}</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
             <div className="space-y-1"><Label>{t("common.whatsapp")}</Label><Input value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} /></div>
             <div className="space-y-1 sm:col-span-2"><Label>{t("common.address")}</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
+            {entityType === "cafeteria" && (
+              <div className="space-y-1 sm:col-span-2">
+                <Label>Marketer referral code (optional)</Label>
+                <Input
+                  value={form.parent_ref_code}
+                  onChange={(e) => setForm({ ...form, parent_ref_code: e.target.value })}
+                  placeholder="e.g. 1001 — leave empty to assign directly to Owner"
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>{t("common.cancel")}</Button>

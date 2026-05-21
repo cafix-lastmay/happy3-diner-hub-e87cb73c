@@ -13,6 +13,8 @@ interface Body {
   override_country_code?: string;
   override_currency_code?: string;
   override_language?: "ar" | "en";
+  // Owner-only: optionally assign a new cafeteria under a specific marketer ref code.
+  parent_ref_code?: string;
   address?: string; phone?: string; whatsapp?: string;
 }
 
@@ -76,11 +78,19 @@ Deno.serve(async (req) => {
     }
 
     // CAFETERIA
-    const { data: refCode, error: rErr } = await admin.rpc("generate_ref_code", { _parent_ref_code: caller.ref_code, _entity_type: "cafeteria" });
+    // Owner may assign the cafeteria under a specific marketer via parent_ref_code.
+    let parentForCafe = caller;
+    if (isOwner && body.parent_ref_code && body.parent_ref_code.trim() !== "" && body.parent_ref_code.trim() !== caller.ref_code) {
+      const { data: m, error: mLookupErr } = await admin.from("marketers").select("*").eq("ref_code", body.parent_ref_code.trim()).maybeSingle();
+      if (mLookupErr) throw mLookupErr;
+      if (!m) return new Response(JSON.stringify({ error: "Marketer ref code not found" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      parentForCafe = m;
+    }
+    const { data: refCode, error: rErr } = await admin.rpc("generate_ref_code", { _parent_ref_code: parentForCafe.ref_code, _entity_type: "cafeteria" });
     if (rErr) throw rErr;
-    const country = isOwner && body.override_country_code ? body.override_country_code : caller.country_code;
-    const currency = isOwner && body.override_currency_code ? body.override_currency_code : caller.currency_code;
-    const language = isOwner && body.override_language ? body.override_language : caller.language;
+    const country = isOwner && body.override_country_code ? body.override_country_code : parentForCafe.country_code;
+    const currency = isOwner && body.override_currency_code ? body.override_currency_code : parentForCafe.currency_code;
+    const language = isOwner && body.override_language ? body.override_language : parentForCafe.language;
 
     const { data: created, error: cErr } = await admin.auth.admin.createUser({
       email: body.email, password: body.password, email_confirm: true, user_metadata: { full_name: body.name },
@@ -89,7 +99,7 @@ Deno.serve(async (req) => {
     const newUserId = created.user!.id;
 
     const { error: caErr } = await admin.from("cafeterias").insert({
-      user_id: newUserId, ref_code: refCode, parent_ref_code: caller.ref_code, signup_type: "created_by_parent",
+      user_id: newUserId, ref_code: refCode, parent_ref_code: parentForCafe.ref_code, signup_type: "created_by_parent",
       name: body.name, country_code: country, currency_code: currency, language,
       address: body.address, phone: body.phone, whatsapp: body.whatsapp, email: body.email,
     });
