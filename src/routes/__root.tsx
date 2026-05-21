@@ -33,10 +33,10 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Remix2" },
+      { title: "Remix3 cafix" },
       { name: "description", content: "ياسر" },
-      { property: "og:title", content: "Remix2" },
-      { name: "twitter:title", content: "Remix2" },
+      { property: "og:title", content: "Remix3 cafix" },
+      { name: "twitter:title", content: "Remix3 cafix" },
       { property: "og:description", content: "ياسر" },
       { name: "twitter:description", content: "ياسر" },
       { name: "twitter:card", content: "summary" },
