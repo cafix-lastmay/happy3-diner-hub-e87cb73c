@@ -23,6 +23,8 @@ export const Route = createFileRoute("/cafeteria/staff")({ component: CafeStaff 
 type StaffRole = "waiter" | "chef" | "manager" | "driver";
 interface S { id: string; user_id: string; role: StaffRole; is_active: boolean; created_at: string; email?: string; full_name?: string }
 
+const isStaffRole = (value: unknown): value is StaffRole => ["waiter", "chef", "manager", "driver"].includes(String(value));
+
 function CafeStaff() {
   const { t } = useI18n();
   const { ready } = useRequireRole("cafeteria_admin");
@@ -39,12 +41,12 @@ function CafeStaff() {
   const load = async (_rc: string) => {
     const { data, error } = await supabase.rpc("get_my_staff_with_profiles");
     if (error) { toast.error(error.message); setRows([]); return; }
-    setRows((data ?? []).map((r: any) => ({
+    setRows((data ?? []).filter((r: any) => !!r?.staff_id && isStaffRole(r.role)).map((r: any) => ({
       id: r.staff_id,
-      user_id: r.user_id,
+      user_id: r.user_id ?? "",
       role: r.role,
-      is_active: r.is_active,
-      created_at: r.created_at,
+      is_active: r.is_active !== false,
+      created_at: r.created_at ?? "",
       email: r.email ?? "—",
       full_name: r.full_name ?? "—",
     })) as S[]);
