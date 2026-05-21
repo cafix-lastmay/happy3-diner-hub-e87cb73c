@@ -19,15 +19,20 @@ create extension if not exists pgcrypto;
 -- Helper to upsert a confirmed user with a known UUID + password.
 do $$
 declare
+  -- SECURITY: Do not commit real credentials. Use throwaway local-dev passwords
+  -- here, and provision real owner/admin accounts via the `seed-owner` edge
+  -- function which reads OWNER_EMAIL / OWNER_PASSWORD / SEED_SECRET from
+  -- project secrets. Override with env vars in CI if needed.
+  v_default_pwd text := coalesce(current_setting('app.seed_password', true), 'ChangeMe!LocalDevOnly');
   v_users jsonb := jsonb_build_array(
-    jsonb_build_object('id','00000000-0000-0000-0000-000000000001','email','yaserras@gmail.com',         'password','Kamel123321$',  'name','Platform Owner'),
-    jsonb_build_object('id','00000000-0000-0000-0000-000000000002','email','marketer1@test.com',         'password','test531970',    'name','Marketer One'),
-    jsonb_build_object('id','00000000-0000-0000-0000-000000000003','email','cafeadmin@test1.com',        'password','test531970',    'name','Cafe Admin'),
-    jsonb_build_object('id','00000000-0000-0000-0000-000000000004','email','waiter.test@cafeteria.com',  'password','Test@123456',   'name','Waiter Test'),
-    jsonb_build_object('id','00000000-0000-0000-0000-000000000005','email','chef2_caf1@test.com',        'password','test531970',    'name','Chef Hot Drinks'),
-    jsonb_build_object('id','00000000-0000-0000-0000-000000000006','email','chiefsweet@test1.com',       'password','test531970',    'name','Chef Sweets'),
-    jsonb_build_object('id','00000000-0000-0000-0000-000000000007','email','cafeadmin2@test2.com',       'password','test531970',    'name','Cafe Admin 2'),
-    jsonb_build_object('id','00000000-0000-0000-0000-000000000008','email','testdriver@test.com',        'password','test531970',    'name','Test Driver')
+    jsonb_build_object('id','00000000-0000-0000-0000-000000000001','email','owner.local@example.invalid',     'password',v_default_pwd, 'name','Platform Owner'),
+    jsonb_build_object('id','00000000-0000-0000-0000-000000000002','email','marketer1.local@example.invalid', 'password',v_default_pwd, 'name','Marketer One'),
+    jsonb_build_object('id','00000000-0000-0000-0000-000000000003','email','cafeadmin.local@example.invalid', 'password',v_default_pwd, 'name','Cafe Admin'),
+    jsonb_build_object('id','00000000-0000-0000-0000-000000000004','email','waiter.local@example.invalid',    'password',v_default_pwd, 'name','Waiter Test'),
+    jsonb_build_object('id','00000000-0000-0000-0000-000000000005','email','chef1.local@example.invalid',     'password',v_default_pwd, 'name','Chef Hot Drinks'),
+    jsonb_build_object('id','00000000-0000-0000-0000-000000000006','email','chef2.local@example.invalid',     'password',v_default_pwd, 'name','Chef Sweets'),
+    jsonb_build_object('id','00000000-0000-0000-0000-000000000007','email','cafeadmin2.local@example.invalid','password',v_default_pwd, 'name','Cafe Admin 2'),
+    jsonb_build_object('id','00000000-0000-0000-0000-000000000008','email','driver.local@example.invalid',    'password',v_default_pwd, 'name','Test Driver')
   );
   u jsonb;
   v_id uuid;
