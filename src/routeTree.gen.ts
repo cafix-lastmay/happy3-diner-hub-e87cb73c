@@ -41,6 +41,7 @@ import { Route as OwnerCountriesRouteImport } from './routes/owner.countries'
 import { Route as OwnerCommissionsRouteImport } from './routes/owner.commissions'
 import { Route as OwnerCafeteriasRouteImport } from './routes/owner.cafeterias'
 import { Route as MarketerWithdrawalsRouteImport } from './routes/marketer.withdrawals'
+import { Route as MarketerReportsRouteImport } from './routes/marketer.reports'
 import { Route as MarketerCommissionsRouteImport } from './routes/marketer.commissions'
 import { Route as ManagerTablesRouteImport } from './routes/manager.tables'
 import { Route as ManagerStaffRouteImport } from './routes/manager.staff'
@@ -226,6 +227,11 @@ const MarketerWithdrawalsRoute = MarketerWithdrawalsRouteImport.update({
   path: '/marketer/withdrawals',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketerReportsRoute = MarketerReportsRouteImport.update({
+  id: '/marketer/reports',
+  path: '/marketer/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MarketerCommissionsRoute = MarketerCommissionsRouteImport.update({
   id: '/marketer/commissions',
   path: '/marketer/commissions',
@@ -368,6 +374,7 @@ export interface FileRoutesByFullPath {
   '/manager/staff': typeof ManagerStaffRoute
   '/manager/tables': typeof ManagerTablesRoute
   '/marketer/commissions': typeof MarketerCommissionsRoute
+  '/marketer/reports': typeof MarketerReportsRoute
   '/marketer/withdrawals': typeof MarketerWithdrawalsRoute
   '/owner/cafeterias': typeof OwnerCafeteriasRoute
   '/owner/commissions': typeof OwnerCommissionsRoute
@@ -425,6 +432,7 @@ export interface FileRoutesByTo {
   '/manager/staff': typeof ManagerStaffRoute
   '/manager/tables': typeof ManagerTablesRoute
   '/marketer/commissions': typeof MarketerCommissionsRoute
+  '/marketer/reports': typeof MarketerReportsRoute
   '/marketer/withdrawals': typeof MarketerWithdrawalsRoute
   '/owner/cafeterias': typeof OwnerCafeteriasRoute
   '/owner/commissions': typeof OwnerCommissionsRoute
@@ -483,6 +491,7 @@ export interface FileRoutesById {
   '/manager/staff': typeof ManagerStaffRoute
   '/manager/tables': typeof ManagerTablesRoute
   '/marketer/commissions': typeof MarketerCommissionsRoute
+  '/marketer/reports': typeof MarketerReportsRoute
   '/marketer/withdrawals': typeof MarketerWithdrawalsRoute
   '/owner/cafeterias': typeof OwnerCafeteriasRoute
   '/owner/commissions': typeof OwnerCommissionsRoute
@@ -542,6 +551,7 @@ export interface FileRouteTypes {
     | '/manager/staff'
     | '/manager/tables'
     | '/marketer/commissions'
+    | '/marketer/reports'
     | '/marketer/withdrawals'
     | '/owner/cafeterias'
     | '/owner/commissions'
@@ -599,6 +609,7 @@ export interface FileRouteTypes {
     | '/manager/staff'
     | '/manager/tables'
     | '/marketer/commissions'
+    | '/marketer/reports'
     | '/marketer/withdrawals'
     | '/owner/cafeterias'
     | '/owner/commissions'
@@ -656,6 +667,7 @@ export interface FileRouteTypes {
     | '/manager/staff'
     | '/manager/tables'
     | '/marketer/commissions'
+    | '/marketer/reports'
     | '/marketer/withdrawals'
     | '/owner/cafeterias'
     | '/owner/commissions'
@@ -714,6 +726,7 @@ export interface RootRouteChildren {
   ManagerStaffRoute: typeof ManagerStaffRoute
   ManagerTablesRoute: typeof ManagerTablesRoute
   MarketerCommissionsRoute: typeof MarketerCommissionsRoute
+  MarketerReportsRoute: typeof MarketerReportsRoute
   MarketerWithdrawalsRoute: typeof MarketerWithdrawalsRoute
   OwnerCafeteriasRoute: typeof OwnerCafeteriasRoute
   OwnerCommissionsRoute: typeof OwnerCommissionsRoute
@@ -971,6 +984,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketerWithdrawalsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/marketer/reports': {
+      id: '/marketer/reports'
+      path: '/marketer/reports'
+      fullPath: '/marketer/reports'
+      preLoaderRoute: typeof MarketerReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/marketer/commissions': {
       id: '/marketer/commissions'
       path: '/marketer/commissions'
@@ -1173,6 +1193,7 @@ const rootRouteChildren: RootRouteChildren = {
   ManagerStaffRoute: ManagerStaffRoute,
   ManagerTablesRoute: ManagerTablesRoute,
   MarketerCommissionsRoute: MarketerCommissionsRoute,
+  MarketerReportsRoute: MarketerReportsRoute,
   MarketerWithdrawalsRoute: MarketerWithdrawalsRoute,
   OwnerCafeteriasRoute: OwnerCafeteriasRoute,
   OwnerCommissionsRoute: OwnerCommissionsRoute,
