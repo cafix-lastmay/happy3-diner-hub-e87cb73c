@@ -82,7 +82,7 @@ export function DeliveryPanel({ orderId, cafeteriaRefCode }: { orderId: string; 
 
   const refreshDrivers = async () => {
     const { data } = await supabase.rpc("list_available_drivers_for_cafeteria", {
-      _customer_phone: delivery?.customer_phone ?? null,
+      _customer_phone: delivery?.customer_phone ?? undefined,
     });
     const list = (data ?? []) as DriverOpt[];
     // Server orders by favorites first; then we tie-break by distance from customer or cafe.
