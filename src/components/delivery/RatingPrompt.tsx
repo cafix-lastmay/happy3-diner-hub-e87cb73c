@@ -21,6 +21,10 @@ export function RatingPrompt({ orderId, hasDriver, driverId }: { orderId: string
   const [done, setDone] = useState<{ driver: boolean; cafe: boolean }>({ driver: false, cafe: false });
   const [isCustFav, setIsCustFav] = useState<boolean | null>(null);
   const [favBusy, setFavBusy] = useState(false);
+  const [items, setItems] = useState<{ item_id: string; name: string; qty: number }[]>([]);
+  const [itemStars, setItemStars] = useState<Record<string, number>>({});
+  const [itemsSubmitted, setItemsSubmitted] = useState(false);
+  const [itemsBusy, setItemsBusy] = useState(false);
 
   useEffect(() => {
     supabase.rpc("get_delivery_rating_status", { _order_id: orderId }).then(({ data }) => {
@@ -30,10 +34,29 @@ export function RatingPrompt({ orderId, hasDriver, driverId }: { orderId: string
   }, [orderId]);
 
   useEffect(() => {
+    if (!phone.trim()) { setItems([]); return; }
+    supabase.rpc("get_delivery_order_items", { _order_id: orderId, _customer_phone: phone.trim() })
+      .then(({ data, error }) => { if (!error && data) setItems(data as any); });
+  }, [orderId, phone]);
+
+  useEffect(() => {
     if (!driverId || !phone.trim()) return;
     supabase.rpc("is_customer_favorite_driver", { _customer_phone: phone.trim(), _driver_id: driverId })
       .then(({ data }) => setIsCustFav(Boolean(data)));
   }, [driverId, phone, done.driver]);
+
+  const submitItemRatings = async () => {
+    const ratings = Object.entries(itemStars).filter(([, s]) => s > 0).map(([item_id, stars]) => ({ item_id, stars }));
+    if (ratings.length === 0) { toast.error(t("rating.choose_stars")); return; }
+    setItemsBusy(true);
+    const { error } = await supabase.rpc("submit_item_ratings", {
+      _order_id: orderId, _customer_phone: phone.trim(), _ratings: ratings as any,
+    });
+    setItemsBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(t("rating.submitted"));
+    setItemsSubmitted(true);
+  };
 
   const toggleCustomerFavorite = async () => {
     if (!driverId || !phone.trim()) return;
