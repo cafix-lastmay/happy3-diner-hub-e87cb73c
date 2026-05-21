@@ -1,0 +1,93 @@
+import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { I18nProvider } from "@/i18n/I18nProvider";
+import { AuthProvider } from "@/auth/AuthProvider";
+import { Toaster } from "@/components/ui/sonner";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+
+import appCss from "../styles.css?url";
+
+function NotFoundComponent() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="max-w-md text-center">
+        <h1 className="text-7xl font-bold text-foreground">404</h1>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          The page you're looking for doesn't exist or has been moved.
+        </p>
+        <div className="mt-6">
+          <Link
+            to="/"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Go home
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export const Route = createRootRoute({
+  head: () => ({
+    meta: [
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { title: "Remix2" },
+      { name: "description", content: "ياسر" },
+      { property: "og:title", content: "Remix2" },
+      { name: "twitter:title", content: "Remix2" },
+      { property: "og:description", content: "ياسر" },
+      { name: "twitter:description", content: "ياسر" },
+      { name: "twitter:card", content: "summary" },
+      { property: "og:type", content: "website" },
+      { name: "theme-color", content: "#0f172a" },
+      { name: "application-name", content: "Dine Smart Deal" },
+      { name: "apple-mobile-web-app-title", content: "Dine Smart Deal" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7c1ff96f-d0ea-42b3-ab42-de853118ddb0/id-preview-668d91e3--484d9411-2121-4b18-9f1d-8a53c602b079.lovable.app-1779217725446.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7c1ff96f-d0ea-42b3-ab42-de853118ddb0/id-preview-668d91e3--484d9411-2121-4b18-9f1d-8a53c602b079.lovable.app-1779217725446.png" },
+    ],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "icon", href: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap",
+      },
+    ],
+  }),
+  shellComponent: RootShell,
+  component: RootComponent,
+  notFoundComponent: NotFoundComponent,
+});
+
+function RootShell({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="ar" dir="rtl">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+function RootComponent() {
+  return (
+    <I18nProvider>
+      <AuthProvider>
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
+        <Toaster richColors position="top-center" closeButton />
+      </AuthProvider>
+    </I18nProvider>
+  );
+}

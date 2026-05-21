@@ -1,0 +1,2 @@
+ALTER TABLE public.signup_attempts DROP CONSTRAINT IF EXISTS signup_attempts_kind_check;
+ALTER TABLE public.signup_attempts ADD CONSTRAINT signup_attempts_kind_check CHECK (kind IN ('marketer','cafeteria','driver'));
