@@ -21,6 +21,10 @@ export function RatingPrompt({ orderId, hasDriver, driverId }: { orderId: string
   const [done, setDone] = useState<{ driver: boolean; cafe: boolean }>({ driver: false, cafe: false });
   const [isCustFav, setIsCustFav] = useState<boolean | null>(null);
   const [favBusy, setFavBusy] = useState(false);
+  const [items, setItems] = useState<{ item_id: string; name: string; qty: number }[]>([]);
+  const [itemStars, setItemStars] = useState<Record<string, number>>({});
+  const [itemsSubmitted, setItemsSubmitted] = useState(false);
+  const [itemsBusy, setItemsBusy] = useState(false);
 
   useEffect(() => {
     supabase.rpc("get_delivery_rating_status", { _order_id: orderId }).then(({ data }) => {
@@ -30,10 +34,29 @@ export function RatingPrompt({ orderId, hasDriver, driverId }: { orderId: string
   }, [orderId]);
 
   useEffect(() => {
+    if (!phone.trim()) { setItems([]); return; }
+    supabase.rpc("get_delivery_order_items", { _order_id: orderId, _customer_phone: phone.trim() })
+      .then(({ data, error }) => { if (!error && data) setItems(data as any); });
+  }, [orderId, phone]);
+
+  useEffect(() => {
     if (!driverId || !phone.trim()) return;
     supabase.rpc("is_customer_favorite_driver", { _customer_phone: phone.trim(), _driver_id: driverId })
       .then(({ data }) => setIsCustFav(Boolean(data)));
   }, [driverId, phone, done.driver]);
+
+  const submitItemRatings = async () => {
+    const ratings = Object.entries(itemStars).filter(([, s]) => s > 0).map(([item_id, stars]) => ({ item_id, stars }));
+    if (ratings.length === 0) { toast.error(t("rating.choose_stars")); return; }
+    setItemsBusy(true);
+    const { error } = await supabase.rpc("submit_item_ratings", {
+      _order_id: orderId, _customer_phone: phone.trim(), _ratings: ratings as any,
+    });
+    setItemsBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(t("rating.submitted"));
+    setItemsSubmitted(true);
+  };
 
   const toggleCustomerFavorite = async () => {
     if (!driverId || !phone.trim()) return;
@@ -128,11 +151,28 @@ export function RatingPrompt({ orderId, hasDriver, driverId }: { orderId: string
       <Button onClick={submit} disabled={busy} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
         {busy ? t("common.loading") : t("rating.submit")}
       </Button>
+
+      {items.length > 0 && !itemsSubmitted && (
+        <div className="pt-3 border-t space-y-2">
+          <div className="text-sm font-medium">{t("rating.items_label") || "قيّم الأصناف"}</div>
+          {items.map((it) => (
+            <div key={it.item_id} className="flex items-center justify-between gap-2">
+              <div className="text-sm truncate flex-1">{it.name} <span className="text-xs text-muted-foreground">×{it.qty}</span></div>
+              <StarRow value={itemStars[it.item_id] ?? 0} onChange={(n) => setItemStars((s) => ({ ...s, [it.item_id]: n }))} small />
+            </div>
+          ))}
+          <Button size="sm" variant="outline" className="w-full" onClick={submitItemRatings} disabled={itemsBusy}>
+            {itemsBusy ? t("common.loading") : (t("rating.submit_items") || "إرسال تقييم الأصناف")}
+          </Button>
+        </div>
+      )}
+      {itemsSubmitted && <div className="text-xs text-center text-muted-foreground pt-2 border-t">⭐ {t("rating.thanks")}</div>}
     </Card>
   );
 }
 
-function StarRow({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+function StarRow({ value, onChange, small }: { value: number; onChange: (n: number) => void; small?: boolean }) {
+  const sz = small ? "h-5 w-5" : "h-7 w-7";
   return (
     <div className="flex gap-1 justify-center">
       {[1, 2, 3, 4, 5].map((n) => (
@@ -141,7 +181,7 @@ function StarRow({ value, onChange }: { value: number; onChange: (n: number) => 
           className="p-1 transition-transform hover:scale-110"
           aria-label={`${n} stars`}
         >
-          <Star className={`h-7 w-7 ${n <= value ? "fill-accent text-accent" : "text-muted-foreground"}`} />
+          <Star className={`${sz} ${n <= value ? "fill-accent text-accent" : "text-muted-foreground"}`} />
         </button>
       ))}
     </div>

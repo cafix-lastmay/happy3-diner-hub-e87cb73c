@@ -9,6 +9,7 @@ import { useAuth } from "@/auth/AuthProvider";
 import { ShiftReports } from "@/components/ShiftReports";
 import { SalesByTierReport } from "@/components/SalesByTierReport";
 import { supabase } from "@/integrations/supabase/client";
+import { BIReports } from "@/components/cafeteria/BIReports";
 
 export const Route = createFileRoute("/cafeteria/reports")({ component: CafeReports });
 
@@ -40,6 +41,7 @@ function CafeReports() {
       <h1 className="text-2xl font-bold mb-6">{t("reports.title")}</h1>
       {refCode ? (
         <div className="space-y-8">
+          <BIReports />
           <SalesByTierReport />
           <ShiftReports cafeteriaRefCode={refCode} />
         </div>
