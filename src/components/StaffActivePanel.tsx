@@ -21,6 +21,8 @@ interface StaffRow {
   full_name: string | null;
 }
 
+const isRole = (value: unknown): value is StaffRow["role"] => value === "manager" || value === "waiter" || value === "chef";
+
 export function StaffActivePanel({ managerScope = false, cafeteriaRefCode }: { managerScope?: boolean; cafeteriaRefCode: string }) {
   const { t } = useI18n();
   const [rows, setRows] = useState<StaffRow[]>([]);
@@ -29,7 +31,14 @@ export function StaffActivePanel({ managerScope = false, cafeteriaRefCode }: { m
   const load = useCallback(async () => {
     const { data, error } = await supabase.rpc("get_my_staff_with_profiles");
     if (error) { toast.error(error.message); return; }
-    let list = (data ?? []) as StaffRow[];
+    let list = (data ?? []).filter((r: any) => !!r?.staff_id && isRole(r.role)).map((r: any) => ({
+      ...r,
+      user_id: r.user_id ?? "",
+      is_active: r.is_active !== false,
+      shift_enabled: !!r.shift_enabled,
+      email: r.email ?? null,
+      full_name: r.full_name ?? null,
+    })) as StaffRow[];
     if (managerScope) list = list.filter((r) => r.role !== "manager");
     setRows(list);
   }, [managerScope]);
