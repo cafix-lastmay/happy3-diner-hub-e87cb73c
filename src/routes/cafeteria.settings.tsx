@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/cafeteria/settings")({ component: CafeSettings });
+export const Route = createFileRoute("/cafeteria/settings")({ component: () => <CafeSettings mode="admin" /> });
 
 interface CafeRow {
   ref_code: string;
@@ -29,10 +29,11 @@ interface CafeRow {
   banner_url: string | null;
 }
 
-function CafeSettings() {
+export function CafeSettings({ mode = "admin" }: { mode?: "admin" | "manager" }) {
   const { t } = useI18n();
-  const { ready } = useRequireRole("cafeteria_admin");
+  const { ready } = useRequireRole(mode === "manager" ? "manager" : "cafeteria_admin");
   const { user } = useAuth();
+  const base = mode === "manager" ? "/manager" : "/cafeteria";
   const [row, setRow] = useState<CafeRow | null>(null);
   const [form, setForm] = useState({ name: "", address: "", phone: "", whatsapp: "" });
   const [busy, setBusy] = useState(false);
@@ -40,18 +41,24 @@ function CafeSettings() {
 
   useEffect(() => {
     if (!ready || !user) return;
-    supabase
-      .from("cafeterias")
-      .select("ref_code,name,address,phone,whatsapp,logo_url,menu_header_url,menu_footer_url,banner_url")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) {
-          setRow(data as CafeRow);
-          setForm({ name: data.name, address: data.address ?? "", phone: data.phone ?? "", whatsapp: data.whatsapp ?? "" });
-        }
-      });
-  }, [ready, user]);
+    const cols = "ref_code,name,address,phone,whatsapp,logo_url,menu_header_url,menu_footer_url,banner_url";
+    const apply = (data: CafeRow | null) => {
+      if (!data) return;
+      setRow(data);
+      setForm({ name: data.name, address: data.address ?? "", phone: data.phone ?? "", whatsapp: data.whatsapp ?? "" });
+    };
+    if (mode === "manager") {
+      supabase.from("staff").select("cafeteria_ref_code").eq("user_id", user.id).eq("role", "manager").eq("is_active", true).maybeSingle()
+        .then(async ({ data: s }) => {
+          if (!s) return;
+          const { data } = await supabase.from("cafeterias").select(cols).eq("ref_code", s.cafeteria_ref_code).maybeSingle();
+          apply(data as CafeRow | null);
+        });
+    } else {
+      supabase.from("cafeterias").select(cols).eq("user_id", user.id).maybeSingle()
+        .then(({ data }) => apply(data as CafeRow | null));
+    }
+  }, [ready, user, mode]);
 
   const save = async () => {
     if (!row) return;
