@@ -12,13 +12,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/cafeteria/recharge")({ component: CafeRecharge });
+export const Route = createFileRoute("/cafeteria/recharge")({ component: () => <CafeRecharge mode="admin" /> });
 
-function CafeRecharge() {
+export function CafeRecharge({ mode = "admin" }: { mode?: "admin" | "manager" }) {
   const { t } = useI18n();
-  const { ready } = useRequireRole("cafeteria_admin");
+  const { ready } = useRequireRole(mode === "manager" ? "manager" : "cafeteria_admin");
   const { user } = useAuth();
   const navigate = useNavigate();
+  const base = mode === "manager" ? "/manager" : "/cafeteria";
   const [me, setMe] = useState<{ ref_code: string; currency_code: string | null } | null>(null);
   const [instructions, setInstructions] = useState<string>("");
   const [amountUsd, setAmountUsd] = useState("");
@@ -28,10 +29,19 @@ function CafeRecharge() {
 
   useEffect(() => {
     if (!ready || !user) return;
-    supabase.from("cafeterias").select("ref_code,currency_code").eq("user_id", user.id).maybeSingle().then(({ data }) => { if (data) setMe(data); });
+    if (mode === "manager") {
+      supabase.from("staff").select("cafeteria_ref_code").eq("user_id", user.id).eq("role", "manager").eq("is_active", true).maybeSingle()
+        .then(async ({ data }) => {
+          if (!data) return;
+          const { data: cafe } = await supabase.from("cafeterias").select("ref_code,currency_code").eq("ref_code", data.cafeteria_ref_code).maybeSingle();
+          if (cafe) setMe(cafe);
+        });
+    } else {
+      supabase.from("cafeterias").select("ref_code,currency_code").eq("user_id", user.id).maybeSingle().then(({ data }) => { if (data) setMe(data); });
+    }
     supabase.from("recharge_instructions").select("body").order("updated_at", { ascending: false }).limit(1).maybeSingle()
       .then(({ data }) => { if (data?.body) setInstructions(data.body); });
-  }, [ready, user]);
+  }, [ready, user, mode]);
 
   const submit = async (e?: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
     e?.preventDefault();
@@ -58,7 +68,7 @@ function CafeRecharge() {
       });
       if (error) { toast.error(error.message); return; }
       toast.success(t("common.success"));
-      navigate({ to: "/cafeteria/history" });
+      navigate({ to: `${base}/history` });
     } catch (err) {
       console.error("Recharge submit failed", err);
       toast.error((err as Error)?.message ?? "Failed");
@@ -69,13 +79,13 @@ function CafeRecharge() {
 
   if (!ready) return null;
   const navItems = [
-    { to: "/cafeteria", label: t("common.dashboard"), icon: LayoutDashboard },
-    { to: "/cafeteria/reports", label: t("cafeteria.nav.reports"), icon: BarChart3 },
-    { to: "/cafeteria/recharge", label: t("cafeteria.nav.recharge"), icon: Wallet },
-    { to: "/cafeteria/history", label: t("cafeteria.nav.history"), icon: History },
+    { to: base, label: t("common.dashboard"), icon: LayoutDashboard },
+    { to: `${base}/reports`, label: t("cafeteria.nav.reports"), icon: BarChart3 },
+    { to: `${base}/recharge`, label: t("cafeteria.nav.recharge"), icon: Wallet },
+    { to: `${base}/history`, label: t("cafeteria.nav.history"), icon: History },
   ];
   return (
-    <DashboardShell title={t("cafeteria.dashboard.title")} navItems={navItems.filter((n) => n.to !== "/cafeteria")} showTrialCard>
+    <DashboardShell title={t("cafeteria.dashboard.title")} navItems={navItems.filter((n) => n.to !== base)} showTrialCard={mode === "admin"}>
       <h1 className="text-2xl font-bold mb-6">{t("cafeteria.recharge.title")}</h1>
       {instructions && (
         <Card className="p-4 mb-4 max-w-xl bg-muted/40">
@@ -87,26 +97,12 @@ function CafeRecharge() {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>{t("cafeteria.recharge.amount_usd")} *</Label>
-            <Input
-              type="text"
-              inputMode="decimal"
-              autoComplete="off"
-              spellCheck={false}
-              value={amountUsd}
-              onChange={(e) => setAmountUsd(e.target.value)}
-            />
+            <Input type="text" inputMode="decimal" autoComplete="off" spellCheck={false} value={amountUsd} onChange={(e) => setAmountUsd(e.target.value)} />
             <p className="text-xs text-muted-foreground">{t("cafeteria.recharge.min")}</p>
           </div>
           <div className="space-y-2">
             <Label>{t("cafeteria.recharge.exchange_rate")} (1 USD = ? {me?.currency_code})</Label>
-            <Input
-              type="text"
-              inputMode="decimal"
-              autoComplete="off"
-              spellCheck={false}
-              value={exchangeRate}
-              onChange={(e) => setExchangeRate(e.target.value)}
-            />
+            <Input type="text" inputMode="decimal" autoComplete="off" spellCheck={false} value={exchangeRate} onChange={(e) => setExchangeRate(e.target.value)} />
             <p className="text-xs text-muted-foreground">{t("cafeteria.recharge.points_to_credit")}: {(Number(amountUsd || 0) * Number(exchangeRate || 1)).toFixed(2)} {me?.currency_code}</p>
           </div>
           <div className="space-y-2">
