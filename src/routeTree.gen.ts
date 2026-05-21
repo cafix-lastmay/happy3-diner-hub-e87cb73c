@@ -65,6 +65,7 @@ import { Route as CafeteriaHistoryRouteImport } from './routes/cafeteria.history
 import { Route as OwnerRechargesIdRouteImport } from './routes/owner.recharges.$id'
 import { Route as OwnerMarketersRefRouteImport } from './routes/owner.marketers_.$ref'
 import { Route as OwnerCafeteriasRefRouteImport } from './routes/owner.cafeterias_.$ref'
+import { Route as MarketerChildrenRefRouteImport } from './routes/marketer.children_.$ref'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -347,6 +348,11 @@ const OwnerCafeteriasRefRoute = OwnerCafeteriasRefRouteImport.update({
   path: '/owner/cafeterias/$ref',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketerChildrenRefRoute = MarketerChildrenRefRouteImport.update({
+  id: '/marketer/children_/$ref',
+  path: '/marketer/children/$ref',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -402,6 +408,7 @@ export interface FileRoutesByFullPath {
   '/manager/': typeof ManagerIndexRoute
   '/marketer/': typeof MarketerIndexRoute
   '/owner/': typeof OwnerIndexRoute
+  '/marketer/children/$ref': typeof MarketerChildrenRefRoute
   '/owner/cafeterias/$ref': typeof OwnerCafeteriasRefRoute
   '/owner/marketers/$ref': typeof OwnerMarketersRefRoute
   '/owner/recharges/$id': typeof OwnerRechargesIdRoute
@@ -460,6 +467,7 @@ export interface FileRoutesByTo {
   '/manager': typeof ManagerIndexRoute
   '/marketer': typeof MarketerIndexRoute
   '/owner': typeof OwnerIndexRoute
+  '/marketer/children/$ref': typeof MarketerChildrenRefRoute
   '/owner/cafeterias/$ref': typeof OwnerCafeteriasRefRoute
   '/owner/marketers/$ref': typeof OwnerMarketersRefRoute
   '/owner/recharges/$id': typeof OwnerRechargesIdRoute
@@ -519,6 +527,7 @@ export interface FileRoutesById {
   '/manager/': typeof ManagerIndexRoute
   '/marketer/': typeof MarketerIndexRoute
   '/owner/': typeof OwnerIndexRoute
+  '/marketer/children_/$ref': typeof MarketerChildrenRefRoute
   '/owner/cafeterias_/$ref': typeof OwnerCafeteriasRefRoute
   '/owner/marketers_/$ref': typeof OwnerMarketersRefRoute
   '/owner/recharges/$id': typeof OwnerRechargesIdRoute
@@ -579,6 +588,7 @@ export interface FileRouteTypes {
     | '/manager/'
     | '/marketer/'
     | '/owner/'
+    | '/marketer/children/$ref'
     | '/owner/cafeterias/$ref'
     | '/owner/marketers/$ref'
     | '/owner/recharges/$id'
@@ -637,6 +647,7 @@ export interface FileRouteTypes {
     | '/manager'
     | '/marketer'
     | '/owner'
+    | '/marketer/children/$ref'
     | '/owner/cafeterias/$ref'
     | '/owner/marketers/$ref'
     | '/owner/recharges/$id'
@@ -695,6 +706,7 @@ export interface FileRouteTypes {
     | '/manager/'
     | '/marketer/'
     | '/owner/'
+    | '/marketer/children_/$ref'
     | '/owner/cafeterias_/$ref'
     | '/owner/marketers_/$ref'
     | '/owner/recharges/$id'
@@ -754,6 +766,7 @@ export interface RootRouteChildren {
   ManagerIndexRoute: typeof ManagerIndexRoute
   MarketerIndexRoute: typeof MarketerIndexRoute
   OwnerIndexRoute: typeof OwnerIndexRoute
+  MarketerChildrenRefRoute: typeof MarketerChildrenRefRoute
   OwnerCafeteriasRefRoute: typeof OwnerCafeteriasRefRoute
   OwnerMarketersRefRoute: typeof OwnerMarketersRefRoute
 }
@@ -1152,6 +1165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OwnerCafeteriasRefRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/marketer/children_/$ref': {
+      id: '/marketer/children_/$ref'
+      path: '/marketer/children/$ref'
+      fullPath: '/marketer/children/$ref'
+      preLoaderRoute: typeof MarketerChildrenRefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1221,18 +1241,10 @@ const rootRouteChildren: RootRouteChildren = {
   ManagerIndexRoute: ManagerIndexRoute,
   MarketerIndexRoute: MarketerIndexRoute,
   OwnerIndexRoute: OwnerIndexRoute,
+  MarketerChildrenRefRoute: MarketerChildrenRefRoute,
   OwnerCafeteriasRefRoute: OwnerCafeteriasRefRoute,
   OwnerMarketersRefRoute: OwnerMarketersRefRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Network, Percent, Banknote, Plus, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Network, Percent, Banknote, Plus, BarChart3, ChevronLeft } from "lucide-react";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -122,10 +122,21 @@ function MarketerDashboard() {
 
       <Card className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50"><tr><th className="p-3 text-start">{t("common.ref_code")}</th><th className="p-3 text-start">{t("common.name")}</th><th className="p-3 text-start">Type</th></tr></thead>
+          <thead className="bg-muted/50"><tr><th className="p-3 text-start">{t("common.ref_code")}</th><th className="p-3 text-start">{t("common.name")}</th><th className="p-3 text-start">Type</th><th className="p-3"></th></tr></thead>
           <tbody>
-            {children.map((c) => (<tr key={c.ref_code} className="border-t border-border"><td className="p-3 font-mono">{c.ref_code}</td><td className="p-3">{c.name}</td><td className="p-3 capitalize">{c.type}</td></tr>))}
-            {children.length === 0 && <tr><td colSpan={3} className="p-6 text-center text-muted-foreground">—</td></tr>}
+            {children.map((c) => (
+              <tr key={c.ref_code} className="border-t border-border hover:bg-muted/30">
+                <td className="p-3 font-mono">{c.ref_code}</td>
+                <td className="p-3">{c.name}</td>
+                <td className="p-3 capitalize">{c.type}</td>
+                <td className="p-3 text-end">
+                  <Link to="/marketer/children_/$ref" params={{ ref: c.ref_code }}>
+                    <Button variant="ghost" size="sm" className="gap-1"><ChevronLeft className="h-4 w-4 rtl:rotate-180" />{t("common.details") || "تفاصيل"}</Button>
+                  </Link>
+                </td>
+              </tr>
+            ))}
+            {children.length === 0 && <tr><td colSpan={4} className="p-6 text-center text-muted-foreground">—</td></tr>}
           </tbody>
         </table>
       </Card>
