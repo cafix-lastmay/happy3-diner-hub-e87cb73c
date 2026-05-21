@@ -796,6 +796,14 @@ export const ar = {
   "driver.tabs.map": "الخريطة والكافيتريات",
   "driver.tabs.profile": "ملفي الشخصي",
   "cafeteria.nav.pricing": "التسعير",
+  "favorites.cafe_favorite": "مفضّل لدى الكافيتريا",
+  "favorites.customer_favorite": "سائقك المفضّل",
+  "favorites.add_to_cafe": "إضافة للمفضّلين",
+  "favorites.remove_from_cafe": "إزالة من المفضّلين",
+  "favorites.add_customer": "أضف هذا السائق لمفضّليك",
+  "favorites.remove_customer": "إزالة من مفضّليك",
+  "favorites.toggle_success": "تم تحديث المفضّلين",
+  "favorites.driver_mismatch": "هذا السائق لم يوصّل طلبك",
 };
 
 

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Bike, MapPin, Phone, Star, X } from "lucide-react";
+import { Bike, MapPin, Phone, Star, X, Heart } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -30,6 +30,7 @@ interface DriverOpt {
   id: string; full_name: string; phone: string | null; photo_url: string | null;
   vehicle_type: string | null; rating_avg: number; status: string;
   current_lat: number | null; current_lng: number | null;
+  is_cafe_favorite: boolean; is_customer_favorite: boolean;
 }
 interface DriverProfile { full_name: string; phone: string | null; photo_url: string | null; vehicle_type: string | null; rating_avg: number }
 
@@ -76,20 +77,37 @@ export function DeliveryPanel({ orderId, cafeteriaRefCode }: { orderId: string; 
 
   const openAssign = async () => {
     setOpen(true);
-    const { data } = await supabase.rpc("list_available_drivers_for_cafeteria");
+    await refreshDrivers();
+  };
+
+  const refreshDrivers = async () => {
+    const { data } = await supabase.rpc("list_available_drivers_for_cafeteria", {
+      _customer_phone: delivery?.customer_phone ?? undefined,
+    });
     const list = (data ?? []) as DriverOpt[];
-    // Sort: available first, then by distance (when known) and rating
-    const cafeLat = fees?.lat ?? null, cafeLng = fees?.lng ?? null;
+    // Server orders by favorites first; then we tie-break by distance from customer or cafe.
+    const refLat = delivery?.customer_lat ?? fees?.lat ?? null;
+    const refLng = delivery?.customer_lng ?? fees?.lng ?? null;
     list.sort((a, b) => {
       const av = a.status === "available" ? 0 : 1, bv = b.status === "available" ? 0 : 1;
       if (av !== bv) return av - bv;
-      const da = distanceKm(cafeLat, cafeLng, a.current_lat, a.current_lng) ?? 9999;
-      const db = distanceKm(cafeLat, cafeLng, b.current_lat, b.current_lng) ?? 9999;
+      const fa = (a.is_customer_favorite ? 0 : 1) + (a.is_cafe_favorite ? 0 : 1);
+      const fb = (b.is_customer_favorite ? 0 : 1) + (b.is_cafe_favorite ? 0 : 1);
+      if (fa !== fb) return fa - fb;
+      const da = distanceKm(refLat, refLng, a.current_lat, a.current_lng) ?? 9999;
+      const db = distanceKm(refLat, refLng, b.current_lat, b.current_lng) ?? 9999;
       if (da !== db) return da - db;
       return (b.rating_avg ?? 0) - (a.rating_avg ?? 0);
     });
     setDrivers(list);
-    setSelectedDriver(list.find((d) => d.status === "available")?.id ?? null);
+    setSelectedDriver((prev) => prev ?? list.find((d) => d.status === "available")?.id ?? null);
+  };
+
+  const toggleCafeFavorite = async (driverId: string, currently: boolean) => {
+    const { error } = await supabase.rpc("toggle_cafe_favorite_driver", { _driver_id: driverId, _favorite: !currently });
+    if (error) { toast.error(error.message); return; }
+    toast.success(t("favorites.toggle_success"));
+    refreshDrivers();
   };
 
   const assign = async () => {
@@ -192,26 +210,40 @@ export function DeliveryPanel({ orderId, cafeteriaRefCode }: { orderId: string; 
                   ) : (
                     <div className="mt-2 space-y-2 max-h-64 overflow-y-auto">
                       {drivers.map((d) => {
-                        const dist = distanceKm(fees.lat, fees.lng, d.current_lat, d.current_lng);
+                        const refLat = delivery?.customer_lat ?? fees.lat;
+                        const refLng = delivery?.customer_lng ?? fees.lng;
+                        const dist = distanceKm(refLat, refLng, d.current_lat, d.current_lng);
                         const sel = selectedDriver === d.id;
                         const dis = d.status !== "available";
                         return (
-                          <button key={d.id} type="button" disabled={dis}
-                            onClick={() => setSelectedDriver(d.id)}
-                            className={`w-full flex items-center gap-2 border rounded-md p-2 text-start ${sel ? "border-accent bg-accent/10" : ""} ${dis ? "opacity-50 cursor-not-allowed" : "hover:bg-muted/50"}`}>
-                            {d.photo_url
-                              ? <img src={d.photo_url} alt="" className="h-9 w-9 rounded-full object-cover" />
-                              : <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center"><Bike className="h-4 w-4" /></div>}
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium truncate">{d.full_name}</div>
-                              <div className="text-[11px] text-muted-foreground flex items-center gap-2">
-                                {d.vehicle_type && <span>{t(`driver.vehicle.${d.vehicle_type}`)}</span>}
-                                <span className="inline-flex items-center gap-0.5"><Star className="h-3 w-3" /> {Number(d.rating_avg ?? 0).toFixed(1)}</span>
-                                {dist != null && <span>{dist.toFixed(1)} km</span>}
-                                <span>{t(`driver.status.${d.status}`)}</span>
+                          <div key={d.id}
+                            className={`w-full flex items-center gap-2 border rounded-md p-2 ${sel ? "border-accent bg-accent/10" : ""} ${dis ? "opacity-50" : "hover:bg-muted/50"}`}>
+                            <button type="button" disabled={dis}
+                              onClick={() => setSelectedDriver(d.id)}
+                              className="flex-1 flex items-center gap-2 text-start min-w-0">
+                              {d.photo_url
+                                ? <img src={d.photo_url} alt="" className="h-9 w-9 rounded-full object-cover" />
+                                : <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center"><Bike className="h-4 w-4" /></div>}
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium truncate flex items-center gap-1">
+                                  {d.full_name}
+                                  {d.is_customer_favorite && <Heart aria-label={t("favorites.customer_favorite")} className="h-3 w-3 fill-pink-500 text-pink-500" />}
+                                  {d.is_cafe_favorite && <Heart aria-label={t("favorites.cafe_favorite")} className="h-3 w-3 fill-accent text-accent" />}
+                                </div>
+                                <div className="text-[11px] text-muted-foreground flex items-center gap-2 flex-wrap">
+                                  {d.vehicle_type && <span>{t(`driver.vehicle.${d.vehicle_type}`)}</span>}
+                                  <span className="inline-flex items-center gap-0.5"><Star className="h-3 w-3" /> {Number(d.rating_avg ?? 0).toFixed(1)}</span>
+                                  {dist != null && <span>{dist.toFixed(1)} km</span>}
+                                  <span>{t(`driver.status.${d.status}`)}</span>
+                                </div>
                               </div>
-                            </div>
-                          </button>
+                            </button>
+                            <button type="button" onClick={(e) => { e.stopPropagation(); toggleCafeFavorite(d.id, d.is_cafe_favorite); }}
+                              className="p-1.5 rounded-md hover:bg-background"
+                              aria-label={d.is_cafe_favorite ? t("favorites.remove_from_cafe") : t("favorites.add_to_cafe")}>
+                              <Heart className={`h-4 w-4 ${d.is_cafe_favorite ? "fill-accent text-accent" : "text-muted-foreground"}`} />
+                            </button>
+                          </div>
                         );
                       })}
                     </div>

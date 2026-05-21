@@ -777,6 +777,14 @@ export const en = {
   "driver.tabs.map": "Map & Cafeterias",
   "driver.tabs.profile": "My Profile",
   "cafeteria.nav.pricing": "Pricing",
+  "favorites.cafe_favorite": "Cafe favorite",
+  "favorites.customer_favorite": "Your favorite driver",
+  "favorites.add_to_cafe": "Add to favorites",
+  "favorites.remove_from_cafe": "Remove from favorites",
+  "favorites.add_customer": "Add this driver to your favorites",
+  "favorites.remove_customer": "Remove from your favorites",
+  "favorites.toggle_success": "Favorites updated",
+  "favorites.driver_mismatch": "This driver didn't deliver your order",
 };
 
 
