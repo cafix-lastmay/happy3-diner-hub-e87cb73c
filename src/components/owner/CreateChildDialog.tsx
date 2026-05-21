@@ -104,6 +104,16 @@ export function CreateChildDialog({ entityType, trigger, onDone }: Props) {
             <div className="space-y-1"><Label>{t("common.phone")}</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
             <div className="space-y-1"><Label>{t("common.whatsapp")}</Label><Input value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} /></div>
             <div className="space-y-1 sm:col-span-2"><Label>{t("common.address")}</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
+            {entityType === "cafeteria" && (
+              <div className="space-y-1 sm:col-span-2">
+                <Label>Marketer referral code (optional)</Label>
+                <Input
+                  value={form.parent_ref_code}
+                  onChange={(e) => setForm({ ...form, parent_ref_code: e.target.value })}
+                  placeholder="e.g. 1001 — leave empty to assign directly to Owner"
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>{t("common.cancel")}</Button>
