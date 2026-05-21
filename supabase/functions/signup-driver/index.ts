@@ -73,9 +73,8 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    console.error("[signup-driver]", msg, e);
-    return new Response(JSON.stringify({ error: msg || "An internal error occurred" }), {
+    console.error("[signup-driver]", e);
+    return new Response(JSON.stringify({ error: "An internal error occurred" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
