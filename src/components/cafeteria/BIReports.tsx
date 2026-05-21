@@ -73,7 +73,7 @@ export function BIReports() {
                 <YAxis fontSize={10} />
                 <Tooltip />
                 <Line type="monotone" dataKey="revenue" stroke={ORANGE} strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="orders" stroke={BLACK} strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="orders_count" stroke={BLACK} strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -99,7 +99,7 @@ export function BIReports() {
           <CardContent className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={byMode} dataKey="orders" nameKey="mode" cx="50%" cy="50%" outerRadius={90} label>
+                <Pie data={byMode} dataKey="orders_count" nameKey="mode" cx="50%" cy="50%" outerRadius={90} label>
                   {byMode.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip />
@@ -117,7 +117,7 @@ export function BIReports() {
                 <XAxis dataKey="hour" fontSize={10} />
                 <YAxis fontSize={10} />
                 <Tooltip />
-                <Bar dataKey="orders" fill={BLACK} />
+                <Bar dataKey="orders_count" fill={BLACK} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
