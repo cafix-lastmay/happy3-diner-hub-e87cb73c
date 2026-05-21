@@ -25,6 +25,8 @@ interface Row {
   requested_at: string | null;
 }
 
+const allowedDriverStatuses = new Set(["available", "busy", "unavailable"]);
+
 export function DriversPanel() {
   const { t } = useI18n();
   const [rows, setRows] = useState<Row[]>([]);
@@ -32,7 +34,18 @@ export function DriversPanel() {
   const load = async () => {
     const { data, error } = await supabase.rpc("get_cafe_drivers_panel");
     if (error) { toast.error(error.message); return; }
-    setRows((data ?? []) as Row[]);
+    setRows((data ?? []).filter((r: any) => !!r?.driver_id).map((r: any) => ({
+      ...r,
+      scope: r.scope === "independent" ? "independent" : "staff",
+      full_name: typeof r.full_name === "string" && r.full_name.trim() ? r.full_name : "—",
+      phone: r.phone ?? null,
+      vehicle_type: r.vehicle_type ?? null,
+      photo_url: r.photo_url ?? null,
+      status: allowedDriverStatuses.has(r.status) ? r.status : "unavailable",
+      kind: r.kind === "independent" ? "independent" : "staff",
+      link_status: r.link_status === "pending" || r.link_status === "approved" || r.link_status === "rejected" ? r.link_status : null,
+      requested_at: r.requested_at ?? null,
+    })) as Row[]);
   };
   useEffect(() => { load(); }, []);
 
