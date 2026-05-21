@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
 import { useAuth } from "@/auth/AuthProvider";
@@ -164,11 +165,17 @@ function DriverHome() {
 
   return (
     <DashboardShell title={t("driver.dashboard.title")} navItems={navItems.filter(n => n.to !== "/driver")}>
-      <div className="mb-4 space-y-4">
-        <DriverDeliveries />
-        <DriverWallet />
-      </div>
-      <div className="grid gap-4 lg:grid-cols-3">
+      <Tabs defaultValue="deliveries" className="w-full">
+        <TabsList className="mb-4 w-full overflow-x-auto justify-start">
+          <TabsTrigger value="deliveries">{t("driver.tabs.deliveries") || "التوصيلات والمحفظة"}</TabsTrigger>
+          <TabsTrigger value="map">{t("driver.tabs.map") || "الخريطة والكافيتريات"}</TabsTrigger>
+          <TabsTrigger value="profile">{t("driver.tabs.profile") || "ملفي الشخصي"}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="deliveries" className="space-y-4">
+          <DriverDeliveries />
+          <DriverWallet />
+        </TabsContent>
         {/* Status + profile */}
         <Card className="p-4 lg:col-span-1 space-y-4">
           <div className="flex items-center gap-3">
