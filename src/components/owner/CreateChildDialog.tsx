@@ -63,7 +63,7 @@ export function CreateChildDialog({ entityType, trigger, onDone }: Props) {
     const refCode = (data as { ref_code: string }).ref_code;
     toast.success(`${t("common.success")} — ${refCode}`);
     setOpen(false);
-    setForm({ name: "", email: "", password: "", phone: "", whatsapp: "", address: "", override_country_code: "", override_currency_code: "", override_language: "ar" });
+    setForm({ name: "", email: "", password: "", phone: "", whatsapp: "", address: "", override_country_code: "", override_currency_code: "", override_language: "ar", parent_ref_code: "" });
     onDone?.(refCode);
   };
 
