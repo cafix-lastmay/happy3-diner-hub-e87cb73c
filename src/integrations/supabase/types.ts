@@ -2287,7 +2287,7 @@ export type Database = {
         | "paid"
         | "awaiting_payment"
         | "paid_at_counter"
-      rating_target_kind: "driver" | "cafeteria"
+      rating_target_kind: "driver" | "cafeteria" | "menu_item"
       recharge_status: "pending" | "approved" | "rejected"
       shift_status: "pending" | "active" | "closed" | "rejected"
       signup_type: "created_by_parent" | "self_signup"
@@ -2452,7 +2452,7 @@ export const Constants = {
         "awaiting_payment",
         "paid_at_counter",
       ],
-      rating_target_kind: ["driver", "cafeteria"],
+      rating_target_kind: ["driver", "cafeteria", "menu_item"],
       recharge_status: ["pending", "approved", "rejected"],
       shift_status: ["pending", "active", "closed", "rejected"],
       signup_type: ["created_by_parent", "self_signup"],
