@@ -769,6 +769,14 @@ export const en = {
   "rating.submit": "Submit rating",
   "rating.submitted": "Thanks for your rating!",
   "rating.thanks": "Thanks, your rating has been received.",
+  "marketer.nav.reports": "Comparison Reports",
+  "marketer.reports.title": "Children Comparison Reports",
+  "marketer.reports.total": "Total Commissions",
+  "marketer.reports.txs": "Transactions",
+  "driver.tabs.deliveries": "Deliveries & Wallet",
+  "driver.tabs.map": "Map & Cafeterias",
+  "driver.tabs.profile": "My Profile",
+  "cafeteria.nav.pricing": "Pricing",
 };
 
 

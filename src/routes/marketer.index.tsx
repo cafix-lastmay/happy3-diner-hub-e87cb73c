@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Network, Percent, Banknote, Plus } from "lucide-react";
+import { LayoutDashboard, Network, Percent, Banknote, Plus, BarChart3 } from "lucide-react";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -68,6 +68,7 @@ function MarketerDashboard() {
     { to: "/marketer", label: t("common.dashboard"), icon: LayoutDashboard },
     { to: "/marketer/commissions", label: t("marketer.nav.commissions"), icon: Percent },
     { to: "/marketer/withdrawals", label: t("marketer.nav.withdrawals"), icon: Banknote },
+    { to: "/marketer/reports", label: t("marketer.nav.reports") || "التقارير", icon: BarChart3 },
   ];
 
   return (
@@ -108,7 +109,11 @@ function MarketerDashboard() {
               <div className="space-y-2"><Label>{t("common.name")} *</Label><Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
               <div className="space-y-2"><Label>{t("common.email")} *</Label><Input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
               <div className="space-y-2"><Label>{t("common.password")} *</Label><Input type="password" required minLength={6} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></div>
-              <div className="space-y-2"><Label>{t("common.phone")}</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2"><Label>{t("common.phone")}</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+                <div className="space-y-2"><Label>{t("common.whatsapp")}</Label><Input value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} /></div>
+              </div>
+              <div className="space-y-2"><Label>{t("common.address")}</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
               <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">{t("common.create")}</Button>
             </form>
           </DialogContent>
