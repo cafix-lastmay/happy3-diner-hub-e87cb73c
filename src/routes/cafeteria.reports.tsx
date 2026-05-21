@@ -41,6 +41,7 @@ function CafeReports() {
       <h1 className="text-2xl font-bold mb-6">{t("reports.title")}</h1>
       {refCode ? (
         <div className="space-y-8">
+          <BIReports />
           <SalesByTierReport />
           <ShiftReports cafeteriaRefCode={refCode} />
         </div>
