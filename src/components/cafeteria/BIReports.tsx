@@ -9,10 +9,10 @@ import {
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 
-type Series = { day: string; orders: number; revenue: number };
+type Series = { day: string; orders_count: number; revenue: number };
 type TopItem = { item_name: string; qty: number; revenue: number };
-type ByMode = { mode: string; orders: number; revenue: number };
-type Peak = { hour: number; orders: number };
+type ByMode = { mode: string; orders_count: number; revenue: number };
+type Peak = { hour: number; orders_count: number; revenue: number };
 
 const COLORS = ["hsl(var(--chart-1, 25 95% 53%))", "hsl(var(--chart-2, 0 0% 18%))", "hsl(var(--chart-3, 30 85% 50%))", "hsl(var(--chart-4, 0 0% 55%))", "hsl(var(--chart-5, 35 80% 70%))"];
 const ORANGE = "oklch(0.72 0.19 50)";
