@@ -29,15 +29,23 @@ export function CafeRecharge({ mode = "admin" }: { mode?: "admin" | "manager" })
 
   useEffect(() => {
     if (!ready || !user) return;
+    const onCafe = async (cafe: { ref_code: string; currency_code: string | null } | null) => {
+      if (!cafe) return;
+      setMe(cafe);
+      if (cafe.currency_code && cafe.currency_code !== "USD") {
+        const { data: rate } = await supabase.from("exchange_rates").select("rate_to_usd").eq("currency_code", cafe.currency_code).maybeSingle();
+        if (rate?.rate_to_usd) setExchangeRate(String(rate.rate_to_usd));
+      }
+    };
     if (mode === "manager") {
       supabase.from("staff").select("cafeteria_ref_code").eq("user_id", user.id).eq("role", "manager").eq("is_active", true).maybeSingle()
         .then(async ({ data }) => {
           if (!data) return;
           const { data: cafe } = await supabase.from("cafeterias").select("ref_code,currency_code").eq("ref_code", data.cafeteria_ref_code).maybeSingle();
-          if (cafe) setMe(cafe);
+          onCafe(cafe);
         });
     } else {
-      supabase.from("cafeterias").select("ref_code,currency_code").eq("user_id", user.id).maybeSingle().then(({ data }) => { if (data) setMe(data); });
+      supabase.from("cafeterias").select("ref_code,currency_code").eq("user_id", user.id).maybeSingle().then(({ data }) => onCafe(data));
     }
     supabase.from("recharge_instructions").select("body").order("updated_at", { ascending: false }).limit(1).maybeSingle()
       .then(({ data }) => { if (data?.body) setInstructions(data.body); });
