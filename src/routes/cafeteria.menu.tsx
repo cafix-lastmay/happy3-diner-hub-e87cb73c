@@ -32,6 +32,9 @@ interface ModeOverride { item_id: string; mode: ModeKey; name: string | null; de
 interface CatVis { category_id: string; mode: ModeKey; is_visible: boolean }
 interface CafeModes { mode_dine_in: boolean; mode_takeaway: boolean; mode_delivery: boolean; delivery_fee_a_name: string | null; delivery_fee_a_amount: number; delivery_fee_b_name: string | null; delivery_fee_b_amount: number; delivery_fee_c_name: string | null; delivery_fee_c_amount: number; estimated_delivery_minutes: number; currency_code: string | null }
 
+const safeText = (value: unknown, fallback = "—") => typeof value === "string" && value.trim() ? value.trim() : fallback;
+const safeNumber = (value: unknown, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+
 export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
   const { t } = useI18n();
   const { ready } = useRequireRole(mode === "manager" ? "manager" : "cafeteria_admin");
@@ -68,11 +71,11 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
       supabase.from("menu_mode_overrides").select("item_id,mode,name,description,image_url,price,is_visible"),
       supabase.from("category_mode_visibility").select("category_id,mode,is_visible"),
     ]);
-    setCats((c ?? []) as Cat[]);
-    setItems((i ?? []) as Item[]);
-    setTiers((tiersData ?? []) as Tier[]);
-    setOverrides((ovr ?? []) as ModeOverride[]);
-    setCatVis((cv ?? []) as CatVis[]);
+    setCats((c ?? []).filter((x: any) => !!x?.id).map((x: any) => ({ ...x, name: safeText(x.name), sort_order: safeNumber(x.sort_order), is_active: x.is_active !== false })) as Cat[]);
+    setItems((i ?? []).filter((x: any) => !!x?.id).map((x: any) => ({ ...x, category_id: x.category_id ?? null, name: safeText(x.name), description: x.description ?? null, price: safeNumber(x.price), image_url: typeof x.image_url === "string" && x.image_url.trim() ? x.image_url : null, is_available: x.is_available !== false, is_most_popular: !!x.is_most_popular, sort_order: safeNumber(x.sort_order) })) as Item[]);
+    setTiers((tiersData ?? []).filter((x: any) => !!x?.id).map((x: any) => ({ ...x, name: safeText(x.name), is_default: !!x.is_default })) as Tier[]);
+    setOverrides((ovr ?? []).filter((x: any) => !!x?.item_id && (x.mode === "dine_in" || x.mode === "take_away" || x.mode === "delivery")).map((x: any) => ({ ...x, name: x.name ?? null, description: x.description ?? null, image_url: x.image_url ?? null, price: x.price == null ? null : safeNumber(x.price), is_visible: x.is_visible !== false })) as ModeOverride[]);
+    setCatVis((cv ?? []).filter((x: any) => !!x?.category_id && (x.mode === "dine_in" || x.mode === "take_away" || x.mode === "delivery")).map((x: any) => ({ ...x, is_visible: x.is_visible !== false })) as CatVis[]);
     const itemIds = (i ?? []).map((x: { id: string }) => x.id);
     if (itemIds.length > 0) {
       const { data: prices } = await supabase.from("menu_item_prices").select("item_id,tier_id,price").in("item_id", itemIds);
