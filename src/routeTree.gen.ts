@@ -44,8 +44,12 @@ import { Route as MarketerWithdrawalsRouteImport } from './routes/marketer.withd
 import { Route as MarketerCommissionsRouteImport } from './routes/marketer.commissions'
 import { Route as ManagerTablesRouteImport } from './routes/manager.tables'
 import { Route as ManagerStaffRouteImport } from './routes/manager.staff'
+import { Route as ManagerSettingsRouteImport } from './routes/manager.settings'
 import { Route as ManagerReportsRouteImport } from './routes/manager.reports'
+import { Route as ManagerRechargeRouteImport } from './routes/manager.recharge'
+import { Route as ManagerPricingRouteImport } from './routes/manager.pricing'
 import { Route as ManagerMenuRouteImport } from './routes/manager.menu'
+import { Route as ManagerHistoryRouteImport } from './routes/manager.history'
 import { Route as MQrTokenRouteImport } from './routes/m.$qrToken'
 import { Route as CafeteriaTablesRouteImport } from './routes/cafeteria.tables'
 import { Route as CafeteriaStaffRouteImport } from './routes/cafeteria.staff'
@@ -237,14 +241,34 @@ const ManagerStaffRoute = ManagerStaffRouteImport.update({
   path: '/manager/staff',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManagerSettingsRoute = ManagerSettingsRouteImport.update({
+  id: '/manager/settings',
+  path: '/manager/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ManagerReportsRoute = ManagerReportsRouteImport.update({
   id: '/manager/reports',
   path: '/manager/reports',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManagerRechargeRoute = ManagerRechargeRouteImport.update({
+  id: '/manager/recharge',
+  path: '/manager/recharge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerPricingRoute = ManagerPricingRouteImport.update({
+  id: '/manager/pricing',
+  path: '/manager/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ManagerMenuRoute = ManagerMenuRouteImport.update({
   id: '/manager/menu',
   path: '/manager/menu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerHistoryRoute = ManagerHistoryRouteImport.update({
+  id: '/manager/history',
+  path: '/manager/history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MQrTokenRoute = MQrTokenRouteImport.update({
@@ -335,8 +359,12 @@ export interface FileRoutesByFullPath {
   '/cafeteria/staff': typeof CafeteriaStaffRoute
   '/cafeteria/tables': typeof CafeteriaTablesRoute
   '/m/$qrToken': typeof MQrTokenRoute
+  '/manager/history': typeof ManagerHistoryRoute
   '/manager/menu': typeof ManagerMenuRoute
+  '/manager/pricing': typeof ManagerPricingRoute
+  '/manager/recharge': typeof ManagerRechargeRoute
   '/manager/reports': typeof ManagerReportsRoute
+  '/manager/settings': typeof ManagerSettingsRoute
   '/manager/staff': typeof ManagerStaffRoute
   '/manager/tables': typeof ManagerTablesRoute
   '/marketer/commissions': typeof MarketerCommissionsRoute
@@ -388,8 +416,12 @@ export interface FileRoutesByTo {
   '/cafeteria/staff': typeof CafeteriaStaffRoute
   '/cafeteria/tables': typeof CafeteriaTablesRoute
   '/m/$qrToken': typeof MQrTokenRoute
+  '/manager/history': typeof ManagerHistoryRoute
   '/manager/menu': typeof ManagerMenuRoute
+  '/manager/pricing': typeof ManagerPricingRoute
+  '/manager/recharge': typeof ManagerRechargeRoute
   '/manager/reports': typeof ManagerReportsRoute
+  '/manager/settings': typeof ManagerSettingsRoute
   '/manager/staff': typeof ManagerStaffRoute
   '/manager/tables': typeof ManagerTablesRoute
   '/marketer/commissions': typeof MarketerCommissionsRoute
@@ -442,8 +474,12 @@ export interface FileRoutesById {
   '/cafeteria/staff': typeof CafeteriaStaffRoute
   '/cafeteria/tables': typeof CafeteriaTablesRoute
   '/m/$qrToken': typeof MQrTokenRoute
+  '/manager/history': typeof ManagerHistoryRoute
   '/manager/menu': typeof ManagerMenuRoute
+  '/manager/pricing': typeof ManagerPricingRoute
+  '/manager/recharge': typeof ManagerRechargeRoute
   '/manager/reports': typeof ManagerReportsRoute
+  '/manager/settings': typeof ManagerSettingsRoute
   '/manager/staff': typeof ManagerStaffRoute
   '/manager/tables': typeof ManagerTablesRoute
   '/marketer/commissions': typeof MarketerCommissionsRoute
@@ -497,8 +533,12 @@ export interface FileRouteTypes {
     | '/cafeteria/staff'
     | '/cafeteria/tables'
     | '/m/$qrToken'
+    | '/manager/history'
     | '/manager/menu'
+    | '/manager/pricing'
+    | '/manager/recharge'
     | '/manager/reports'
+    | '/manager/settings'
     | '/manager/staff'
     | '/manager/tables'
     | '/marketer/commissions'
@@ -550,8 +590,12 @@ export interface FileRouteTypes {
     | '/cafeteria/staff'
     | '/cafeteria/tables'
     | '/m/$qrToken'
+    | '/manager/history'
     | '/manager/menu'
+    | '/manager/pricing'
+    | '/manager/recharge'
     | '/manager/reports'
+    | '/manager/settings'
     | '/manager/staff'
     | '/manager/tables'
     | '/marketer/commissions'
@@ -603,8 +647,12 @@ export interface FileRouteTypes {
     | '/cafeteria/staff'
     | '/cafeteria/tables'
     | '/m/$qrToken'
+    | '/manager/history'
     | '/manager/menu'
+    | '/manager/pricing'
+    | '/manager/recharge'
     | '/manager/reports'
+    | '/manager/settings'
     | '/manager/staff'
     | '/manager/tables'
     | '/marketer/commissions'
@@ -657,8 +705,12 @@ export interface RootRouteChildren {
   CafeteriaStaffRoute: typeof CafeteriaStaffRoute
   CafeteriaTablesRoute: typeof CafeteriaTablesRoute
   MQrTokenRoute: typeof MQrTokenRoute
+  ManagerHistoryRoute: typeof ManagerHistoryRoute
   ManagerMenuRoute: typeof ManagerMenuRoute
+  ManagerPricingRoute: typeof ManagerPricingRoute
+  ManagerRechargeRoute: typeof ManagerRechargeRoute
   ManagerReportsRoute: typeof ManagerReportsRoute
+  ManagerSettingsRoute: typeof ManagerSettingsRoute
   ManagerStaffRoute: typeof ManagerStaffRoute
   ManagerTablesRoute: typeof ManagerTablesRoute
   MarketerCommissionsRoute: typeof MarketerCommissionsRoute
@@ -940,6 +992,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerStaffRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manager/settings': {
+      id: '/manager/settings'
+      path: '/manager/settings'
+      fullPath: '/manager/settings'
+      preLoaderRoute: typeof ManagerSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/manager/reports': {
       id: '/manager/reports'
       path: '/manager/reports'
@@ -947,11 +1006,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manager/recharge': {
+      id: '/manager/recharge'
+      path: '/manager/recharge'
+      fullPath: '/manager/recharge'
+      preLoaderRoute: typeof ManagerRechargeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/pricing': {
+      id: '/manager/pricing'
+      path: '/manager/pricing'
+      fullPath: '/manager/pricing'
+      preLoaderRoute: typeof ManagerPricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/manager/menu': {
       id: '/manager/menu'
       path: '/manager/menu'
       fullPath: '/manager/menu'
       preLoaderRoute: typeof ManagerMenuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/history': {
+      id: '/manager/history'
+      path: '/manager/history'
+      fullPath: '/manager/history'
+      preLoaderRoute: typeof ManagerHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/m/$qrToken': {
@@ -1084,8 +1164,12 @@ const rootRouteChildren: RootRouteChildren = {
   CafeteriaStaffRoute: CafeteriaStaffRoute,
   CafeteriaTablesRoute: CafeteriaTablesRoute,
   MQrTokenRoute: MQrTokenRoute,
+  ManagerHistoryRoute: ManagerHistoryRoute,
   ManagerMenuRoute: ManagerMenuRoute,
+  ManagerPricingRoute: ManagerPricingRoute,
+  ManagerRechargeRoute: ManagerRechargeRoute,
   ManagerReportsRoute: ManagerReportsRoute,
+  ManagerSettingsRoute: ManagerSettingsRoute,
   ManagerStaffRoute: ManagerStaffRoute,
   ManagerTablesRoute: ManagerTablesRoute,
   MarketerCommissionsRoute: MarketerCommissionsRoute,
