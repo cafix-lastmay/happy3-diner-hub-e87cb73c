@@ -29,6 +29,7 @@ export function CreateChildDialog({ entityType, trigger, onDone }: Props) {
     name: "", email: "", password: "",
     phone: "", whatsapp: "", address: "",
     override_country_code: "", override_currency_code: "", override_language: "ar" as "ar" | "en",
+    parent_ref_code: "",
   });
 
   useEffect(() => {
