@@ -9,6 +9,7 @@ import { useAuth } from "@/auth/AuthProvider";
 import { ShiftReports } from "@/components/ShiftReports";
 import { SalesByTierReport } from "@/components/SalesByTierReport";
 import { supabase } from "@/integrations/supabase/client";
+import { BIReports } from "@/components/cafeteria/BIReports";
 
 export const Route = createFileRoute("/cafeteria/reports")({ component: CafeReports });
 
