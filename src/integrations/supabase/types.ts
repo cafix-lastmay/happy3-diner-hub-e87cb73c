@@ -715,6 +715,30 @@ export type Database = {
           },
         ]
       }
+      favorite_drivers: {
+        Row: {
+          created_at: string
+          driver_id: string
+          id: string
+          owner_kind: string
+          owner_ref: string
+        }
+        Insert: {
+          created_at?: string
+          driver_id: string
+          id?: string
+          owner_kind: string
+          owner_ref: string
+        }
+        Update: {
+          created_at?: string
+          driver_id?: string
+          id?: string
+          owner_kind?: string
+          owner_ref?: string
+        }
+        Relationships: []
+      }
       marketers: {
         Row: {
           address: string | null
@@ -888,6 +912,8 @@ export type Database = {
           is_most_popular: boolean
           name: string
           price: number
+          rating_avg: number
+          rating_count: number
           sort_order: number
           updated_at: string
         }
@@ -902,6 +928,8 @@ export type Database = {
           is_most_popular?: boolean
           name: string
           price?: number
+          rating_avg?: number
+          rating_count?: number
           sort_order?: number
           updated_at?: string
         }
@@ -916,6 +944,8 @@ export type Database = {
           is_most_popular?: boolean
           name?: string
           price?: number
+          rating_avg?: number
+          rating_count?: number
           sort_order?: number
           updated_at?: string
         }
@@ -1879,6 +1909,38 @@ export type Database = {
           vehicle_type: string
         }[]
       }
+      get_cafe_orders_by_mode: {
+        Args: { _days?: number }
+        Returns: {
+          mode: string
+          orders_count: number
+          revenue: number
+        }[]
+      }
+      get_cafe_peak_hours: {
+        Args: { _days?: number }
+        Returns: {
+          hour: number
+          orders_count: number
+          revenue: number
+        }[]
+      }
+      get_cafe_sales_timeseries: {
+        Args: { _days?: number }
+        Returns: {
+          day: string
+          orders_count: number
+          revenue: number
+        }[]
+      }
+      get_cafe_top_items: {
+        Args: { _days?: number; _limit?: number }
+        Returns: {
+          item_name: string
+          qty: number
+          revenue: number
+        }[]
+      }
       get_delivery_order_status: { Args: { _order_id: string }; Returns: Json }
       get_delivery_rating_status: {
         Args: { _order_id: string }
@@ -2062,13 +2124,19 @@ export type Database = {
         Args: { _cafe_ref: string }
         Returns: boolean
       }
+      is_customer_favorite_driver: {
+        Args: { _customer_phone: string; _driver_id: string }
+        Returns: boolean
+      }
       list_available_drivers_for_cafeteria: {
-        Args: never
+        Args: { _customer_phone?: string }
         Returns: {
           current_lat: number
           current_lng: number
           full_name: string
           id: string
+          is_cafe_favorite: boolean
+          is_customer_favorite: boolean
           kind: string
           phone: string
           photo_url: string
@@ -2237,7 +2305,24 @@ export type Database = {
         }
         Returns: undefined
       }
+      submit_item_ratings: {
+        Args: { _customer_phone: string; _order_id: string; _ratings: Json }
+        Returns: undefined
+      }
       table_is_occupied: { Args: { _table_id: string }; Returns: boolean }
+      toggle_cafe_favorite_driver: {
+        Args: { _driver_id: string; _favorite: boolean }
+        Returns: undefined
+      }
+      toggle_customer_favorite_driver: {
+        Args: {
+          _customer_phone: string
+          _driver_id: string
+          _favorite: boolean
+          _order_id: string
+        }
+        Returns: undefined
+      }
       update_delivery_status: {
         Args: { _new_status: string; _order_id: string }
         Returns: undefined
