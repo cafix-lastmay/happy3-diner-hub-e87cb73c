@@ -7,6 +7,7 @@ import { useAuth } from "@/auth/AuthProvider";
 import { useI18n } from "@/i18n/I18nProvider";
 
 interface Row {
+  ref_code: string;
   points_balance: number;
   currency_code: string | null;
   free_trial_until: string | null;
@@ -17,14 +18,25 @@ export function TrialBalanceCard() {
   const { t } = useI18n();
   const { user, refCode } = useAuth();
   const [row, setRow] = useState<Row | null>(null);
+  const [graceUntil, setGraceUntil] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     const load = () => {
       supabase.from("cafeterias")
-        .select("points_balance, currency_code, free_trial_until, trial_consumed")
+        .select("ref_code, points_balance, currency_code, free_trial_until, trial_consumed")
         .eq("user_id", user.id).maybeSingle()
-        .then(({ data }) => { if (data) setRow(data as Row); });
+        .then(async ({ data }) => {
+          if (!data) return;
+          setRow(data as Row);
+          const { data: gp } = await supabase.from("custom_grace_periods")
+            .select("start_date,days").eq("cafeteria_ref_code", data.ref_code);
+          const future = (gp ?? [])
+            .map((g) => new Date(new Date(g.start_date).getTime() + g.days * 86400000))
+            .filter((d) => d.getTime() > Date.now())
+            .sort((a, b) => b.getTime() - a.getTime());
+          setGraceUntil(future[0]?.toISOString() ?? null);
+        });
     };
     load();
     if (!refCode) return;
@@ -36,8 +48,11 @@ export function TrialBalanceCard() {
   }, [user, refCode]);
 
   const trialDaysLeft = (() => {
-    if (!row?.free_trial_until || row.trial_consumed) return 0;
-    const ms = new Date(row.free_trial_until).getTime() - Date.now();
+    const candidates: number[] = [];
+    if (row?.free_trial_until && !row.trial_consumed) candidates.push(new Date(row.free_trial_until).getTime());
+    if (graceUntil) candidates.push(new Date(graceUntil).getTime());
+    if (!candidates.length) return 0;
+    const ms = Math.max(...candidates) - Date.now();
     return ms > 0 ? Math.ceil(ms / 86400000) : 0;
   })();
 
