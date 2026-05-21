@@ -51,7 +51,6 @@ interface NearbyCafe {
   link_id: string | null;
 }
 
-
 function DriverHome() {
   const { t } = useI18n();
   const { ready } = useRequireRole("driver");
@@ -80,7 +79,6 @@ function DriverHome() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, user]);
 
-  // GPS watch while available
   useEffect(() => {
     if (!driver) return;
     if (typeof navigator === "undefined" || !navigator.geolocation) return;
@@ -176,74 +174,75 @@ function DriverHome() {
           <DriverDeliveries />
           <DriverWallet />
         </TabsContent>
-        {/* Status + profile */}
-        <Card className="p-4 lg:col-span-1 space-y-4">
-          <div className="flex items-center gap-3">
-            {driver.photo_url ? (
-              <img src={driver.photo_url} alt="" className="h-14 w-14 rounded-full object-cover" />
-            ) : (
-              <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center"><Bike className="h-6 w-6" /></div>
-            )}
-            <div>
-              <div className="font-semibold">{driver.full_name}</div>
-              <Badge variant={driver.status === "available" ? "default" : "secondary"}>{t(`driver.status.${driver.status}`)}</Badge>
-              <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                <span className="text-yellow-500">⭐</span>
-                <span className="font-semibold text-foreground">{Number(driver.rating_avg ?? 0).toFixed(2)}</span>
-                <span>({driver.rating_count ?? 0} تقييم)</span>
+
+        <TabsContent value="profile">
+          <Card className="p-4 max-w-xl space-y-4">
+            <div className="flex items-center gap-3">
+              {driver.photo_url ? (
+                <img src={driver.photo_url} alt="" className="h-14 w-14 rounded-full object-cover" />
+              ) : (
+                <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center"><Bike className="h-6 w-6" /></div>
+              )}
+              <div>
+                <div className="font-semibold">{driver.full_name}</div>
+                <Badge variant={driver.status === "available" ? "default" : "secondary"}>{t(`driver.status.${driver.status}`)}</Badge>
+                <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                  <span className="text-yellow-500">⭐</span>
+                  <span className="font-semibold text-foreground">{Number(driver.rating_avg ?? 0).toFixed(2)}</span>
+                  <span>({driver.rating_count ?? 0} تقييم)</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div>
-            <Label>{t("driver.status_label")}</Label>
-            <div className="flex gap-2 mt-1">
-              {(["available","busy","unavailable"] as const).map((s) => (
-                <Button key={s} size="sm" variant={driver.status === s ? "default" : "outline"} onClick={() => setStatus(s)}>
-                  {t(`driver.status.${s}`)}
+            <div>
+              <Label>{t("driver.status_label")}</Label>
+              <div className="flex gap-2 mt-1">
+                {(["available","busy","unavailable"] as const).map((s) => (
+                  <Button key={s} size="sm" variant={driver.status === s ? "default" : "outline"} onClick={() => setStatus(s)}>
+                    {t(`driver.status.${s}`)}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div>
+                <Label>{t("driver.full_name")}</Label>
+                <Input value={driver.full_name} onChange={(e) => setDriver({ ...driver, full_name: e.target.value })} />
+              </div>
+              <div>
+                <Label>{t("driver.phone")}</Label>
+                <Input value={driver.phone ?? ""} onChange={(e) => setDriver({ ...driver, phone: e.target.value })} />
+              </div>
+              <div>
+                <Label>{t("driver.vehicle_type")}</Label>
+                <Select value={driver.vehicle_type ?? "motorcycle"} onValueChange={(v) => setDriver({ ...driver, vehicle_type: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bicycle">{t("driver.vehicle.bicycle")}</SelectItem>
+                    <SelectItem value="motorcycle">{t("driver.vehicle.motorcycle")}</SelectItem>
+                    <SelectItem value="car">{t("driver.vehicle.car")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>{t("driver.service_radius")}: {driver.service_radius_km} km <span className="text-muted-foreground text-xs">/ {maxRadius} km</span></Label>
+                <Slider min={1} max={maxRadius} step={1} value={[driver.service_radius_km]} onValueChange={(v) => setDriver({ ...driver, service_radius_km: v[0] })} />
+              </div>
+              <div>
+                <input id="dphoto2" type="file" accept="image/*" className="hidden" onChange={onPhoto} />
+                <Button type="button" variant="outline" size="sm" disabled={uploading} onClick={() => document.getElementById("dphoto2")?.click()}>
+                  <Upload className="h-4 w-4" /> {uploading ? t("common.loading") : t("driver.upload_photo")}
                 </Button>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div>
-              <Label>{t("driver.full_name")}</Label>
-              <Input value={driver.full_name} onChange={(e) => setDriver({ ...driver, full_name: e.target.value })} />
-            </div>
-            <div>
-              <Label>{t("driver.phone")}</Label>
-              <Input value={driver.phone ?? ""} onChange={(e) => setDriver({ ...driver, phone: e.target.value })} />
-            </div>
-            <div>
-              <Label>{t("driver.vehicle_type")}</Label>
-              <Select value={driver.vehicle_type ?? "motorcycle"} onValueChange={(v) => setDriver({ ...driver, vehicle_type: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bicycle">{t("driver.vehicle.bicycle")}</SelectItem>
-                  <SelectItem value="motorcycle">{t("driver.vehicle.motorcycle")}</SelectItem>
-                  <SelectItem value="car">{t("driver.vehicle.car")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>{t("driver.service_radius")}: {driver.service_radius_km} km <span className="text-muted-foreground text-xs">/ {maxRadius} km</span></Label>
-              <Slider min={1} max={maxRadius} step={1} value={[driver.service_radius_km]} onValueChange={(v) => setDriver({ ...driver, service_radius_km: v[0] })} />
-            </div>
-            <div>
-              <input id="dphoto2" type="file" accept="image/*" className="hidden" onChange={onPhoto} />
-              <Button type="button" variant="outline" size="sm" disabled={uploading} onClick={() => document.getElementById("dphoto2")?.click()}>
-                <Upload className="h-4 w-4" /> {uploading ? t("common.loading") : t("driver.upload_photo")}
+              </div>
+              <Button onClick={saveProfile} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+                {t("common.save")}
               </Button>
             </div>
-            <Button onClick={saveProfile} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-              {t("common.save")}
-            </Button>
-          </div>
-        </Card>
+          </Card>
+        </TabsContent>
 
-        {/* Map + nearby */}
-        <div className="lg:col-span-2 space-y-4">
+        <TabsContent value="map" className="space-y-4">
           <Card className="p-2 overflow-hidden">
             <div className="h-[360px] w-full rounded-md overflow-hidden">
               {hasLocation ? (
@@ -297,8 +296,6 @@ function DriverHome() {
             <JoinByCode onJoin={requestJoin} />
           </Card>
 
-
-
           <Card className="p-4">
             <h2 className="font-semibold mb-3">{t("driver.nearby_cafes")}</h2>
             {nearby.length === 0 ? (
@@ -331,8 +328,8 @@ function DriverHome() {
               </div>
             )}
           </Card>
-        </div>
-      </div>
+        </TabsContent>
+      </Tabs>
     </DashboardShell>
   );
 }
