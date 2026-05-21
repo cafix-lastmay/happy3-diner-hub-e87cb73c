@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Bike, MapPin, Phone, Star, X } from "lucide-react";
+import { Bike, MapPin, Phone, Star, X, Heart } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -30,6 +30,7 @@ interface DriverOpt {
   id: string; full_name: string; phone: string | null; photo_url: string | null;
   vehicle_type: string | null; rating_avg: number; status: string;
   current_lat: number | null; current_lng: number | null;
+  is_cafe_favorite: boolean; is_customer_favorite: boolean;
 }
 interface DriverProfile { full_name: string; phone: string | null; photo_url: string | null; vehicle_type: string | null; rating_avg: number }
 
@@ -76,20 +77,37 @@ export function DeliveryPanel({ orderId, cafeteriaRefCode }: { orderId: string; 
 
   const openAssign = async () => {
     setOpen(true);
-    const { data } = await supabase.rpc("list_available_drivers_for_cafeteria");
+    await refreshDrivers();
+  };
+
+  const refreshDrivers = async () => {
+    const { data } = await supabase.rpc("list_available_drivers_for_cafeteria", {
+      _customer_phone: delivery?.customer_phone ?? null,
+    });
     const list = (data ?? []) as DriverOpt[];
-    // Sort: available first, then by distance (when known) and rating
-    const cafeLat = fees?.lat ?? null, cafeLng = fees?.lng ?? null;
+    // Server orders by favorites first; then we tie-break by distance from customer or cafe.
+    const refLat = delivery?.customer_lat ?? fees?.lat ?? null;
+    const refLng = delivery?.customer_lng ?? fees?.lng ?? null;
     list.sort((a, b) => {
       const av = a.status === "available" ? 0 : 1, bv = b.status === "available" ? 0 : 1;
       if (av !== bv) return av - bv;
-      const da = distanceKm(cafeLat, cafeLng, a.current_lat, a.current_lng) ?? 9999;
-      const db = distanceKm(cafeLat, cafeLng, b.current_lat, b.current_lng) ?? 9999;
+      const fa = (a.is_customer_favorite ? 0 : 1) + (a.is_cafe_favorite ? 0 : 1);
+      const fb = (b.is_customer_favorite ? 0 : 1) + (b.is_cafe_favorite ? 0 : 1);
+      if (fa !== fb) return fa - fb;
+      const da = distanceKm(refLat, refLng, a.current_lat, a.current_lng) ?? 9999;
+      const db = distanceKm(refLat, refLng, b.current_lat, b.current_lng) ?? 9999;
       if (da !== db) return da - db;
       return (b.rating_avg ?? 0) - (a.rating_avg ?? 0);
     });
     setDrivers(list);
-    setSelectedDriver(list.find((d) => d.status === "available")?.id ?? null);
+    setSelectedDriver((prev) => prev ?? list.find((d) => d.status === "available")?.id ?? null);
+  };
+
+  const toggleCafeFavorite = async (driverId: string, currently: boolean) => {
+    const { error } = await supabase.rpc("toggle_cafe_favorite_driver", { _driver_id: driverId, _favorite: !currently });
+    if (error) { toast.error(error.message); return; }
+    toast.success(t("favorites.toggle_success"));
+    refreshDrivers();
   };
 
   const assign = async () => {
