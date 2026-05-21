@@ -58,8 +58,15 @@ export function RatingPrompt({ orderId, hasDriver, driverId }: { orderId: string
   const allDone = (!hasDriver || done.driver) && done.cafe;
   if (allDone) {
     return (
-      <Card className="p-4 text-center text-sm text-muted-foreground">
-        ⭐ {t("rating.thanks")}
+      <Card className="p-4 text-center text-sm text-muted-foreground space-y-3">
+        <div>⭐ {t("rating.thanks")}</div>
+        {hasDriver && driverId && phone.trim() && isCustFav !== null && (
+          <Button size="sm" variant={isCustFav ? "secondary" : "default"} onClick={toggleCustomerFavorite} disabled={favBusy}
+            className={isCustFav ? "" : "bg-accent text-accent-foreground hover:bg-accent/90"}>
+            <Heart className={`h-4 w-4 ${isCustFav ? "fill-pink-500 text-pink-500" : ""}`} />
+            {isCustFav ? t("favorites.remove_customer") : t("favorites.add_customer")}
+          </Button>
+        )}
       </Card>
     );
   }
