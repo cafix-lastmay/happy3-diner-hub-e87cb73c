@@ -1941,6 +1941,14 @@ export type Database = {
           revenue: number
         }[]
       }
+      get_delivery_order_items: {
+        Args: { _customer_phone: string; _order_id: string }
+        Returns: {
+          item_id: string
+          name: string
+          qty: number
+        }[]
+      }
       get_delivery_order_status: { Args: { _order_id: string }; Returns: Json }
       get_delivery_rating_status: {
         Args: { _order_id: string }
