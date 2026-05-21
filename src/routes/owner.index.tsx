@@ -52,16 +52,16 @@ function OwnerOverview() {
 
   const fmt = (n: number | undefined) => `$${Number(n ?? 0).toFixed(2)}`;
   const cards = [
-    { label: t("owner.stats.marketers"), value: `${stats?.marketers_active ?? 0} / ${stats?.marketers_total ?? 0}`, link: "/owner/marketers" as const, icon: Users, color: "text-blue-500" },
-    { label: t("owner.stats.cafeterias"), value: `${stats?.cafeterias_active ?? 0} / ${stats?.cafeterias_total ?? 0}`, link: "/owner/cafeterias" as const, icon: Coffee, color: "text-amber-500" },
-    { label: t("owner.stats.pending_recharges"), value: stats?.recharges_pending ?? 0, link: "/owner/recharges" as const, icon: Clock, color: "text-orange-500" },
-    { label: t("owner.stats.total_recharged"), value: fmt(stats?.recharges_approved_total_usd), link: "/owner/recharges" as const, icon: TrendingUp, color: "text-green-500" },
-    { label: t("owner.stats.commissions_paid"), value: fmt(stats?.commissions_paid_usd), link: "/owner/commissions" as const, icon: Percent, color: "text-purple-500" },
-    { label: t("owner.stats.commissions_frozen"), value: fmt(stats?.commissions_frozen_usd), link: "/owner/commissions" as const, icon: Coins, color: "text-cyan-500" },
-    { label: t("owner.stats.withdrawals_pending"), value: stats?.withdrawals_pending ?? 0, link: "/owner/withdrawals" as const, icon: Wallet, color: "text-pink-500" },
-    { label: t("owner.stats.withdrawals_paid"), value: fmt(stats?.withdrawals_paid_usd), link: "/owner/withdrawals" as const, icon: Banknote, color: "text-emerald-500" },
-    { label: t("owner.stats.cafeteria_points"), value: Number(stats?.cafeteria_points_total ?? 0).toFixed(0), link: "/owner/cafeterias" as const, icon: Coins, color: "text-yellow-500" },
-    { label: t("owner.stats.orders_total"), value: stats?.orders_total ?? 0, link: "/owner" as const, icon: ShoppingCart, color: "text-indigo-500" },
+    { label: t("owner.stats.marketers"), value: `${stats?.marketers_active ?? 0} / ${stats?.marketers_total ?? 0}`, link: "/owner/marketers" as const, icon: Users, color: "text-primary" },
+    { label: t("owner.stats.cafeterias"), value: `${stats?.cafeterias_active ?? 0} / ${stats?.cafeterias_total ?? 0}`, link: "/owner/cafeterias" as const, icon: Coffee, color: "text-foreground" },
+    { label: t("owner.stats.pending_recharges"), value: stats?.recharges_pending ?? 0, link: "/owner/recharges" as const, icon: Clock, color: "text-primary" },
+    { label: t("owner.stats.total_recharged"), value: fmt(stats?.recharges_approved_total_usd), link: "/owner/recharges" as const, icon: TrendingUp, color: "text-foreground" },
+    { label: t("owner.stats.commissions_paid"), value: fmt(stats?.commissions_paid_usd), link: "/owner/commissions" as const, icon: Percent, color: "text-primary" },
+    { label: t("owner.stats.commissions_frozen"), value: fmt(stats?.commissions_frozen_usd), link: "/owner/commissions" as const, icon: Coins, color: "text-foreground" },
+    { label: t("owner.stats.withdrawals_pending"), value: stats?.withdrawals_pending ?? 0, link: "/owner/withdrawals" as const, icon: Wallet, color: "text-primary" },
+    { label: t("owner.stats.withdrawals_paid"), value: fmt(stats?.withdrawals_paid_usd), link: "/owner/withdrawals" as const, icon: Banknote, color: "text-foreground" },
+    { label: t("owner.stats.cafeteria_points"), value: Number(stats?.cafeteria_points_total ?? 0).toFixed(0), link: "/owner/cafeterias" as const, icon: Coins, color: "text-primary" },
+    { label: t("owner.stats.orders_total"), value: stats?.orders_total ?? 0, link: "/owner" as const, icon: ShoppingCart, color: "text-foreground" },
   ];
 
   return (
