@@ -1,0 +1,1 @@
+ALTER TYPE rating_target_kind ADD VALUE IF NOT EXISTS 'menu_item';
