@@ -1,7 +1,7 @@
 // Manager dashboard: live orders + shift management for the cafeteria they manage.
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ClipboardList, Users, BarChart3, BookOpen, QrCode, Tags, Wallet, History, Settings as SettingsIcon } from "lucide-react";
+import { getManagerNavItems } from "@/components/manager/managerNav";
 import { DashboardShell } from "@/components/DashboardShell";
 import { OrdersBoard } from "@/components/OrdersBoard";
 import { ShiftStatus } from "@/components/ShiftStatus";
@@ -38,17 +38,7 @@ function ManagerDashboard() {
   }, [refCode]);
 
   if (!ready) return null;
-  const navItems = [
-    { to: "/manager", label: t("orders.title"), icon: ClipboardList },
-    { to: "/manager/menu", label: t("cafeteria.nav.menu"), icon: BookOpen },
-    { to: "/manager/pricing", label: t("cafeteria.nav.pricing") || "التسعير", icon: Tags },
-    { to: "/manager/tables", label: t("cafeteria.nav.tables"), icon: QrCode },
-    { to: "/manager/staff", label: t("cafeteria.nav.staff"), icon: Users },
-    { to: "/manager/reports", label: t("reports.title"), icon: BarChart3 },
-    { to: "/manager/recharge", label: t("cafeteria.nav.recharge"), icon: Wallet },
-    { to: "/manager/history", label: t("cafeteria.nav.history"), icon: History },
-    { to: "/manager/settings", label: t("cafeteria.nav.settings"), icon: SettingsIcon },
-  ];
+  const navItems = getManagerNavItems(t);
   return (
     <DashboardShell title={t("manager.dashboard.title")} navItems={navItems}>
       <h1 className="text-2xl font-bold mb-4">{t("manager.dashboard.title")}</h1>
