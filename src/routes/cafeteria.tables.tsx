@@ -72,6 +72,7 @@ interface Tbl {
 
 const safeText = (value: unknown, fallback = "—") => typeof value === "string" && value.trim() ? value.trim() : fallback;
 const safeNumber = (value: unknown, fallback: number) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+const safeQrToken = (tb: Pick<Tbl, "id" | "qr_token">) => tb.qr_token || `missing-${tb.id}`;
 
 export function CafeTables({ mode = "admin" }: { mode?: "admin" | "manager" }) {
   const { t } = useI18n();
@@ -377,7 +378,7 @@ export function CafeTables({ mode = "admin" }: { mode?: "admin" | "manager" }) {
                 sectionName={sec?.name}
                 tierName={tier?.name}
                 tierIsDefault={!sec?.price_tier_id && !!tier}
-                url={orderUrl(tb.qr_token)}
+                url={orderUrl(safeQrToken(tb))}
                 onDelete={() => delTable(tb.id)}
                 onEdit={() => setEditing(tb)}
                 onPrintOne={() => setPrinting({ scope: "one", tableId: tb.id })}
@@ -635,7 +636,7 @@ function PrintDialog({
     canvases.forEach((c) => dataUrls.push((c as HTMLCanvasElement).toDataURL("image/png")));
     const items: QrPrintItem[] = targetTables.map((tb) => ({
       label: tb.label,
-      url: orderUrl(tb.qr_token),
+      url: orderUrl(safeQrToken(tb)),
       topText: tb.qr_top_text,
       bottomText: tb.qr_bottom_text,
       fontSize: tb.qr_font_size,
@@ -710,7 +711,7 @@ function PrintDialog({
         {/* Hidden canvases used to capture QR data URLs */}
         <div ref={hiddenRef} className="absolute -left-[9999px] top-0">
           {targetTables.map((tb) => (
-            <QRCodeCanvas key={tb.id} value={orderUrl(tb.qr_token)} size={512} />
+            <QRCodeCanvas key={tb.id} value={orderUrl(safeQrToken(tb))} size={512} />
           ))}
         </div>
       </DialogContent>
