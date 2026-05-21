@@ -122,19 +122,19 @@ export function CafeSettings({ mode = "admin" }: { mode?: "admin" | "manager" })
 
   if (!ready) return null;
   const navItems = [
-    { to: "/cafeteria", label: t("common.dashboard"), icon: LayoutDashboard },
-    { to: "/cafeteria/menu", label: t("cafeteria.nav.menu"), icon: BookOpen },
-    { to: "/cafeteria/tables", label: t("cafeteria.nav.tables"), icon: QrCode },
-    { to: "/cafeteria/staff", label: t("cafeteria.nav.staff"), icon: Users },
-    { to: "/cafeteria/orders", label: t("cafeteria.nav.orders"), icon: ClipboardList },
-    { to: "/cafeteria/reports", label: t("cafeteria.nav.reports"), icon: BarChart3 },
-    { to: "/cafeteria/recharge", label: t("cafeteria.nav.recharge"), icon: Wallet },
-    { to: "/cafeteria/history", label: t("cafeteria.nav.history"), icon: History },
-    { to: "/cafeteria/settings", label: t("cafeteria.nav.settings"), icon: SettingsIcon },
+    { to: base, label: t("common.dashboard"), icon: LayoutDashboard },
+    { to: `${base}/menu`, label: t("cafeteria.nav.menu"), icon: BookOpen },
+    { to: `${base}/tables`, label: t("cafeteria.nav.tables"), icon: QrCode },
+    { to: `${base}/staff`, label: t("cafeteria.nav.staff"), icon: Users },
+    { to: `${base}/orders`, label: t("cafeteria.nav.orders"), icon: ClipboardList },
+    { to: `${base}/reports`, label: t("cafeteria.nav.reports"), icon: BarChart3 },
+    { to: `${base}/recharge`, label: t("cafeteria.nav.recharge"), icon: Wallet },
+    { to: `${base}/history`, label: t("cafeteria.nav.history"), icon: History },
+    { to: `${base}/settings`, label: t("cafeteria.nav.settings"), icon: SettingsIcon },
   ];
 
   return (
-    <DashboardShell title={t("cafeteria.dashboard.title")} navItems={navItems.filter((n) => n.to !== "/cafeteria")} showTrialCard>
+    <DashboardShell title={t("cafeteria.dashboard.title")} navItems={navItems.filter((n) => n.to !== base)} showTrialCard={mode === "admin"}>
       <h1 className="text-2xl font-bold mb-6">{t("cafeteria.settings.title")}</h1>
 
       <Card className="p-6 max-w-xl mb-6">
