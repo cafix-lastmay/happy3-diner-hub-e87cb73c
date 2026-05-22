@@ -32,8 +32,23 @@ interface ModeOverride { item_id: string; mode: ModeKey; name: string | null; de
 interface CatVis { category_id: string; mode: ModeKey; is_visible: boolean }
 interface CafeModes { mode_dine_in: boolean; mode_takeaway: boolean; mode_delivery: boolean; delivery_fee_a_name: string | null; delivery_fee_a_amount: number; delivery_fee_b_name: string | null; delivery_fee_b_amount: number; delivery_fee_c_name: string | null; delivery_fee_c_amount: number; estimated_delivery_minutes: number; currency_code: string | null }
 
-const safeText = (value: unknown, fallback = "—") => typeof value === "string" && value.trim() ? value.trim() : fallback;
+const safeText = (value: unknown, fallback = "") => typeof value === "string" && value.trim() ? value.trim() : fallback;
 const safeNumber = (value: unknown, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+const safeBool = (value: unknown, fallback = false) => typeof value === "boolean" ? value : fallback;
+const safeImageUrl = (value: unknown) => typeof value === "string" && value.trim() ? value.trim() : "";
+const safeCafeModes = (value: Partial<CafeModes> | null | undefined): CafeModes => ({
+  mode_dine_in: safeBool(value?.mode_dine_in, true),
+  mode_takeaway: safeBool(value?.mode_takeaway),
+  mode_delivery: safeBool(value?.mode_delivery),
+  delivery_fee_a_name: safeText(value?.delivery_fee_a_name),
+  delivery_fee_a_amount: safeNumber(value?.delivery_fee_a_amount),
+  delivery_fee_b_name: safeText(value?.delivery_fee_b_name),
+  delivery_fee_b_amount: safeNumber(value?.delivery_fee_b_amount),
+  delivery_fee_c_name: safeText(value?.delivery_fee_c_name),
+  delivery_fee_c_amount: safeNumber(value?.delivery_fee_c_amount),
+  estimated_delivery_minutes: safeNumber(value?.estimated_delivery_minutes, 0),
+  currency_code: safeText(value?.currency_code),
+});
 
 export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
   const { t } = useI18n();
@@ -72,11 +87,11 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
       supabase.from("category_mode_visibility").select("category_id,mode,is_visible"),
     ]);
     setCats((c ?? []).filter((x: any) => !!x?.id).map((x: any) => ({ ...x, name: safeText(x.name), sort_order: safeNumber(x.sort_order), is_active: x.is_active !== false })) as Cat[]);
-    setItems((i ?? []).filter((x: any) => !!x?.id).map((x: any) => ({ ...x, category_id: x.category_id ?? null, name: safeText(x.name), description: x.description ?? null, price: safeNumber(x.price), image_url: typeof x.image_url === "string" && x.image_url.trim() ? x.image_url : null, is_available: x.is_available !== false, is_most_popular: !!x.is_most_popular, sort_order: safeNumber(x.sort_order) })) as Item[]);
+    setItems((i ?? []).filter((x: any) => !!x?.id).map((x: any) => ({ ...x, category_id: x.category_id ?? null, name: safeText(x.name), description: safeText(x.description), price: safeNumber(x.price), image_url: safeImageUrl(x.image_url), is_available: safeBool(x.is_available), is_most_popular: safeBool(x.is_most_popular), sort_order: safeNumber(x.sort_order) })) as Item[]);
     setTiers((tiersData ?? []).filter((x: any) => !!x?.id).map((x: any) => ({ ...x, name: safeText(x.name), is_default: !!x.is_default })) as Tier[]);
-    setOverrides((ovr ?? []).filter((x: any) => !!x?.item_id && (x.mode === "dine_in" || x.mode === "take_away" || x.mode === "delivery")).map((x: any) => ({ ...x, name: x.name ?? null, description: x.description ?? null, image_url: x.image_url ?? null, price: x.price == null ? null : safeNumber(x.price), is_visible: x.is_visible !== false })) as ModeOverride[]);
-    setCatVis((cv ?? []).filter((x: any) => !!x?.category_id && (x.mode === "dine_in" || x.mode === "take_away" || x.mode === "delivery")).map((x: any) => ({ ...x, is_visible: x.is_visible !== false })) as CatVis[]);
-    const itemIds = (i ?? []).map((x: { id: string }) => x.id);
+    setOverrides((ovr ?? []).filter((x: any) => !!x?.item_id && (x.mode === "dine_in" || x.mode === "take_away" || x.mode === "delivery")).map((x: any) => ({ ...x, name: safeText(x.name), description: safeText(x.description), image_url: safeImageUrl(x.image_url), price: x.price == null ? null : safeNumber(x.price), is_visible: safeBool(x.is_visible, true) })) as ModeOverride[]);
+    setCatVis((cv ?? []).filter((x: any) => !!x?.category_id && (x.mode === "dine_in" || x.mode === "take_away" || x.mode === "delivery")).map((x: any) => ({ ...x, is_visible: safeBool(x.is_visible, true) })) as CatVis[]);
+    const itemIds = (i ?? []).filter((x: any) => !!x?.id).map((x: { id: string }) => x.id);
     if (itemIds.length > 0) {
       const { data: prices } = await supabase.from("menu_item_prices").select("item_id,tier_id,price").in("item_id", itemIds);
       setItemPrices((prices ?? []) as ItemPrice[]);
