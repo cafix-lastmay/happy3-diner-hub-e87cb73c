@@ -97,7 +97,8 @@ function CafeStaff() {
     { to: "/cafeteria/recharge", label: t("cafeteria.nav.recharge"), icon: Wallet },
     { to: "/cafeteria/history", label: t("cafeteria.nav.history"), icon: History },
   ];
-  return (
+  try {
+    return (
     <DashboardShell title={t("cafeteria.dashboard.title")} navItems={navItems.filter((n) => n.to !== "/cafeteria")} showTrialCard>
       <div className="flex justify-between mb-6">
         <h1 className="text-2xl font-bold">{t("staff.title")}</h1>
@@ -200,5 +201,14 @@ function CafeStaff() {
         </DialogContent>
       </Dialog>
     </DashboardShell>
-  );
+    );
+  } catch (error) {
+    console.error("[cafeteria/staff] render failed", {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      refCode,
+      rows,
+    });
+    throw error;
+  }
 }
