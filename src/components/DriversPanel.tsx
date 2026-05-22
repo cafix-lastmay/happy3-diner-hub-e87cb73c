@@ -26,6 +26,9 @@ interface Row {
 }
 
 const allowedDriverStatuses = new Set(["available", "busy", "unavailable"]);
+const allowedVehicleTypes = new Set(["bicycle", "motorcycle", "car"]);
+const safeString = (value: unknown) => typeof value === "string" ? value : "";
+const safeNumber = (value: unknown) => Number.isFinite(Number(value)) ? Number(value) : 0;
 
 export function DriversPanel() {
   const { t } = useI18n();
@@ -38,10 +41,11 @@ export function DriversPanel() {
       ...r,
       scope: r.scope === "independent" ? "independent" : "staff",
       full_name: typeof r.full_name === "string" && r.full_name.trim() ? r.full_name : "—",
-      phone: r.phone ?? null,
-      vehicle_type: r.vehicle_type ?? null,
-      photo_url: r.photo_url ?? null,
+      phone: safeString(r.phone),
+      vehicle_type: allowedVehicleTypes.has(r.vehicle_type) ? r.vehicle_type : null,
+      photo_url: safeString(r.photo_url),
       status: allowedDriverStatuses.has(r.status) ? r.status : "unavailable",
+      rating_avg: safeNumber(r.rating_avg),
       kind: r.kind === "independent" ? "independent" : "staff",
       link_status: r.link_status === "pending" || r.link_status === "approved" || r.link_status === "rejected" ? r.link_status : null,
       requested_at: r.requested_at ?? null,
@@ -92,7 +96,7 @@ export function DriversPanel() {
         <div className="min-w-0">
           <div className="font-medium truncate">{r.full_name}</div>
           <div className="text-xs text-muted-foreground truncate">
-            {r.phone ?? ""} · {r.vehicle_type ? t(`driver.vehicle.${r.vehicle_type}`) : "—"} · <Badge variant="secondary">{t(`driver.status.${r.status}`)}</Badge>
+            {(r.phone || "—")} · {r.vehicle_type ? t(`driver.vehicle.${r.vehicle_type}`) : "—"} · <Badge variant="secondary">{t(`driver.status.${r.status}`)}</Badge>
           </div>
         </div>
       </div>
