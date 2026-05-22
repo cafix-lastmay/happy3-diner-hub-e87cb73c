@@ -24,6 +24,7 @@ export function CafeRecharge({ mode = "admin" }: { mode?: "admin" | "manager" })
   const [instructions, setInstructions] = useState<string>("");
   const [amountUsd, setAmountUsd] = useState("");
   const [exchangeRate, setExchangeRate] = useState("1");
+  const [pointsPerUsd, setPointsPerUsd] = useState<number>(200);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
