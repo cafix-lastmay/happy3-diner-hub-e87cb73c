@@ -18,22 +18,22 @@ interface Status {
   driver: { name: string; phone: string | null; photo_url: string | null; vehicle_type: string | null; rating_avg: number } | null;
 }
 
-export function CustomerDeliveryTracker({ orderId, shortCode, currency, onNewOrder }:
-  { orderId: string; shortCode: string | null; currency?: string | null; onNewOrder: () => void }) {
+export function CustomerDeliveryTracker({ orderId, shortCode, currency, customerPhone, onNewOrder }:
+  { orderId: string; shortCode: string | null; currency?: string | null; customerPhone?: string | null; onNewOrder: () => void }) {
   const { t } = useI18n();
   const [data, setData] = useState<Status | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     const tick = async () => {
-      const { data: row } = await supabase.rpc("get_delivery_order_status", { _order_id: orderId });
+      const { data: row } = await supabase.rpc("get_delivery_order_status", { _order_id: orderId, _customer_phone: customerPhone ?? null });
       if (cancelled || !row) return;
       setData(row as unknown as Status);
     };
     tick();
     const id = setInterval(tick, 5000);
     return () => { cancelled = true; clearInterval(id); };
-  }, [orderId]);
+  }, [orderId, customerPhone]);
 
   const etaText = (() => {
     if (!data?.eta_minutes || !data.responded_at) return null;
