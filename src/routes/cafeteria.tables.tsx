@@ -234,7 +234,8 @@ export function CafeTables({ mode = "admin" }: { mode?: "admin" | "manager" }) {
     return defaultTier;
   };
 
-  return (
+  try {
+    return (
     <DashboardShell title={t("cafeteria.dashboard.title")} navItems={navItems.filter((n) => n.to !== "/cafeteria")} showTrialCard>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">{t("tables.title")}</h1>
@@ -412,7 +413,23 @@ export function CafeTables({ mode = "admin" }: { mode?: "admin" | "manager" }) {
         />
       )}
     </DashboardShell>
-  );
+    );
+  } catch (error) {
+    console.error("[cafeteria/tables] render failed", {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      refCode,
+      sections,
+      tiers,
+      rows,
+      visibleRows,
+      selectedSectionId,
+      filterSectionId,
+      editing,
+      printing,
+    });
+    throw error;
+  }
 }
 
 function TableCard({
@@ -636,10 +653,11 @@ function PrintDialog({
     setGenerating(true);
     // Render each QR to canvas in hidden DOM, then read data URLs
     await new Promise((r) => requestAnimationFrame(() => r(null)));
+    const printableTables = targetTables.filter((tb) => tb.qr_token);
     const canvases = hiddenRef.current?.querySelectorAll("canvas") ?? [];
     const dataUrls: string[] = [];
     canvases.forEach((c) => dataUrls.push((c as HTMLCanvasElement).toDataURL("image/png")));
-    const items: QrPrintItem[] = targetTables.map((tb) => ({
+    const items: QrPrintItem[] = printableTables.map((tb) => ({
       label: tb.label,
       url: tb.qr_token ? orderUrl(tb.qr_token) : "",
       topText: tb.qr_top_text,
