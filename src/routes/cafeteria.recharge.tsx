@@ -50,6 +50,8 @@ export function CafeRecharge({ mode = "admin" }: { mode?: "admin" | "manager" })
     }
     supabase.from("recharge_instructions").select("body").order("updated_at", { ascending: false }).limit(1).maybeSingle()
       .then(({ data }) => { if (data?.body) setInstructions(data.body); });
+    supabase.from("app_settings").select("points_per_usd").maybeSingle()
+      .then(({ data }) => { const v = Number((data as { points_per_usd?: number | null } | null)?.points_per_usd); if (v && v > 0) setPointsPerUsd(v); });
   }, [ready, user, mode]);
 
   const submit = async (e?: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
