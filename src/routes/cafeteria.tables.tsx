@@ -641,7 +641,7 @@ function PrintDialog({
     canvases.forEach((c) => dataUrls.push((c as HTMLCanvasElement).toDataURL("image/png")));
     const items: QrPrintItem[] = targetTables.map((tb) => ({
       label: tb.label,
-      url: orderUrl(safeQrToken(tb)),
+      url: tb.qr_token ? orderUrl(tb.qr_token) : "",
       topText: tb.qr_top_text,
       bottomText: tb.qr_bottom_text,
       fontSize: tb.qr_font_size,
@@ -715,8 +715,8 @@ function PrintDialog({
 
         {/* Hidden canvases used to capture QR data URLs */}
         <div ref={hiddenRef} className="absolute -left-[9999px] top-0">
-          {targetTables.map((tb) => (
-            <QRCodeCanvas key={tb.id} value={orderUrl(safeQrToken(tb))} size={512} />
+          {targetTables.filter((tb) => tb.qr_token).map((tb) => (
+            <QRCodeCanvas key={tb.id} value={orderUrl(tb.qr_token)} size={512} />
           ))}
         </div>
       </DialogContent>
