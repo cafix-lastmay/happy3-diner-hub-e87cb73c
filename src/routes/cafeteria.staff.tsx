@@ -188,7 +188,7 @@ function CafeStaff() {
           <div className="space-y-3">
             <div>
               <Label>{t("staff.new_password")} *</Label>
-              <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••" />
+              <Input type="password" autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••" />
               <p className="text-xs text-muted-foreground mt-1">{t("staff.password_min")}</p>
             </div>
           </div>
