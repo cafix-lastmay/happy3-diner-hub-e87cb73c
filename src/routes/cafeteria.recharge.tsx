@@ -63,7 +63,7 @@ export function CafeRecharge({ mode = "admin" }: { mode?: "admin" | "manager" })
     setLoading(true);
     try {
       const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const path = `${user.id}/${Date.now()}-${safe}`;
+      const path = `${me.ref_code}/${user.id}/${Date.now()}-${safe}`;
       const { error: upErr } = await supabase.storage.from("recharge-receipts").upload(path, file);
       if (upErr) { toast.error(upErr.message); return; }
       const normalizedRate = exchangeRate.trim().replace(/,/g, ".");
