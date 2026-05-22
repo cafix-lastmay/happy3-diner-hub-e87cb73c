@@ -152,6 +152,7 @@ export const en = {
   "owner.nav.exchange_rates": "Exchange rates",
   "owner.nav.grace_periods": "Grace periods",
   "owner.nav.countries": "Countries & currencies",
+  "owner.nav.recharge_instructions": "Recharge instructions",
   "owner.create.marketer": "Add marketer",
   "owner.create.cafeteria": "Add cafeteria",
   "owner.rates.title": "Manage exchange rates",

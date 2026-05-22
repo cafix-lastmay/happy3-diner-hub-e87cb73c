@@ -157,6 +157,7 @@ export const ar = {
   "owner.nav.exchange_rates": "أسعار الصرف",
   "owner.nav.grace_periods": "فترات السماح",
   "owner.nav.countries": "الدول والعملات",
+  "owner.nav.recharge_instructions": "تعليمات الشحن",
   "owner.create.marketer": "إضافة مسوّق",
   "owner.create.cafeteria": "إضافة كافيتريا",
   "owner.rates.title": "إدارة أسعار الصرف",
