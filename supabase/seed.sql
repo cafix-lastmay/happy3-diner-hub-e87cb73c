@@ -289,13 +289,8 @@ insert into public.shifts (id, cafeteria_ref_code, staff_user_id, staff_role, st
 on conflict (id) do nothing;
 
 -- =====================================================================
--- DONE. Login credentials:
---   Owner:           yaserras@gmail.com         / Kamel123321$
---   Marketer:        marketer1@test.com         / test531970
---   Cafe Admin:      cafeadmin@test1.com        / test531970
---   Waiter:          waiter.test@cafeteria.com  / Test@123456
---   Chef (drinks):   chef2_caf1@test.com        / test531970
---   Chef (sweets):   chiefsweet@test1.com       / test531970
+-- DONE. All seed users share the placeholder password set by `v_default_pwd`
+-- ('ChangeMe!LocalDevOnly'). Do not commit real credentials to this file.
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
