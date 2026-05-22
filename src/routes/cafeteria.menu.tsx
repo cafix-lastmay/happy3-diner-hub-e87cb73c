@@ -467,7 +467,8 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
   const overridesForMode = overrides.filter((o) => o.mode === modeTab);
   const modeHasNoCustomization = !isDineIn && overridesForMode.length === 0;
 
-  return (
+  try {
+    return (
     <DashboardShell title={t("cafeteria.dashboard.title")} navItems={navItems.filter((n) => n.to !== "/cafeteria")} showTrialCard>
       <h1 className="text-2xl font-bold mb-4">{t("menu.title")}</h1>
 
@@ -752,5 +753,22 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
         </DialogContent>
       </Dialog>
     </DashboardShell>
-  );
+    );
+  } catch (error) {
+    console.error("[cafeteria/menu] render failed", {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      refCode,
+      cats,
+      items,
+      tiers,
+      overrides,
+      catVis,
+      cafeModes,
+      modeTab,
+      form,
+      itemDialog,
+    });
+    throw error;
+  }
 }
