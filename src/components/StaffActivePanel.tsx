@@ -22,6 +22,7 @@ interface StaffRow {
 }
 
 const isRole = (value: unknown): value is StaffRow["role"] => value === "manager" || value === "waiter" || value === "chef";
+const safeString = (value: unknown) => typeof value === "string" ? value : "";
 
 export function StaffActivePanel({ managerScope = false, cafeteriaRefCode }: { managerScope?: boolean; cafeteriaRefCode: string }) {
   const { t } = useI18n();
@@ -33,11 +34,11 @@ export function StaffActivePanel({ managerScope = false, cafeteriaRefCode }: { m
     if (error) { toast.error(error.message); return; }
     let list = (data ?? []).filter((r: any) => !!r?.staff_id && isRole(r.role)).map((r: any) => ({
       ...r,
-      user_id: r.user_id ?? "",
+      user_id: safeString(r.user_id),
       is_active: r.is_active !== false,
-      shift_enabled: !!r.shift_enabled,
-      email: r.email ?? null,
-      full_name: r.full_name ?? null,
+      shift_enabled: r.shift_enabled === true,
+      email: safeString(r.email),
+      full_name: safeString(r.full_name),
     })) as StaffRow[];
     if (managerScope) list = list.filter((r) => r.role !== "manager");
     setRows(list);
@@ -63,10 +64,10 @@ export function StaffActivePanel({ managerScope = false, cafeteriaRefCode }: { m
           {rows.map((r) => (
             <div key={r.staff_id} className="flex items-center justify-between border border-border rounded-md p-3 gap-3 flex-wrap">
               <div>
-                <div className="font-medium text-sm">{r.full_name ?? "—"}</div>
+                <div className="font-medium text-sm">{r.full_name || "—"}</div>
                 <div className="text-xs text-muted-foreground flex gap-2 mt-1 items-center flex-wrap">
                   <Badge variant="outline">{t(`staff.role.${r.role}`)}</Badge>
-                  <span>{r.email ?? "—"}</span>
+                  <span>{r.email || "—"}</span>
                 </div>
               </div>
               <div className="flex items-center gap-3 flex-wrap">
@@ -90,7 +91,7 @@ export function StaffActivePanel({ managerScope = false, cafeteriaRefCode }: { m
           open={!!scopeTarget}
           onOpenChange={(o) => { if (!o) setScopeTarget(null); }}
           staffId={scopeTarget.staff_id}
-          staffName={scopeTarget.full_name ?? "—"}
+          staffName={scopeTarget.full_name || "—"}
           role={scopeTarget.role}
           cafeteriaRefCode={cafeteriaRefCode}
         />
