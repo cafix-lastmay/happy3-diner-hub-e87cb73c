@@ -105,20 +105,22 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
     if (mode === "manager") {
       supabase.from("staff").select("cafeteria_ref_code").eq("user_id", user.id).eq("role", "manager").eq("is_active", true).maybeSingle()
         .then(({ data }) => {
-          if (data) {
-            setRefCode(data.cafeteria_ref_code);
-            load(data.cafeteria_ref_code);
+          const rc = safeText(data?.cafeteria_ref_code);
+          if (rc) {
+            setRefCode(rc);
+            load(rc);
             supabase.from("cafeterias").select("banner_url,mode_dine_in,mode_takeaway,mode_delivery,delivery_fee_a_name,delivery_fee_a_amount,delivery_fee_b_name,delivery_fee_b_amount,delivery_fee_c_name,delivery_fee_c_amount,estimated_delivery_minutes,currency_code").eq("ref_code", data.cafeteria_ref_code).maybeSingle()
-              .then(({ data: c }) => { if (c) { setBannerUrl(c.banner_url ?? null); setCafeModes(c as CafeModes); } });
+              .then(({ data: c }) => { if (c) { setBannerUrl(safeImageUrl(c.banner_url) || null); setCafeModes(safeCafeModes(c)); } });
           }
         });
     } else {
       supabase.from("cafeterias").select("ref_code,banner_url,mode_dine_in,mode_takeaway,mode_delivery,delivery_fee_a_name,delivery_fee_a_amount,delivery_fee_b_name,delivery_fee_b_amount,delivery_fee_c_name,delivery_fee_c_amount,estimated_delivery_minutes,currency_code").eq("user_id", user.id).maybeSingle().then(({ data }) => {
-        if (data) {
-          setRefCode(data.ref_code);
-          setBannerUrl(data.banner_url ?? null);
-          setCafeModes(data as CafeModes);
-          load(data.ref_code);
+        const rc = safeText(data?.ref_code);
+        if (rc) {
+          setRefCode(rc);
+          setBannerUrl(safeImageUrl(data?.banner_url) || null);
+          setCafeModes(safeCafeModes(data));
+          load(rc);
         }
       });
     }
