@@ -377,7 +377,7 @@ export function CafeTables({ mode = "admin" }: { mode?: "admin" | "manager" }) {
                 sectionName={sec?.name}
                 tierName={tier?.name}
                 tierIsDefault={!sec?.price_tier_id && !!tier}
-                url={orderUrl(safeQrToken(tb))}
+                url={tb.qr_token ? orderUrl(tb.qr_token) : ""}
                 onDelete={() => delTable(tb.id)}
                 onEdit={() => setEditing(tb)}
                 onPrintOne={() => setPrinting({ scope: "one", tableId: tb.id })}
@@ -468,20 +468,26 @@ function TableCard({
           {tb.qr_top_text}
         </div>
       )}
-      <div ref={ref} className="mb-2 flex justify-center rounded bg-white p-3">
-        <QRCodeCanvas value={url} size={160} />
-      </div>
+      {url ? (
+        <div ref={ref} className="mb-2 flex justify-center rounded bg-white p-3">
+          <QRCodeCanvas value={url} size={160} />
+        </div>
+      ) : (
+        <div className="mb-2 rounded border border-dashed border-border p-6 text-xs text-muted-foreground">
+          {t("tables.qr.missing")}
+        </div>
+      )}
       {tb.qr_bottom_text && (
         <div className="mb-2 text-xs text-foreground/80" dir="auto">
           {tb.qr_bottom_text}
         </div>
       )}
-      <p className="mb-3 break-all text-xs text-muted-foreground">{url}</p>
+      <p className="mb-3 break-all text-xs text-muted-foreground">{url || "—"}</p>
       <div className="flex flex-wrap justify-center gap-2">
-        <Button size="sm" variant="outline" onClick={copy} aria-label="copy">
+        <Button size="sm" variant="outline" onClick={copy} aria-label="copy" disabled={!url}>
           <Copy className="h-3 w-3" />
         </Button>
-        <Button size="sm" variant="outline" onClick={download} aria-label="download">
+        <Button size="sm" variant="outline" onClick={download} aria-label="download" disabled={!url}>
           <Download className="h-3 w-3" />
         </Button>
         <Button size="sm" variant="outline" onClick={onEdit}>
