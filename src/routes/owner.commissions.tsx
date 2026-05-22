@@ -104,7 +104,12 @@ function OwnerGeneralSettings() {
 
   if (!ready) return null;
   const navItems = ownerNavItems(t);
-  const labels = ["owner.rate.parent", "owner.rate.grandparent", "owner.rate.greatgrandparent"];
+  const labels: Record<number, string> = {
+    1: "owner.rate.parent",
+    2: "owner.rate.grandparent",
+    3: "owner.rate.greatgrandparent",
+    4: "owner.rate.level4",
+  };
 
   return (
     <DashboardShell title={t("owner.dashboard.title")} navItems={navItems}>
@@ -114,15 +119,18 @@ function OwnerGeneralSettings() {
       <div className="grid gap-6 md:grid-cols-2 mb-6">
         <Card className="p-6 space-y-4">
           <h2 className="font-semibold">{t("owner.commission_rates")}</h2>
-          {rates.map((r, i) => (
+          {rates.map((r) => (
             <div key={r.level_distance} className="space-y-2">
-              <Label>{t(labels[i])} (%)</Label>
+              <Label>{t(labels[r.level_distance] ?? "owner.rate.parent")} (%)</Label>
               <Input type="number" step="0.01" min="0" max="100" value={r.percentage} onChange={(e) => {
                 const v = Number(e.target.value);
                 setRates(rates.map((x) => x.level_distance === r.level_distance ? { ...x, percentage: v } : x));
               }} />
             </div>
           ))}
+          {rates.length === 0 && (
+            <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
+          )}
           <Button onClick={saveRates} disabled={busy} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("common.save")}</Button>
         </Card>
 

@@ -19,44 +19,66 @@ export const Route = createFileRoute("/owner/settings")({ component: OwnerSettin
 interface AppSettings {
   default_trial_days: number;
   max_driver_radius_km: number;
+  points_per_usd: number;
   footer_banner_enabled: boolean;
   footer_banner_text: string | null;
   footer_banner_cta_text: string | null;
   footer_banner_url: string | null;
 }
 
+const DEFAULT_SETTINGS: AppSettings = {
+  default_trial_days: 21,
+  max_driver_radius_km: 15,
+  points_per_usd: 200,
+  footer_banner_enabled: false,
+  footer_banner_text: "",
+  footer_banner_cta_text: "",
+  footer_banner_url: "",
+};
+
 function OwnerSettings() {
   const { t } = useI18n();
   const { ready } = useRequireRole("owner");
-  const [s, setS] = useState<AppSettings | null>(null);
+  const [s, setS] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
     const { data } = await supabase.from("app_settings").select("*").maybeSingle();
-    if (data) setS(data as AppSettings);
+    if (data) {
+      setS({
+        default_trial_days: Number(data.default_trial_days ?? 21),
+        max_driver_radius_km: Number((data as { max_driver_radius_km?: number | null }).max_driver_radius_km ?? 15),
+        points_per_usd: Number((data as { points_per_usd?: number | null }).points_per_usd ?? 200),
+        footer_banner_enabled: !!data.footer_banner_enabled,
+        footer_banner_text: data.footer_banner_text ?? "",
+        footer_banner_cta_text: data.footer_banner_cta_text ?? "",
+        footer_banner_url: data.footer_banner_url ?? "",
+      });
+    }
   };
   useEffect(() => { if (ready) load(); }, [ready]);
 
   const save = async () => {
-    if (!s) return;
     setBusy(true);
     const { data: u } = await supabase.auth.getUser();
-    const { error } = await supabase.from("app_settings").update({
+    const { error } = await supabase.from("app_settings").upsert({
+      id: true,
       default_trial_days: s.default_trial_days,
       max_driver_radius_km: s.max_driver_radius_km,
+      points_per_usd: s.points_per_usd,
       footer_banner_enabled: s.footer_banner_enabled,
       footer_banner_text: s.footer_banner_text,
       footer_banner_cta_text: s.footer_banner_cta_text,
       footer_banner_url: s.footer_banner_url,
       updated_by: u?.user?.id,
       updated_at: new Date().toISOString(),
-    }).eq("id", true);
+    });
     setBusy(false);
     if (error) { toast.error(error.message); return; }
     toast.success(t("common.success"));
   };
 
-  if (!ready || !s) return null;
+  if (!ready) return null;
   return (
     <DashboardShell title={t("owner.dashboard.title")} navItems={ownerNavItems(t)}>
       <h1 className="text-2xl font-bold mb-6">{t("owner.settings.title")}</h1>
@@ -73,6 +95,11 @@ function OwnerSettings() {
             <Label>{t("owner.settings.driver_radius")}</Label>
             <Input type="number" min="1" max="200" value={s.max_driver_radius_km} onChange={(e) => setS({ ...s, max_driver_radius_km: Number(e.target.value) })} />
             <p className="text-xs text-muted-foreground">{t("owner.settings.driver_radius_desc")}</p>
+          </div>
+          <div className="space-y-1 sm:col-span-2">
+            <Label>{t("owner.settings.points_per_usd")}</Label>
+            <Input type="number" min="1" step="1" value={s.points_per_usd} onChange={(e) => setS({ ...s, points_per_usd: Number(e.target.value) })} />
+            <p className="text-xs text-muted-foreground">{t("owner.settings.points_per_usd_desc")}</p>
           </div>
         </div>
       </Card>

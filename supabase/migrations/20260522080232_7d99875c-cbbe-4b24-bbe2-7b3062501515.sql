@@ -1,0 +1,2 @@
+ALTER TABLE public.commission_rates DROP CONSTRAINT IF EXISTS commission_rates_level_distance_check;
+ALTER TABLE public.commission_rates ADD CONSTRAINT commission_rates_level_distance_check CHECK (level_distance >= 1 AND level_distance <= 4);
