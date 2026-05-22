@@ -24,6 +24,7 @@ export function CafeRecharge({ mode = "admin" }: { mode?: "admin" | "manager" })
   const [instructions, setInstructions] = useState<string>("");
   const [amountUsd, setAmountUsd] = useState("");
   const [exchangeRate, setExchangeRate] = useState("1");
+  const [pointsPerUsd, setPointsPerUsd] = useState<number>(200);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -49,6 +50,8 @@ export function CafeRecharge({ mode = "admin" }: { mode?: "admin" | "manager" })
     }
     supabase.from("recharge_instructions").select("body").order("updated_at", { ascending: false }).limit(1).maybeSingle()
       .then(({ data }) => { if (data?.body) setInstructions(data.body); });
+    supabase.from("app_settings").select("points_per_usd").maybeSingle()
+      .then(({ data }) => { const v = Number((data as { points_per_usd?: number | null } | null)?.points_per_usd); if (v && v > 0) setPointsPerUsd(v); });
   }, [ready, user, mode]);
 
   const submit = async (e?: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
@@ -69,7 +72,7 @@ export function CafeRecharge({ mode = "admin" }: { mode?: "admin" | "manager" })
       const normalizedRate = exchangeRate.trim().replace(/,/g, ".");
       const rate = Number(normalizedRate);
       const safeRate = Number.isNaN(rate) || rate <= 0 ? 1 : rate;
-      const points = amt * safeRate;
+      const points = Math.round(amt * safeRate * pointsPerUsd);
       const { error } = await supabase.from("recharge_requests").insert({
         cafeteria_ref_code: me.ref_code, amount_usd: amt, exchange_rate_to_usd: safeRate,
         points_to_credit: points, local_currency: me.currency_code ?? "USD", receipt_url: path,
@@ -111,7 +114,7 @@ export function CafeRecharge({ mode = "admin" }: { mode?: "admin" | "manager" })
           <div className="space-y-2">
             <Label>{t("cafeteria.recharge.exchange_rate")} (1 USD = ? {me?.currency_code})</Label>
             <Input type="text" inputMode="decimal" autoComplete="off" spellCheck={false} value={exchangeRate} onChange={(e) => setExchangeRate(e.target.value)} />
-            <p className="text-xs text-muted-foreground">{t("cafeteria.recharge.points_to_credit")}: {(Number(amountUsd || 0) * Number(exchangeRate || 1)).toFixed(2)} {me?.currency_code}</p>
+            <p className="text-xs text-muted-foreground">{t("cafeteria.recharge.points_to_credit")}: {Math.round(Number(amountUsd || 0) * Number(exchangeRate || 1) * pointsPerUsd)} {me?.currency_code}</p>
           </div>
           <div className="space-y-2">
             <Label>{t("cafeteria.recharge.receipt")} *</Label>
