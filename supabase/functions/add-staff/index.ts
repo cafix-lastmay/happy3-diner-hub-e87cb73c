@@ -56,6 +56,12 @@ Deno.serve(async (req) => {
     if (createErr) throw createErr;
     const newUserId = created.user!.id;
 
+    // Defensive: ensure profile row exists (in addition to on_auth_user_created trigger)
+    await admin.from("profiles").upsert(
+      { id: newUserId, full_name: body.full_name, email: body.email },
+      { onConflict: "id" }
+    );
+
     if (body.role === "driver") {
       const { error: dErr } = await admin.from("drivers").insert({
         user_id: newUserId,
