@@ -1,5 +1,5 @@
 // Generic React error boundary to prevent UI-wide crashes.
-import { Component, type ReactNode } from "react";
+import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 
@@ -13,8 +13,14 @@ export class ErrorBoundary extends Component<Props, State> {
     return { error };
   }
 
-  componentDidCatch(error: Error, info: unknown) {
-    console.error("ErrorBoundary caught", error, info);
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("[ErrorBoundary] caught render error", {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      componentStack: info.componentStack,
+      error,
+    });
   }
 
   reset = () => this.setState({ error: null });

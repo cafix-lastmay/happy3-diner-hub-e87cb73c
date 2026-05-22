@@ -14,6 +14,9 @@ interface Row {
   paid_count: number; last_settled_at: string | null;
 }
 
+const safeString = (value: unknown) => typeof value === "string" ? value : "";
+const safeNumber = (value: unknown) => Number.isFinite(Number(value)) ? Number(value) : 0;
+
 export function SettlementsPanel() {
   const { t } = useI18n();
   const [rows, setRows] = useState<Row[]>([]);
@@ -22,7 +25,17 @@ export function SettlementsPanel() {
   const load = async () => {
     const { data, error } = await supabase.rpc("get_cafe_driver_settlements");
     if (error) { toast.error(error.message); return; }
-    setRows((data ?? []) as unknown as Row[]);
+    setRows((data ?? []).filter((r: any) => !!r?.driver_id).map((r: any) => ({
+      driver_id: safeString(r.driver_id),
+      driver_name: safeString(r.driver_name),
+      driver_phone: safeString(r.driver_phone),
+      driver_photo: safeString(r.driver_photo),
+      pending_count: safeNumber(r.pending_count),
+      pending_owed_to_cafe: safeNumber(r.pending_owed_to_cafe),
+      pending_owed_to_driver: safeNumber(r.pending_owed_to_driver),
+      paid_count: safeNumber(r.paid_count),
+      last_settled_at: safeString(r.last_settled_at),
+    })) as Row[]);
   };
 
   useEffect(() => {
@@ -69,7 +82,7 @@ export function SettlementsPanel() {
                 ? <img src={r.driver_photo} alt="" className="h-10 w-10 rounded-full object-cover" />
                 : <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Bike className="h-4 w-4" /></div>}
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">{r.driver_name}</div>
+                <div className="text-sm font-medium truncate">{r.driver_name || "—"}</div>
                 <div className="text-[11px] text-muted-foreground flex items-center gap-2 flex-wrap">
                   <span>{t("settlements.pending_count")}: <b>{r.pending_count}</b></span>
                   <span>{t("settlements.owed_cafe")}: <b className="text-destructive">{Number(r.pending_owed_to_cafe).toFixed(2)}</b></span>

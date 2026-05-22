@@ -24,6 +24,7 @@ type StaffRole = "waiter" | "chef" | "manager" | "driver";
 interface S { id: string; user_id: string; role: StaffRole; is_active: boolean; created_at: string; email?: string; full_name?: string }
 
 const isStaffRole = (value: unknown): value is StaffRole => ["waiter", "chef", "manager", "driver"].includes(String(value));
+const safeString = (value: unknown) => typeof value === "string" ? value : "";
 
 function CafeStaff() {
   const { t } = useI18n();
@@ -43,12 +44,12 @@ function CafeStaff() {
     if (error) { toast.error(error.message); setRows([]); return; }
     setRows((data ?? []).filter((r: any) => !!r?.staff_id && isStaffRole(r.role)).map((r: any) => ({
       id: r.staff_id,
-      user_id: r.user_id ?? "",
+      user_id: safeString(r.user_id),
       role: r.role,
       is_active: r.is_active !== false,
-      created_at: r.created_at ?? "",
-      email: r.email ?? "—",
-      full_name: r.full_name ?? "—",
+      created_at: safeString(r.created_at),
+      email: safeString(r.email),
+      full_name: safeString(r.full_name),
     })) as S[]);
   };
   useEffect(() => {
@@ -96,7 +97,8 @@ function CafeStaff() {
     { to: "/cafeteria/recharge", label: t("cafeteria.nav.recharge"), icon: Wallet },
     { to: "/cafeteria/history", label: t("cafeteria.nav.history"), icon: History },
   ];
-  return (
+  try {
+    return (
     <DashboardShell title={t("cafeteria.dashboard.title")} navItems={navItems.filter((n) => n.to !== "/cafeteria")} showTrialCard>
       <div className="flex justify-between mb-6">
         <h1 className="text-2xl font-bold">{t("staff.title")}</h1>
@@ -121,10 +123,10 @@ function CafeStaff() {
               <th className="p-3 text-start">{t("common.status")}</th>
               <th className="p-3 text-start">{t("common.actions")}</th>
             </tr></thead>
-            <tbody>{rows.map((s) => (
+          <tbody>{rows.map((s) => (
               <tr key={s.id} className="border-t border-border">
-                <td className="p-3">{s.full_name}</td>
-                <td className="p-3">{s.email}</td>
+                <td className="p-3">{s.full_name || "—"}</td>
+                <td className="p-3">{s.email || "—"}</td>
                 <td className="p-3"><Badge>{t(`staff.role.${s.role}`)}</Badge></td>
                 <td className="p-3"><Badge variant={s.is_active ? "default" : "secondary"}>{s.is_active ? "✓" : "✗"}</Badge></td>
                 <td className="p-3">
@@ -199,5 +201,14 @@ function CafeStaff() {
         </DialogContent>
       </Dialog>
     </DashboardShell>
-  );
+    );
+  } catch (error) {
+    console.error("[cafeteria/staff] render failed", {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      refCode,
+      rows,
+    });
+    throw error;
+  }
 }

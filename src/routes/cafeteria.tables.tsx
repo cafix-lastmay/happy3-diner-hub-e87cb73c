@@ -61,18 +61,17 @@ interface Tier {
 interface Tbl {
   id: string;
   label: string;
-  qr_token: string | null;
+  qr_token: string;
   is_active: boolean;
   section_id: string | null;
-  qr_top_text: string | null;
-  qr_bottom_text: string | null;
-  qr_text_language: string | null;
-  qr_font_size: number | null;
+  qr_top_text: string;
+  qr_bottom_text: string;
+  qr_text_language: string;
+  qr_font_size: number;
 }
 
-const safeText = (value: unknown, fallback = "—") => typeof value === "string" && value.trim() ? value.trim() : fallback;
+const safeText = (value: unknown, fallback = "") => typeof value === "string" && value.trim() ? value.trim() : fallback;
 const safeNumber = (value: unknown, fallback: number) => Number.isFinite(Number(value)) ? Number(value) : fallback;
-const safeQrToken = (tb: Pick<Tbl, "id" | "qr_token">) => tb.qr_token || `missing-${tb.id}`;
 
 export function CafeTables({ mode = "admin" }: { mode?: "admin" | "manager" }) {
   const { t } = useI18n();
@@ -95,8 +94,8 @@ export function CafeTables({ mode = "admin" }: { mode?: "admin" | "manager" }) {
       supabase.from("restaurant_tables").select("*").eq("cafeteria_ref_code", rc).order("created_at"),
       supabase.from("price_tiers").select("id,name,is_default").eq("cafeteria_ref_code", rc).eq("is_active", true).order("sort_order"),
     ]);
-    setSections((secRes.data ?? []).filter((s: any) => !!s?.id).map((s: any) => ({ ...s, name: safeText(s.name), sort_order: safeNumber(s.sort_order, 0), is_active: s.is_active !== false })) as Section[]);
-    setRows((tblRes.data ?? []).filter((r: any) => !!r?.id).map((r: any) => ({ ...r, label: safeText(r.label, t("tables.label")), qr_token: typeof r.qr_token === "string" && r.qr_token.trim() ? r.qr_token.trim() : null, section_id: r.section_id ?? null, qr_text_language: r.qr_text_language === "en" ? "en" : "ar", qr_font_size: safeNumber(r.qr_font_size, 14) })) as Tbl[]);
+    setSections((secRes.data ?? []).filter((s: any) => !!s?.id).map((s: any) => ({ ...s, name: safeText(s.name), sort_order: safeNumber(s.sort_order, 0), is_active: s.is_active === true, price_tier_id: safeText(s.price_tier_id) || null })) as Section[]);
+    setRows((tblRes.data ?? []).filter((r: any) => !!r?.id).map((r: any) => ({ ...r, label: safeText(r.label, t("tables.label")), qr_token: safeText(r.qr_token), is_active: r.is_active === true, section_id: safeText(r.section_id) || null, qr_top_text: safeText(r.qr_top_text), qr_bottom_text: safeText(r.qr_bottom_text), qr_text_language: r.qr_text_language === "en" ? "en" : "ar", qr_font_size: safeNumber(r.qr_font_size, 14) })) as Tbl[]);
     setTiers((tierRes.data ?? []).filter((tt: any) => !!tt?.id).map((tt: any) => ({ ...tt, name: safeText(tt.name), is_default: !!tt.is_default })) as Tier[]);
   };
 
@@ -235,7 +234,8 @@ export function CafeTables({ mode = "admin" }: { mode?: "admin" | "manager" }) {
     return defaultTier;
   };
 
-  return (
+  try {
+    return (
     <DashboardShell title={t("cafeteria.dashboard.title")} navItems={navItems.filter((n) => n.to !== "/cafeteria")} showTrialCard>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">{t("tables.title")}</h1>
@@ -378,7 +378,7 @@ export function CafeTables({ mode = "admin" }: { mode?: "admin" | "manager" }) {
                 sectionName={sec?.name}
                 tierName={tier?.name}
                 tierIsDefault={!sec?.price_tier_id && !!tier}
-                url={orderUrl(safeQrToken(tb))}
+                url={tb.qr_token ? orderUrl(tb.qr_token) : ""}
                 onDelete={() => delTable(tb.id)}
                 onEdit={() => setEditing(tb)}
                 onPrintOne={() => setPrinting({ scope: "one", tableId: tb.id })}
@@ -413,7 +413,23 @@ export function CafeTables({ mode = "admin" }: { mode?: "admin" | "manager" }) {
         />
       )}
     </DashboardShell>
-  );
+    );
+  } catch (error) {
+    console.error("[cafeteria/tables] render failed", {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      refCode,
+      sections,
+      tiers,
+      rows,
+      visibleRows,
+      selectedSectionId,
+      filterSectionId,
+      editing,
+      printing,
+    });
+    throw error;
+  }
 }
 
 function TableCard({
@@ -469,20 +485,26 @@ function TableCard({
           {tb.qr_top_text}
         </div>
       )}
-      <div ref={ref} className="mb-2 flex justify-center rounded bg-white p-3">
-        <QRCodeCanvas value={url} size={160} />
-      </div>
+      {url ? (
+        <div ref={ref} className="mb-2 flex justify-center rounded bg-white p-3">
+          <QRCodeCanvas value={url} size={160} />
+        </div>
+      ) : (
+        <div className="mb-2 rounded border border-dashed border-border p-6 text-xs text-muted-foreground">
+          {t("tables.qr.missing")}
+        </div>
+      )}
       {tb.qr_bottom_text && (
         <div className="mb-2 text-xs text-foreground/80" dir="auto">
           {tb.qr_bottom_text}
         </div>
       )}
-      <p className="mb-3 break-all text-xs text-muted-foreground">{url}</p>
+      <p className="mb-3 break-all text-xs text-muted-foreground">{url || "—"}</p>
       <div className="flex flex-wrap justify-center gap-2">
-        <Button size="sm" variant="outline" onClick={copy} aria-label="copy">
+        <Button size="sm" variant="outline" onClick={copy} aria-label="copy" disabled={!url}>
           <Copy className="h-3 w-3" />
         </Button>
-        <Button size="sm" variant="outline" onClick={download} aria-label="download">
+        <Button size="sm" variant="outline" onClick={download} aria-label="download" disabled={!url}>
           <Download className="h-3 w-3" />
         </Button>
         <Button size="sm" variant="outline" onClick={onEdit}>
@@ -631,12 +653,13 @@ function PrintDialog({
     setGenerating(true);
     // Render each QR to canvas in hidden DOM, then read data URLs
     await new Promise((r) => requestAnimationFrame(() => r(null)));
+    const printableTables = targetTables.filter((tb) => tb.qr_token);
     const canvases = hiddenRef.current?.querySelectorAll("canvas") ?? [];
     const dataUrls: string[] = [];
     canvases.forEach((c) => dataUrls.push((c as HTMLCanvasElement).toDataURL("image/png")));
-    const items: QrPrintItem[] = targetTables.map((tb) => ({
+    const items: QrPrintItem[] = printableTables.map((tb) => ({
       label: tb.label,
-      url: orderUrl(safeQrToken(tb)),
+      url: tb.qr_token ? orderUrl(tb.qr_token) : "",
       topText: tb.qr_top_text,
       bottomText: tb.qr_bottom_text,
       fontSize: tb.qr_font_size,
@@ -710,8 +733,8 @@ function PrintDialog({
 
         {/* Hidden canvases used to capture QR data URLs */}
         <div ref={hiddenRef} className="absolute -left-[9999px] top-0">
-          {targetTables.map((tb) => (
-            <QRCodeCanvas key={tb.id} value={orderUrl(safeQrToken(tb))} size={512} />
+          {targetTables.filter((tb) => tb.qr_token).map((tb) => (
+            <QRCodeCanvas key={tb.id} value={orderUrl(tb.qr_token)} size={512} />
           ))}
         </div>
       </DialogContent>
