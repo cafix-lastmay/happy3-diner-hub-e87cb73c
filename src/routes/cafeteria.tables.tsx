@@ -61,18 +61,17 @@ interface Tier {
 interface Tbl {
   id: string;
   label: string;
-  qr_token: string | null;
+  qr_token: string;
   is_active: boolean;
   section_id: string | null;
-  qr_top_text: string | null;
-  qr_bottom_text: string | null;
-  qr_text_language: string | null;
-  qr_font_size: number | null;
+  qr_top_text: string;
+  qr_bottom_text: string;
+  qr_text_language: string;
+  qr_font_size: number;
 }
 
-const safeText = (value: unknown, fallback = "—") => typeof value === "string" && value.trim() ? value.trim() : fallback;
+const safeText = (value: unknown, fallback = "") => typeof value === "string" && value.trim() ? value.trim() : fallback;
 const safeNumber = (value: unknown, fallback: number) => Number.isFinite(Number(value)) ? Number(value) : fallback;
-const safeQrToken = (tb: Pick<Tbl, "id" | "qr_token">) => tb.qr_token || `missing-${tb.id}`;
 
 export function CafeTables({ mode = "admin" }: { mode?: "admin" | "manager" }) {
   const { t } = useI18n();
@@ -95,8 +94,8 @@ export function CafeTables({ mode = "admin" }: { mode?: "admin" | "manager" }) {
       supabase.from("restaurant_tables").select("*").eq("cafeteria_ref_code", rc).order("created_at"),
       supabase.from("price_tiers").select("id,name,is_default").eq("cafeteria_ref_code", rc).eq("is_active", true).order("sort_order"),
     ]);
-    setSections((secRes.data ?? []).filter((s: any) => !!s?.id).map((s: any) => ({ ...s, name: safeText(s.name), sort_order: safeNumber(s.sort_order, 0), is_active: s.is_active !== false })) as Section[]);
-    setRows((tblRes.data ?? []).filter((r: any) => !!r?.id).map((r: any) => ({ ...r, label: safeText(r.label, t("tables.label")), qr_token: typeof r.qr_token === "string" && r.qr_token.trim() ? r.qr_token.trim() : null, section_id: r.section_id ?? null, qr_text_language: r.qr_text_language === "en" ? "en" : "ar", qr_font_size: safeNumber(r.qr_font_size, 14) })) as Tbl[]);
+    setSections((secRes.data ?? []).filter((s: any) => !!s?.id).map((s: any) => ({ ...s, name: safeText(s.name), sort_order: safeNumber(s.sort_order, 0), is_active: s.is_active === true, price_tier_id: safeText(s.price_tier_id) || null })) as Section[]);
+    setRows((tblRes.data ?? []).filter((r: any) => !!r?.id).map((r: any) => ({ ...r, label: safeText(r.label, t("tables.label")), qr_token: safeText(r.qr_token), is_active: r.is_active === true, section_id: safeText(r.section_id) || null, qr_top_text: safeText(r.qr_top_text), qr_bottom_text: safeText(r.qr_bottom_text), qr_text_language: r.qr_text_language === "en" ? "en" : "ar", qr_font_size: safeNumber(r.qr_font_size, 14) })) as Tbl[]);
     setTiers((tierRes.data ?? []).filter((tt: any) => !!tt?.id).map((tt: any) => ({ ...tt, name: safeText(tt.name), is_default: !!tt.is_default })) as Tier[]);
   };
 
