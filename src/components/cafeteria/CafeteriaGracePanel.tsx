@@ -5,9 +5,10 @@
 //
 // Uses postgres_changes realtime so the moment a recharge clears the grace,
 // the banner/block screen disappears without a manual refresh.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { AlertTriangle, Ban, Wallet } from "lucide-react";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,28 +26,48 @@ const GRACE_HOURS = 72;
 function useGrace() {
   const { user, refCode } = useAuth();
   const [row, setRow] = useState<GraceRow | null>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
     const load = () => {
       supabase
         .from("cafeterias")
         .select("grace_period_active, grace_period_started_at, points_balance")
         .eq("user_id", user.id)
         .maybeSingle()
-        .then(({ data }) => { if (data) setRow(data as GraceRow); });
+        .then(({ data }) => { if (!cancelled && data) setRow(data as GraceRow); });
     };
     load();
-    if (!refCode) return;
-    const ch = supabase
-      .channel(`cafe-grace-${refCode}`)
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "cafeterias", filter: `ref_code=eq.${refCode}` },
-        () => load(),
-      )
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    if (!refCode) return () => { cancelled = true; };
+
+    // Guard against duplicate channel creation on re-renders.
+    if (channelRef.current) return () => { cancelled = true; };
+
+    // Unique suffix avoids Supabase v2 topic-dedup conflict when this hook
+    // is mounted twice on the same page (banner + block gate). Sharing a
+    // topic returns the same channel instance, and calling .on() on a
+    // channel that has already been .subscribe()'d throws.
+    const uniqueSuffix = Math.random().toString(36).slice(2, 10);
+    const channel = supabase.channel(`cafe-grace-${refCode}-${uniqueSuffix}`);
+
+    // CRITICAL: register all .on() listeners BEFORE .subscribe().
+    channel.on(
+      "postgres_changes",
+      { event: "UPDATE", schema: "public", table: "cafeterias", filter: `ref_code=eq.${refCode}` },
+      () => load(),
+    );
+    channel.subscribe();
+    channelRef.current = channel;
+
+    return () => {
+      cancelled = true;
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
+    };
   }, [user, refCode]);
 
   return row;
