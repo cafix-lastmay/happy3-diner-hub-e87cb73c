@@ -78,7 +78,7 @@ export function CreateChildDialog({ entityType, trigger, onDone }: Props) {
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1"><Label>{t("common.name")} *</Label><Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
             <div className="space-y-1"><Label>{t("common.email")} *</Label><Input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
-            <div className="space-y-1 sm:col-span-2"><Label>{t("common.password")} *</Label><Input type="text" required minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder={t("staff.password_min")} /></div>
+            <div className="space-y-1 sm:col-span-2"><Label>{t("common.password")} *</Label><Input type="password" autoComplete="new-password" required minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder={t("staff.password_min")} /></div>
 
             <div className="space-y-1">
               <Label>{t("common.country")} *</Label>
