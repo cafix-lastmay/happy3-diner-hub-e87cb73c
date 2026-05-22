@@ -1965,15 +1965,13 @@ export type Database = {
           driver_rated: boolean
         }[]
       }
-      get_menu_for_qr:
-        | { Args: { _qr_token: string }; Returns: Json }
-        | {
-            Args: {
-              _mode?: Database["public"]["Enums"]["order_mode"]
-              _qr_token: string
-            }
-            Returns: Json
-          }
+      get_menu_for_qr: {
+        Args: {
+          _mode?: Database["public"]["Enums"]["order_mode"]
+          _qr_token: string
+        }
+        Returns: Json
+      }
       get_my_active_deliveries: {
         Args: never
         Returns: {
