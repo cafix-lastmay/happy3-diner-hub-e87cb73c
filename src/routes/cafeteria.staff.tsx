@@ -145,7 +145,7 @@ function CafeStaff() {
           <div className="space-y-3">
             <div><Label>{t("staff.full_name")} *</Label><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></div>
             <div><Label>{t("common.email")} *</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
-            <div><Label>{t("staff.temp_password")} *</Label><Input type="text" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></div>
+            <div><Label>{t("staff.temp_password")} *</Label><Input type="password" autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></div>
             <div>
               <Label>{t("common.role")}</Label>
               <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v as StaffRole })}>
@@ -188,7 +188,7 @@ function CafeStaff() {
           <div className="space-y-3">
             <div>
               <Label>{t("staff.new_password")} *</Label>
-              <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••" />
+              <Input type="password" autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••" />
               <p className="text-xs text-muted-foreground mt-1">{t("staff.password_min")}</p>
             </div>
           </div>

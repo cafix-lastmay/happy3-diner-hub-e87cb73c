@@ -95,7 +95,7 @@ on conflict (user_id, role) do nothing;
 -- 3) PROFILES
 -- ---------------------------------------------------------------------
 insert into public.profiles (id, full_name, email, language) values
-  ('00000000-0000-0000-0000-000000000001', 'Platform Owner',   'yaserras@gmail.com',         'ar'),
+  ('00000000-0000-0000-0000-000000000001', 'Platform Owner',   'owner.local@example.invalid', 'ar'),
   ('00000000-0000-0000-0000-000000000002', 'Marketer One',     'marketer1@test.com',         'ar'),
   ('00000000-0000-0000-0000-000000000003', 'Cafe Admin',       'cafeadmin@test1.com',        'ar'),
   ('00000000-0000-0000-0000-000000000004', 'Waiter Test',      'waiter.test@cafeteria.com',  'ar'),
@@ -289,13 +289,8 @@ insert into public.shifts (id, cafeteria_ref_code, staff_user_id, staff_role, st
 on conflict (id) do nothing;
 
 -- =====================================================================
--- DONE. Login credentials:
---   Owner:           yaserras@gmail.com         / Kamel123321$
---   Marketer:        marketer1@test.com         / test531970
---   Cafe Admin:      cafeadmin@test1.com        / test531970
---   Waiter:          waiter.test@cafeteria.com  / Test@123456
---   Chef (drinks):   chef2_caf1@test.com        / test531970
---   Chef (sweets):   chiefsweet@test1.com       / test531970
+-- DONE. All seed users share the placeholder password set by `v_default_pwd`
+-- ('ChangeMe!LocalDevOnly'). Do not commit real credentials to this file.
 -- =====================================================================
 
 -- ---------------------------------------------------------------------

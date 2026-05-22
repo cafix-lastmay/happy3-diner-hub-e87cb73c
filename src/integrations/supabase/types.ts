@@ -1949,7 +1949,12 @@ export type Database = {
           qty: number
         }[]
       }
-      get_delivery_order_status: { Args: { _order_id: string }; Returns: Json }
+      get_delivery_order_status:
+        | { Args: { _order_id: string }; Returns: Json }
+        | {
+            Args: { _customer_phone?: string; _order_id: string }
+            Returns: Json
+          }
       get_delivery_rating_status: {
         Args: { _order_id: string }
         Returns: {
