@@ -72,7 +72,7 @@ export function CafeRecharge({ mode = "admin" }: { mode?: "admin" | "manager" })
       const normalizedRate = exchangeRate.trim().replace(/,/g, ".");
       const rate = Number(normalizedRate);
       const safeRate = Number.isNaN(rate) || rate <= 0 ? 1 : rate;
-      const points = amt * safeRate;
+      const points = Math.round(amt * safeRate * pointsPerUsd);
       const { error } = await supabase.from("recharge_requests").insert({
         cafeteria_ref_code: me.ref_code, amount_usd: amt, exchange_rate_to_usd: safeRate,
         points_to_credit: points, local_currency: me.currency_code ?? "USD", receipt_url: path,
