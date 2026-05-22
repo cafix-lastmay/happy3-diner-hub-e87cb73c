@@ -114,7 +114,7 @@ export function CafeRecharge({ mode = "admin" }: { mode?: "admin" | "manager" })
           <div className="space-y-2">
             <Label>{t("cafeteria.recharge.exchange_rate")} (1 USD = ? {me?.currency_code})</Label>
             <Input type="text" inputMode="decimal" autoComplete="off" spellCheck={false} value={exchangeRate} onChange={(e) => setExchangeRate(e.target.value)} />
-            <p className="text-xs text-muted-foreground">{t("cafeteria.recharge.points_to_credit")}: {(Number(amountUsd || 0) * Number(exchangeRate || 1)).toFixed(2)} {me?.currency_code}</p>
+            <p className="text-xs text-muted-foreground">{t("cafeteria.recharge.points_to_credit")}: {Math.round(Number(amountUsd || 0) * Number(exchangeRate || 1) * pointsPerUsd)} {me?.currency_code}</p>
           </div>
           <div className="space-y-2">
             <Label>{t("cafeteria.recharge.receipt")} *</Label>
