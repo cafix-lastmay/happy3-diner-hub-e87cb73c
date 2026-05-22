@@ -95,7 +95,7 @@ on conflict (user_id, role) do nothing;
 -- 3) PROFILES
 -- ---------------------------------------------------------------------
 insert into public.profiles (id, full_name, email, language) values
-  ('00000000-0000-0000-0000-000000000001', 'Platform Owner',   'yaserras@gmail.com',         'ar'),
+  ('00000000-0000-0000-0000-000000000001', 'Platform Owner',   'owner.local@example.invalid', 'ar'),
   ('00000000-0000-0000-0000-000000000002', 'Marketer One',     'marketer1@test.com',         'ar'),
   ('00000000-0000-0000-0000-000000000003', 'Cafe Admin',       'cafeadmin@test1.com',        'ar'),
   ('00000000-0000-0000-0000-000000000004', 'Waiter Test',      'waiter.test@cafeteria.com',  'ar'),
