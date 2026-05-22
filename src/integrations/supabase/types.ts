@@ -23,6 +23,7 @@ export type Database = {
           footer_banner_url: string | null
           id: boolean
           max_driver_radius_km: number
+          points_per_usd: number
           updated_at: string
           updated_by: string | null
         }
@@ -34,6 +35,7 @@ export type Database = {
           footer_banner_url?: string | null
           id?: boolean
           max_driver_radius_km?: number
+          points_per_usd?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -45,6 +47,7 @@ export type Database = {
           footer_banner_url?: string | null
           id?: boolean
           max_driver_radius_km?: number
+          points_per_usd?: number
           updated_at?: string
           updated_by?: string | null
         }
