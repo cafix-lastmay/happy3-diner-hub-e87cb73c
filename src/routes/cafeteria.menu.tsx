@@ -109,7 +109,7 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
           if (rc) {
             setRefCode(rc);
             load(rc);
-            supabase.from("cafeterias").select("banner_url,mode_dine_in,mode_takeaway,mode_delivery,delivery_fee_a_name,delivery_fee_a_amount,delivery_fee_b_name,delivery_fee_b_amount,delivery_fee_c_name,delivery_fee_c_amount,estimated_delivery_minutes,currency_code").eq("ref_code", data.cafeteria_ref_code).maybeSingle()
+            supabase.from("cafeterias").select("banner_url,mode_dine_in,mode_takeaway,mode_delivery,delivery_fee_a_name,delivery_fee_a_amount,delivery_fee_b_name,delivery_fee_b_amount,delivery_fee_c_name,delivery_fee_c_amount,estimated_delivery_minutes,currency_code").eq("ref_code", rc).maybeSingle()
               .then(({ data: c }) => { if (c) { setBannerUrl(safeImageUrl(c.banner_url) || null); setCafeModes(safeCafeModes(c)); } });
           }
         });
