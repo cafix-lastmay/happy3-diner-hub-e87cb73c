@@ -107,7 +107,7 @@ function OwnerGrace() {
         if (error) errors.push(`${ref}: ${error.message}`);
         else ok++;
       }
-      toast.success(`Updated grace periods for ${ok} cafeteria(s)${errors.length ? ` — ${errors.length} failed` : ""}`);
+      toast.success(`تم تحديث فترة الاستخدام المجاني لـ ${ok} كافيتريا بنجاح${errors.length ? ` — ${errors.length} فشل` : ""}`);
       if (errors.length) console.warn("[grace upload] errors", errors);
       load();
     } catch (e) {
