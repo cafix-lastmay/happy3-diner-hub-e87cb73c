@@ -129,6 +129,21 @@ function OwnerGrace() {
       <p className="text-sm text-muted-foreground mb-6">{t("owner.grace_periods.desc")}</p>
 
       <Card className="p-6 mb-6 max-w-3xl">
+        <h2 className="font-semibold mb-3 flex items-center gap-2"><Upload className="h-4 w-4" /> Bulk upload (Excel)</h2>
+        <p className="text-xs text-muted-foreground mb-3">
+          Upload an .xlsx with columns: <code className="font-mono">cafeteria_ref_code</code>, <code className="font-mono">grace_period_days</code> or <code className="font-mono">end_date</code> (YYYY-MM-DD), optional <code className="font-mono">note</code>. Existing grace periods for listed cafeterias are replaced.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={downloadTemplate} className="gap-2"><Download className="h-4 w-4" /> Download template</Button>
+          <Button onClick={() => fileRef.current?.click()} disabled={uploading} className="gap-2">
+            <Upload className="h-4 w-4" /> {uploading ? "Uploading…" : "Upload Excel"}
+          </Button>
+          <input ref={fileRef} type="file" accept=".xlsx,.xls" className="hidden"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); }} />
+        </div>
+      </Card>
+
+      <Card className="p-6 mb-6 max-w-3xl">
         <h2 className="font-semibold mb-4 flex items-center gap-2"><Plus className="h-4 w-4" /> {t("owner.grace_periods.add")}</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1"><Label>{t("common.ref_code")} *</Label><Input value={form.cafeteria_ref_code} onChange={(e) => setForm({ ...form, cafeteria_ref_code: e.target.value.trim() })} placeholder="10B0001" className="font-mono" /></div>
