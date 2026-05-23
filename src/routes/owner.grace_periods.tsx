@@ -1,7 +1,8 @@
 // Owner-only: assign custom free-trial (grace) periods to specific cafeterias by ref_code.
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Plus, Trash2, Upload, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
