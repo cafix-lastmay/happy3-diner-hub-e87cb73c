@@ -2323,6 +2323,10 @@ export type Database = {
         Args: { _customer_phone: string; _order_id: string; _ratings: Json }
         Returns: undefined
       }
+      sync_cafeteria_trial_from_custom_grace: {
+        Args: { _ref: string }
+        Returns: undefined
+      }
       table_is_occupied: { Args: { _table_id: string }; Returns: boolean }
       toggle_cafe_favorite_driver: {
         Args: { _driver_id: string; _favorite: boolean }

@@ -19,6 +19,7 @@ export function TrialBalanceCard() {
   const { user, refCode } = useAuth();
   const [row, setRow] = useState<Row | null>(null);
   const [graceUntil, setGraceUntil] = useState<string | null>(null);
+  const [hasCustomGrace, setHasCustomGrace] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -31,11 +32,10 @@ export function TrialBalanceCard() {
           setRow(data as Row);
           const { data: gp } = await supabase.from("custom_grace_periods")
             .select("start_date,days").eq("cafeteria_ref_code", data.ref_code);
-          const future = (gp ?? [])
-            .map((g) => new Date(new Date(g.start_date).getTime() + g.days * 86400000))
-            .filter((d) => d.getTime() > Date.now())
-            .sort((a, b) => b.getTime() - a.getTime());
-          setGraceUntil(future[0]?.toISOString() ?? null);
+          const ends = (gp ?? []).map((g) => new Date(new Date(g.start_date).getTime() + g.days * 86400000));
+          setHasCustomGrace(ends.length > 0);
+          const latest = ends.sort((a, b) => b.getTime() - a.getTime())[0];
+          setGraceUntil(latest ? latest.toISOString() : null);
         });
     };
     load();
@@ -48,11 +48,15 @@ export function TrialBalanceCard() {
   }, [user, refCode]);
 
   const trialDaysLeft = (() => {
-    const candidates: number[] = [];
-    if (row?.free_trial_until && !row.trial_consumed) candidates.push(new Date(row.free_trial_until).getTime());
-    if (graceUntil) candidates.push(new Date(graceUntil).getTime());
-    if (!candidates.length) return 0;
-    const ms = Math.max(...candidates) - Date.now();
+    // Custom grace period OVERRIDES default trial when present (even if expired).
+    let endMs: number | null = null;
+    if (hasCustomGrace) {
+      endMs = graceUntil ? new Date(graceUntil).getTime() : null;
+    } else if (row?.free_trial_until && !row.trial_consumed) {
+      endMs = new Date(row.free_trial_until).getTime();
+    }
+    if (endMs === null) return 0;
+    const ms = endMs - Date.now();
     return ms > 0 ? Math.ceil(ms / 86400000) : 0;
   })();
 
