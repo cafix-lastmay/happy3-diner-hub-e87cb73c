@@ -26,6 +26,8 @@ function OwnerGrace() {
   const [rows, setRows] = useState<Row[]>([]);
   const [form, setForm] = useState({ cafeteria_ref_code: "", start_date: new Date().toISOString().slice(0, 10), days: 14, note: "" });
   const [busy, setBusy] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
   const load = async () => {
     const { data } = await supabase.from("custom_grace_periods").select("*").order("start_date", { ascending: false });
@@ -49,6 +51,74 @@ function OwnerGrace() {
     await supabase.from("custom_grace_periods").delete().eq("id", id);
     load();
   };
+
+  const downloadTemplate = () => {
+    const sample = [
+      { cafeteria_ref_code: "10B01", grace_period_days: 30, end_date: "", note: "Example: use days OR end_date" },
+      { cafeteria_ref_code: "10B02", grace_period_days: "", end_date: "2026-12-31", note: "" },
+    ];
+    const ws = XLSX.utils.json_to_sheet(sample, { header: ["cafeteria_ref_code", "grace_period_days", "end_date", "note"] });
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "grace_periods");
+    XLSX.writeFile(wb, "grace_periods_template.xlsx");
+  };
+
+  const handleUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, { defval: "" });
+      const today = new Date().toISOString().slice(0, 10);
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u?.user?.id;
+      let ok = 0;
+      const errors: string[] = [];
+
+      for (const raw of json) {
+        const ref = String(raw.cafeteria_ref_code ?? "").trim();
+        if (!ref) continue;
+        let days = Number(raw.grace_period_days);
+        const endVal = raw.end_date ? String(raw.end_date).trim() : "";
+        if ((!days || days <= 0) && endVal) {
+          // Compute days from end_date (XLSX may give a number serial; coerce to string date)
+          let endStr = endVal;
+          if (/^\d+$/.test(endStr)) {
+            // Excel serial date
+            const d = XLSX.SSF.parse_date_code(Number(endStr));
+            if (d) endStr = `${d.y}-${String(d.m).padStart(2, "0")}-${String(d.d).padStart(2, "0")}`;
+          }
+          const endMs = new Date(endStr).getTime();
+          if (Number.isFinite(endMs)) {
+            days = Math.ceil((endMs - new Date(today).getTime()) / 86400000);
+          }
+        }
+        if (!days || days <= 0) { errors.push(`${ref}: invalid days/end_date`); continue; }
+        // Replace existing rows for this cafe (idempotent bulk semantics)
+        await supabase.from("custom_grace_periods").delete().eq("cafeteria_ref_code", ref);
+        const { error } = await supabase.from("custom_grace_periods").insert({
+          cafeteria_ref_code: ref,
+          start_date: today,
+          days,
+          note: raw.note ? String(raw.note) : null,
+          created_by: uid,
+        });
+        if (error) errors.push(`${ref}: ${error.message}`);
+        else ok++;
+      }
+      toast.success(`Updated grace periods for ${ok} cafeteria(s)${errors.length ? ` — ${errors.length} failed` : ""}`);
+      if (errors.length) console.warn("[grace upload] errors", errors);
+      load();
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to parse Excel file");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
 
   const today = new Date().toISOString().slice(0, 10);
 
