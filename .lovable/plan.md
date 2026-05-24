@@ -1,112 +1,93 @@
-# Phase 5 — Delivery Order Flow
 
-## Goals
-End-to-end delivery for orders where `orders.mode = 'delivery'`: capture customer address, let waiter assign a driver + fee tier, let driver accept/reject, track status through to delivery, and notify all three parties in realtime.
+# Takeaway + Delivery Customer Ordering — Implementation Plan
 
-## 1. Database
+Based on your answers, this plan reuses existing systems instead of duplicating them. **No new fee columns, no new price columns on menu_items, no new delivery infra** — only the wiring needed to expose Takeaway/Delivery to customers.
 
-### New table `delivery_details` (one row per delivery order)
-- `order_id` (PK, FK → orders.id, ON DELETE CASCADE)
-- `cafeteria_ref_code` text (denormalised for RLS speed)
-- `customer_name`, `customer_phone`, `customer_address` text
-- `customer_lat`, `customer_lng` numeric (nullable, optional GPS)
-- `fee_tier` enum `delivery_fee_tier` (`a` | `b` | `c`)
-- `fee_amount` numeric (snapshot from cafeteria at assignment)
-- `driver_id` uuid (FK → drivers.id, nullable until assigned)
-- `assigned_by` uuid (waiter user_id)
-- `status` enum `delivery_status` — `pending_assignment` → `requested` → `accepted` | `rejected` → `picked_up` → `on_the_way` → `delivered` (+ `cancelled`)
-- `requested_at`, `responded_at`, `picked_up_at`, `delivered_at`, `cancelled_at` timestamps
-- `reject_reason` text nullable
-- Standard `created_at` / `updated_at` + `update_updated_at` trigger
-- Add to `supabase_realtime` publication
+## What already exists (untouched)
 
-### RLS policies (using existing helpers)
-- Customer reads its own delivery via QR-style public token? → defer; use order_id lookup with no auth from a public route.
-- Cafe admin/manager (`is_cafe_admin_or_manager(cafeteria_ref_code)`) — full read/update.
-- Waiter staff scoped to same cafeteria — read + insert (assignment) + update status.
-- Driver — read where `driver_id = get_my_driver_id()`; update status when assigned and accepted.
-- Owner — read all.
+- `cafeterias.mode_takeaway` / `mode_delivery` / `mode_dine_in` (3 modes)
+- `cafeterias.takeaway_qr_token` (already auto-generated)
+- `service_percent` + `tax_apply_takeaway` / `tax_apply_delivery` toggles
+- `price_tiers` + `menu_item_prices` (full per-tier pricing system, used by `place_order`)
+- `menu_mode_overrides` (per-mode price/visibility per item) — already honored by `place_order`
+- Full delivery flow: `delivery_details` table, `assign_delivery_driver` / `respond_to_delivery` / `update_delivery_status` RPCs, `DriverDeliveries.tsx`, `DeliveryPanel.tsx`, `CustomerDeliveryTracker.tsx`, driver wallet
+- `orders.mode` enum: `dine_in | takeaway | delivery`
 
-### RPCs (SECURITY DEFINER) — keeps business rules server-side
-- `assign_delivery_driver(p_order_id, p_driver_id, p_fee_tier)` — waiter only. Validates order belongs to caller's cafeteria, mode='delivery', driver linked to cafeteria & available. Inserts/updates delivery_details, snapshots fee_amount from cafeterias, status → `requested`, sets `requested_at`. Creates notification for driver.
-- `respond_to_delivery(p_order_id, p_accept, p_reason)` — driver only. If accept: status → `accepted`, `responded_at = now()`. If reject: status → `rejected`, store reason, clear driver_id so waiter can reassign. Notifies waiter + cafe admin.
-- `update_delivery_status(p_order_id, p_status)` — driver only, advances `accepted → picked_up → on_the_way → delivered`. On delivered, sets order status via existing trigger path (or directly updates orders.status to 'paid' if business rule). Notifies customer + cafe.
-- `cancel_delivery(p_order_id, p_reason)` — cafe admin/waiter, allowed pre-pickup.
+## What's missing (this plan adds)
 
-### Driver status side-effects
-- On accept: set `drivers.status = 'busy'`.
-- On delivered/cancelled: set `drivers.status = 'available'`.
+### 1. Migration
 
-## 2. Server functions (`src/lib/delivery.functions.ts`)
-All wrapped with `requireSupabaseAuth`, Zod-validated:
-- `getDeliveryForOrder(orderId)` — returns delivery_details + joined driver (name, phone, photo, rating, current_lat/lng) and customer fields.
-- `listAvailableDriversForCafeteria()` — for waiter assign dialog. Returns drivers linked & status='available', sorted by `rating_avg desc`. (Distance sort deferred — needs cafeteria coords; sort by rating for now and show distance when both coords exist.)
-- `assignDriver({orderId, driverId, feeTier})` → RPC.
-- `respondToDelivery({orderId, accept, reason?})` → RPC.
-- `updateDeliveryStatus({orderId, status})` → RPC.
-- `cancelDelivery({orderId, reason?})` → RPC.
-- `getMyActiveDeliveries()` — driver dashboard list.
-- `getCustomerDeliveryView(orderId)` — admin-elevated public read for customer order-status page (no PII of other parties beyond driver public fields).
+- Add column `cafeterias.delivery_qr_token TEXT UNIQUE` (auto-generated, backfilled for existing cafes)
+- Extend `order_status` enum: add `pending_cashier_confirmation`, `ready_for_delivery`
+- New SECURITY DEFINER RPCs:
+  - `get_menu_for_takeaway(_token text)` → cafeteria, categories, items priced from Takeaway tier (+ mode_overrides)
+  - `get_menu_for_delivery(_token text)` → same but Delivery tier
+  - `place_order_takeaway(_token, _customer_name, _customer_phone, _notes, _items)` → creates order with `mode='takeaway'`, `status='pending_cashier_confirmation'`, no `table_id`
+  - `place_order_delivery(_token, _customer_name, _customer_phone, _address, _lat, _lng, _notes, _items)` → creates order with `mode='delivery'`, `status='new'`, also inserts `delivery_details` row with status `pending_assignment` so existing `DeliveryPanel` can assign a driver
+  - `confirm_takeaway_payment(_order_id)` → cafe admin/manager/staff; advances `pending_cashier_confirmation → paid` (triggers existing points deduction)
+- Seed helper: for each cafeteria, if no price_tier with `name IN ('صالة','استلام','توصيل')` exists, create the missing ones. Existing default tier preserved.
+- Reuse Phase 5 driver tracking; no schema changes to `delivery_details` or `drivers`.
 
-## 3. UI
+### 2. Tables page (`/cafeteria/tables` + `/manager/tables`)
 
-### Waiter — order detail (existing) gets a "Delivery" panel
-Visible when `order.mode === 'delivery'`:
-- Customer name/phone/address (entered at checkout — extend existing checkout form, see §4).
-- "Assign driver" dialog: fee tier radio (A/B/C with prices from cafeteria), list of available drivers with rating + photo + accept button.
-- Once assigned: shows driver card + status timeline + "Cancel delivery" button (pre-pickup).
+Add a new section **"QR الخدمات الأخرى"** above the dine-in tables grid (only shown when `mode_takeaway` / `mode_delivery` are enabled). Two cards:
+- **Takeaway QR** → URL `${origin}/m/takeaway/${takeaway_qr_token}` · buttons: Print · Regenerate · Copy
+- **Delivery QR** → URL `${origin}/m/delivery/${delivery_qr_token}` · buttons: Print · Regenerate · Copy
 
-### Driver — `/driver` dashboard (existing) gets two tabs
-- **Incoming requests** — deliveries with status=`requested` & driver_id=me. Each card shows customer name + address + fee. Accept / Reject buttons (Reject opens reason modal). Auto-expires UI display after 2 min (just visual; server doesn't enforce yet).
-- **Active delivery** — current accepted/picked_up/on_the_way row. Buttons advance to next status. Shows customer phone + address + map link (`https://www.google.com/maps?q={lat},{lng}` or address).
+Regenerate writes a new UUID via `crypto.randomUUID().replace(/-/g, '')`.
 
-### Customer — `/order/$orderId/track` (new public route)
-- Shows order summary + delivery status timeline.
-- After driver accepts: shows driver name, photo, phone (tel: link), vehicle, ETA estimate (cafeteria.estimated_delivery_minutes from `accepted_at`).
-- Polls every 15s (or realtime subscribe with anon — uses RLS public read by token; simplest: server fn fetched via TanStack Query refetchInterval).
-- Link to this page is given to the customer at checkout submission.
+### 3. New customer routes
 
-### Checkout (customer) — extend existing delivery checkout
-- Require name + phone + address (Zod-validated). Optional "use my location" → fills lat/lng via `navigator.geolocation`.
-- On submit, create delivery_details row alongside order (extend existing `place_order` RPC OR insert delivery_details immediately after order creation via server fn).
+- `src/routes/m.takeaway.$token.tsx` — fork of `m.$qrToken.tsx`:
+  - Calls `get_menu_for_takeaway`
+  - Name + Phone required, no table label
+  - On submit → `place_order_takeaway`
+  - Confirmation screen: "تم استلام طلبك. رقم الطلب #XXXXX. يرجى التوجه للكاشير لتأكيد الدفع."
+- `src/routes/m.delivery.$token.tsx` — fork of takeaway:
+  - Calls `get_menu_for_delivery`
+  - Additional Address (textarea) + optional "use my location" GPS
+  - On submit → `place_order_delivery` (writes delivery_details with `pending_assignment`)
+  - Confirmation: order number + link to existing `CustomerDeliveryTracker` at `/order/$orderId/track`
 
-## 4. Realtime notifications
-- Existing `notifications` table + `postgres_changes` subscription pattern (per memory).
-- Insert notifications inside each RPC: kind values `delivery_requested`, `delivery_accepted`, `delivery_rejected`, `delivery_status_changed`, `delivery_cancelled`. `data` JSONB includes `order_id`, `cafeteria_ref_code`, `status`.
-- Driver and waiter dashboards subscribe (already established pattern for orders/shifts).
-- Customer page polls (no auth, can't subscribe to RLS-gated channel).
+Both pages share extracted bits from `m.$qrToken.tsx` to avoid full duplication (cart, item card, search, categories carousel). Reuse `PromoBanner`, `LanguageSwitcher`.
 
-## 5. i18n
-Add Arabic + English strings for all new labels, statuses, and toast messages in `src/i18n/ar.ts` + `src/i18n/en.ts`.
+### 4. Staff orders (`/cafeteria/orders`, `/manager/`, `/staff/orders`)
 
-## 6. Out of scope (deferred)
-- Live GPS tracking on map for customer (requires Mapbox/Google key + driver location ping job) — basic ETA only.
-- Auto-expiry of unaccepted requests after 2 min (UI hint only; cron later).
-- Distance-based driver sort (needs cafeteria coords reliably populated).
-- Driver rating after delivery — separate phase.
+- Add tabs row: الكل / الصالة / استلام / توصيل (filters by `orders.mode`)
+- For `mode='takeaway'` + `status='pending_cashier_confirmation'`: show "تأكيد الدفع" button → calls `confirm_takeaway_payment`. After confirmation, normal flow takes over.
+- For `mode='delivery'`: the existing `DeliveryPanel` already handles assignment; just ensure it surfaces in the orders board for delivery rows. No driver dashboard changes needed (Phase 5 system handles pickup → on_the_way → delivered).
 
-## Files to add / change
+### 5. i18n
+
+Add Arabic/English strings for: order modes filter tabs, takeaway/delivery QR card titles, confirmation screen, "confirm payment" button, "QR الخدمات الأخرى", validation errors.
+
+## Files
 
 ```text
-supabase migration (schema + RLS + RPCs + realtime publication)
-src/lib/delivery.functions.ts                NEW
-src/lib/schemas/delivery.ts                  NEW (zod)
-src/routes/order.$orderId.track.tsx          NEW (public customer tracking)
-src/routes/_authenticated/driver/index.tsx   EDIT (tabs + active delivery card)
-src/components/delivery/AssignDriverDialog.tsx NEW
-src/components/delivery/DeliveryPanel.tsx    NEW (waiter view inside order detail)
-src/components/delivery/StatusTimeline.tsx   NEW
-src/components/delivery/DriverCard.tsx       NEW
-src/routes/_authenticated/waiter/orders.$id.tsx EDIT (mount DeliveryPanel)
-src/routes/checkout/delivery flow            EDIT (capture address + GPS)
-src/i18n/ar.ts, src/i18n/en.ts               EDIT
+supabase/migrations/<new>.sql                   NEW
+src/routes/m.takeaway.$token.tsx                NEW
+src/routes/m.delivery.$token.tsx                NEW
+src/components/customer/CustomerMenuShared.tsx  NEW (extracted cart/items/search)
+src/routes/cafeteria.tables.tsx                 EDIT (add OtherServicesQr section)
+src/routes/cafeteria.orders.tsx                 EDIT (mode tabs + cashier confirm button)
+src/routes/staff.orders.tsx                     EDIT (same tabs)
+src/i18n/ar.ts, src/i18n/en.ts                  EDIT
+src/integrations/supabase/types.ts              AUTO-REGENERATED (don't touch)
 ```
 
-## Order of work
-1. Migration (table, enums, RLS, RPCs, realtime publication).
-2. Server functions + Zod schemas.
-3. Checkout: capture customer address + GPS.
-4. Waiter assign UI.
-5. Driver accept/reject + status advancement UI.
-6. Customer tracking page.
-7. i18n + smoke test login flows for each role.
+## What I will NOT do (per your answers)
+
+- ❌ Add `dine_in_price/takeaway_price/delivery_price` columns to `menu_items` (use price_tiers instead)
+- ❌ Add `service_fee_dine_in/takeaway/delivery` columns (keep service_percent + apply toggles)
+- ❌ Add `delivery_base_fee` / `delivery_fee_per_km` (existing tiered A/B/C fees stay)
+- ❌ Replace `delivery_details` with `assigned_driver_id` on orders
+- ❌ Add 70/30 driver split (existing wallet system stays)
+- ❌ Rebuild DriverDeliveries / DeliveryPanel
+- ❌ Add separate "delivery distance" entry (existing fee tiers cover this)
+
+## Open questions
+
+1. **Default tier names**: I'll seed `صالة` / `استلام` / `توصيل` as three tiers per cafeteria (`صالة` marked default). Items will use existing tier prices; if no per-tier override exists, `menu_items.price` is used (current `place_order` behavior). Is this OK, or do you want different tier names?
+2. **Delivery fee on customer page**: The Phase 5 model assigns a fee tier (A/B/C) only at waiter assignment, not at customer checkout. So the customer's delivery order will show "Subtotal + Service" only — the delivery fee gets added once the waiter assigns a driver/tier. Acceptable, or should the customer pick A/B/C up front?
+
+After you confirm (or answer the 2 questions), I'll implement in this order: migration → tables page QR cards → takeaway customer page → delivery customer page → staff orders tabs + confirm button → i18n.

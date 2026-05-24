@@ -1,0 +1,374 @@
+// Shared customer-facing menu page for Takeaway and Delivery orders.
+// Loads menu via get_menu_for_takeaway / get_menu_for_delivery RPC.
+// Submits order via place_order_takeaway / place_order_delivery RPC.
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Coffee, Plus, Minus, ShoppingCart, ImageIcon, Check, Search, X, MapPin, Phone, User, Bike, Package, Locate
+} from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useI18n } from "@/i18n/I18nProvider";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+type Mode = "take_away" | "delivery";
+
+interface Cafe {
+  ref_code: string; name: string; currency_code: string | null;
+  banner_url?: string | null; service_percent?: number; tax_percent?: number;
+  tax_apply_takeaway?: boolean; tax_apply_delivery?: boolean;
+  estimated_delivery_minutes?: number;
+}
+interface Cat { id: string; name: string; sort_order: number }
+interface Item { id: string; category_id: string | null; name: string; description: string | null; price: number; image_url: string | null; is_most_popular?: boolean }
+
+export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mode }) {
+  const { t } = useI18n();
+  const [cafe, setCafe] = useState<Cafe | null>(null);
+  const [cats, setCats] = useState<Cat[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
+  const [cart, setCart] = useState<Record<string, number>>({});
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
+  const [notes, setNotes] = useState("");
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [invalid, setInvalid] = useState(false);
+  const [activeCat, setActiveCat] = useState<string | null>(null);
+  const [cartOpen, setCartOpen] = useState(false);
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const rpc = mode === "take_away" ? "get_menu_for_takeaway" : "get_menu_for_delivery";
+        const { data, error } = await supabase.rpc(rpc as never, { _token: token } as never);
+        if (cancelled) return;
+        if (error || !data) { setInvalid(true); setLoading(false); return; }
+        const payload = data as unknown as { cafeteria: Cafe; categories: Cat[]; items: Item[] };
+        setCafe(payload.cafeteria);
+        const catList = payload.categories ?? [];
+        setCats(catList);
+        setItems(payload.items ?? []);
+        if (catList.length > 0) setActiveCat(catList[0].id);
+      } catch (err) {
+        console.error("menu load failed", err);
+        if (!cancelled) setInvalid(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [token, mode]);
+
+  const subtotal = useMemo(() => Object.entries(cart).reduce((s, [id, qty]) => {
+    const it = items.find((x) => x.id === id);
+    return s + (it ? Number(it.price) * qty : 0);
+  }, 0), [cart, items]);
+
+  const serviceFee = useMemo(() => {
+    if (!cafe?.service_percent) return 0;
+    return subtotal * (cafe.service_percent / 100);
+  }, [subtotal, cafe]);
+
+  const taxFee = useMemo(() => {
+    if (!cafe?.tax_percent) return 0;
+    const apply = mode === "take_away" ? cafe.tax_apply_takeaway : cafe.tax_apply_delivery;
+    if (!apply) return 0;
+    return subtotal * (cafe.tax_percent / 100);
+  }, [subtotal, cafe, mode]);
+
+  const total = subtotal + serviceFee + taxFee;
+  const itemCount = useMemo(() => Object.values(cart).reduce((a, b) => a + b, 0), [cart]);
+
+  const setQty = (id: string, qty: number) => {
+    setCart((c) => {
+      const r = { ...c };
+      if (qty <= 0) delete r[id]; else r[id] = qty;
+      return r;
+    });
+  };
+  const inc = (id: string) => setQty(id, (cart[id] ?? 0) + 1);
+  const dec = (id: string) => setQty(id, (cart[id] ?? 0) - 1);
+
+  const scrollToCat = (id: string) => {
+    setActiveCat(id);
+    sectionRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const useMyLocation = () => {
+    if (!navigator.geolocation) { toast.error(t("customer.geo_unsupported")); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setLat(pos.coords.latitude); setLng(pos.coords.longitude); toast.success(t("customer.geo_captured")); },
+      () => toast.error(t("customer.geo_failed"))
+    );
+  };
+
+  const submit = async () => {
+    if (sending) return;
+    if (!name.trim()) { toast.error(t("customer.name_required")); return; }
+    if (!phone.trim()) { toast.error(t("customer.phone_required")); return; }
+    if (mode === "delivery" && !address.trim()) { toast.error(t("customer.address_required")); return; }
+    const itemsArr = Object.entries(cart).map(([item_id, qty]) => ({ item_id, qty }));
+    if (itemsArr.length === 0) { toast.error(t("customer.empty_cart")); return; }
+    setSending(true);
+    try {
+      const rpc = mode === "take_away" ? "place_order_takeaway" : "place_order_delivery";
+      const args: Record<string, unknown> = mode === "take_away"
+        ? { _token: token, _customer_name: name, _customer_phone: phone, _notes: notes, _items: itemsArr }
+        : { _token: token, _customer_name: name, _customer_phone: phone, _customer_address: address, _customer_lat: lat, _customer_lng: lng, _notes: notes, _items: itemsArr };
+      const { data, error } = await supabase.rpc(rpc as never, args as never);
+      if (error) {
+        const msg = error.message?.includes("CAFETERIA_BLOCKED")
+          ? t("customer.error.cafeteria_blocked")
+          : error.message;
+        toast.error(msg);
+        return;
+      }
+      setOrderId(data as string);
+      setCart({}); setNotes(""); setCartOpen(false);
+      toast.success(t("customer.order_sent"));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center">{t("common.loading")}</div>;
+  if (invalid) return <div className="min-h-screen flex items-center justify-center text-muted-foreground p-4 text-center">{t("customer.invalid_qr")}</div>;
+
+  const ModeIcon = mode === "take_away" ? Package : Bike;
+  const modeLabel = mode === "take_away" ? t("mode.take_away") : t("mode.delivery");
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-secondary/20 to-background pb-32">
+      {/* Cover */}
+      <div className="relative w-full aspect-[16/9] sm:aspect-[3/1] max-h-[240px] overflow-hidden bg-muted">
+        {cafe?.banner_url ? (
+          <img src={cafe.banner_url} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-accent/30 via-accent/10 to-primary/20" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/30 to-transparent" />
+        <div className="absolute top-3 end-3"><LanguageSwitcher /></div>
+        <div className="absolute bottom-3 inset-x-0 px-4 flex items-end justify-between gap-2">
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground drop-shadow-sm truncate">{cafe?.name}</h1>
+            <Badge variant="secondary" className="text-[10px] px-2 py-0 mt-1">
+              <ModeIcon className="h-3 w-3 me-1" />{modeLabel}
+            </Badge>
+          </div>
+          <div className="h-12 w-12 rounded-full bg-accent/90 text-accent-foreground flex items-center justify-center shadow-lg shrink-0">
+            <Coffee className="h-6 w-6" />
+          </div>
+        </div>
+      </div>
+
+      {/* Search + categories */}
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
+        <div className="container mx-auto px-4 py-2.5">
+          <div className="relative">
+            <Search className="absolute top-1/2 -translate-y-1/2 start-3 h-4 w-4 text-muted-foreground" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("customer.search.placeholder")} className="ps-9 pe-9 h-10 rounded-full bg-muted/50 border-transparent" />
+            {search && (
+              <button onClick={() => setSearch("")} className="absolute top-1/2 -translate-y-1/2 end-2 h-6 w-6 rounded-full bg-muted flex items-center justify-center">
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </div>
+        </div>
+        {!search && cats.length > 0 && (
+          <div className="overflow-x-auto scrollbar-hide border-t border-border/50">
+            <div className="flex gap-2 px-4 py-2 min-w-max">
+              {cats.map((c) => {
+                const count = items.filter((i) => i.category_id === c.id).length;
+                if (count === 0) return null;
+                return (
+                  <button key={c.id} onClick={() => scrollToCat(c.id)} className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${activeCat === c.id ? "bg-accent text-accent-foreground shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}>
+                    {c.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <main className="container mx-auto px-4 py-4">
+        {/* Confirmation card after submit */}
+        {orderId && (
+          <Card className="p-6 mb-4 border-accent border-2 bg-accent/5">
+            <div className="flex flex-col items-center text-center space-y-3">
+              <div className="text-5xl">✅</div>
+              <h2 className="text-xl font-bold">{t("customer.order_received")}</h2>
+              <div className="bg-muted rounded-2xl p-4 w-full max-w-xs">
+                <p className="text-xs text-muted-foreground mb-1">{t("customer.order_number")}</p>
+                <p className="text-3xl font-mono font-bold tracking-widest text-accent" dir="ltr">
+                  #{orderId.slice(-6).toUpperCase()}
+                </p>
+              </div>
+              <p className="text-sm text-foreground">
+                {mode === "take_away"
+                  ? t("customer.takeaway.confirmation")
+                  : t("customer.delivery.confirmation").replace("{mins}", String(cafe?.estimated_delivery_minutes ?? 30))}
+              </p>
+              <Button variant="ghost" size="sm" onClick={() => setOrderId(null)}>{t("customer.new_order")}</Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Menu sections */}
+        {!orderId && (
+          <>
+            {cats.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">{t("customer.no_items")}</p>
+            ) : cats.map((c) => {
+              const catItems = items
+                .filter((it) => it.category_id === c.id)
+                .filter((it) => !search.trim() || it.name.toLowerCase().includes(search.toLowerCase()) || (it.description?.toLowerCase().includes(search.toLowerCase()) ?? false));
+              if (catItems.length === 0) return null;
+              return (
+                <section key={c.id} ref={(el) => { sectionRefs.current[c.id] = el; }} className="mb-6">
+                  <h2 className="text-lg font-bold mb-3 px-1">{c.name}</h2>
+                  <div className="grid gap-3">
+                    {catItems.map((it) => {
+                      const qty = cart[it.id] ?? 0;
+                      return (
+                        <Card key={it.id} className={`p-3 flex gap-3 transition-all ${qty > 0 ? "ring-2 ring-accent" : ""}`}>
+                          <div className="w-20 h-20 rounded-lg bg-muted overflow-hidden shrink-0">
+                            {it.image_url ? (
+                              <img src={it.image_url} alt={it.name} loading="lazy" className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center"><ImageIcon className="h-6 w-6 text-muted-foreground/40" /></div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-sm">{it.name}</div>
+                            {it.description && <div className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{it.description}</div>}
+                            <div className="mt-1 flex items-center justify-between">
+                              <div className="font-bold text-accent text-sm">
+                                {Number(it.price).toFixed(2)} <span className="text-[10px] font-normal text-muted-foreground">{cafe?.currency_code}</span>
+                              </div>
+                              {qty === 0 ? (
+                                <Button size="sm" onClick={() => inc(it.id)} className="h-7 bg-accent text-accent-foreground hover:bg-accent/90">
+                                  <Plus className="h-3 w-3" />
+                                </Button>
+                              ) : (
+                                <div className="inline-flex items-center gap-1 rounded-full bg-muted">
+                                  <button onClick={() => dec(it.id)} className="h-7 w-7 inline-flex items-center justify-center"><Minus className="h-3 w-3" /></button>
+                                  <span className="text-xs font-bold w-6 text-center">{qty}</span>
+                                  <button onClick={() => inc(it.id)} className="h-7 w-7 inline-flex items-center justify-center bg-accent text-accent-foreground rounded-full"><Plus className="h-3 w-3" /></button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </section>
+              );
+            })}
+          </>
+        )}
+      </main>
+
+      {/* Floating cart button */}
+      {!orderId && itemCount > 0 && (
+        <button
+          onClick={() => setCartOpen(true)}
+          className="fixed bottom-4 inset-x-4 z-30 bg-accent text-accent-foreground rounded-2xl shadow-2xl px-4 py-3 flex items-center justify-between hover:bg-accent/90 active:scale-[0.99] transition"
+        >
+          <div className="flex items-center gap-2">
+            <div className="relative"><ShoppingCart className="h-5 w-5" /><span className="absolute -top-2 -end-2 bg-background text-accent text-[10px] font-bold rounded-full w-4 h-4 inline-flex items-center justify-center">{itemCount}</span></div>
+            <span className="font-semibold">{t("customer.view_cart")}</span>
+          </div>
+          <div className="font-bold">{total.toFixed(2)} {cafe?.currency_code}</div>
+        </button>
+      )}
+
+      {/* Cart drawer */}
+      {cartOpen && !orderId && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-end" onClick={() => setCartOpen(false)}>
+          <div className="bg-background w-full max-h-[92vh] rounded-t-3xl overflow-y-auto p-4 border-t-2 border-accent/40" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold">{t("customer.your_order")}</h2>
+              <button onClick={() => setCartOpen(false)}><X className="h-5 w-5" /></button>
+            </div>
+            <ul className="space-y-2 mb-4">
+              {Object.entries(cart).map(([id, qty]) => {
+                const it = items.find((x) => x.id === id);
+                if (!it) return null;
+                return (
+                  <li key={id} className="flex items-center justify-between gap-2 border-b border-border pb-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{it.name}</div>
+                      <div className="text-xs text-muted-foreground">{Number(it.price).toFixed(2)} × {qty}</div>
+                    </div>
+                    <div className="inline-flex items-center gap-1 rounded-full bg-muted">
+                      <button onClick={() => dec(id)} className="h-7 w-7 inline-flex items-center justify-center"><Minus className="h-3 w-3" /></button>
+                      <span className="text-xs font-bold w-6 text-center">{qty}</span>
+                      <button onClick={() => inc(id)} className="h-7 w-7 inline-flex items-center justify-center bg-accent text-accent-foreground rounded-full"><Plus className="h-3 w-3" /></button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {/* Totals */}
+            <div className="space-y-1 text-sm mb-4 border-t border-border pt-3">
+              <div className="flex justify-between"><span className="text-muted-foreground">{t("customer.subtotal")}</span><span>{subtotal.toFixed(2)}</span></div>
+              {serviceFee > 0 && <div className="flex justify-between"><span className="text-muted-foreground">{t("customer.service_fee")}</span><span>{serviceFee.toFixed(2)}</span></div>}
+              {taxFee > 0 && <div className="flex justify-between"><span className="text-muted-foreground">{t("customer.tax")}</span><span>{taxFee.toFixed(2)}</span></div>}
+              {mode === "delivery" && (
+                <div className="flex justify-between text-xs text-muted-foreground italic"><span>{t("customer.delivery_fee_pending")}</span><span>—</span></div>
+              )}
+              <div className="flex justify-between font-bold text-base pt-1 border-t border-border mt-1"><span>{t("customer.total")}</span><span className="text-accent">{total.toFixed(2)} {cafe?.currency_code}</span></div>
+            </div>
+
+            {/* Customer info form */}
+            <div className="space-y-3 mb-4">
+              <div>
+                <label className="text-xs font-medium flex items-center gap-1 mb-1"><User className="h-3 w-3" />{t("customer.your_name")} *</label>
+                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("customer.your_name")} />
+              </div>
+              <div>
+                <label className="text-xs font-medium flex items-center gap-1 mb-1"><Phone className="h-3 w-3" />{t("customer.your_phone")} *</label>
+                <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="05XXXXXXXX" type="tel" dir="ltr" />
+              </div>
+              {mode === "delivery" && (
+                <>
+                  <div>
+                    <label className="text-xs font-medium flex items-center gap-1 mb-1"><MapPin className="h-3 w-3" />{t("customer.your_address")} *</label>
+                    <Textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} placeholder={t("customer.address_placeholder")} />
+                  </div>
+                  <Button type="button" variant="outline" size="sm" onClick={useMyLocation} className="w-full">
+                    <Locate className="h-3 w-3 me-1" />
+                    {lat ? t("customer.geo_captured") : t("customer.use_my_location")}
+                  </Button>
+                </>
+              )}
+              <div>
+                <label className="text-xs font-medium mb-1 block">{t("customer.order_notes")}</label>
+                <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder={t("customer.notes_placeholder")} />
+              </div>
+            </div>
+
+            <Button onClick={submit} disabled={sending} className="w-full h-12 bg-accent text-accent-foreground hover:bg-accent/90 text-base font-bold">
+              {sending ? t("common.loading") : <><Check className="h-4 w-4 me-2" />{t("customer.send_order")}</>}
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
