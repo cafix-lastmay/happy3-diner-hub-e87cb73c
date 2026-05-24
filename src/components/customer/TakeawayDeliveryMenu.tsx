@@ -219,7 +219,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
               <p className="text-sm text-foreground">
                 {mode === "take_away"
                   ? t("customer.takeaway.confirmation")
-                  : t("customer.delivery.confirmation", { mins: String(cafe?.estimated_delivery_minutes ?? 30) })}
+                  : t("customer.delivery.confirmation").replace("{mins}", String(cafe?.estimated_delivery_minutes ?? 30))}
               </p>
               <Button variant="ghost" size="sm" onClick={() => setOrderId(null)}>{t("customer.new_order")}</Button>
             </div>
