@@ -34,7 +34,8 @@ export function OtherServicesQr({ refCode }: { refCode: string }) {
   const regenerate = async (col: "takeaway_qr_token" | "delivery_qr_token") => {
     if (!confirm(t("common.confirm"))) return;
     const newToken = crypto.randomUUID().replace(/-/g, "");
-    const { error } = await supabase.from("cafeterias").update({ [col]: newToken }).eq("ref_code", refCode);
+    const update = col === "takeaway_qr_token" ? { takeaway_qr_token: newToken } : { delivery_qr_token: newToken };
+    const { error } = await supabase.from("cafeterias").update(update).eq("ref_code", refCode);
     if (error) { toast.error(error.message); return; }
     toast.success(t("common.success"));
     load();
