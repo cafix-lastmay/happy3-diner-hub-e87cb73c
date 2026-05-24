@@ -91,6 +91,7 @@ export type Database = {
           delivery_fee_b_name: string | null
           delivery_fee_c_amount: number
           delivery_fee_c_name: string | null
+          delivery_qr_token: string | null
           email: string | null
           estimated_delivery_minutes: number
           free_trial_until: string | null
@@ -140,6 +141,7 @@ export type Database = {
           delivery_fee_b_name?: string | null
           delivery_fee_c_amount?: number
           delivery_fee_c_name?: string | null
+          delivery_qr_token?: string | null
           email?: string | null
           estimated_delivery_minutes?: number
           free_trial_until?: string | null
@@ -189,6 +191,7 @@ export type Database = {
           delivery_fee_b_name?: string | null
           delivery_fee_c_amount?: number
           delivery_fee_c_name?: string | null
+          delivery_qr_token?: string | null
           email?: string | null
           estimated_delivery_minutes?: number
           free_trial_until?: string | null
@@ -1965,6 +1968,7 @@ export type Database = {
           driver_rated: boolean
         }[]
       }
+      get_menu_for_delivery: { Args: { _token: string }; Returns: Json }
       get_menu_for_qr: {
         Args: {
           _mode?: Database["public"]["Enums"]["order_mode"]
@@ -1972,6 +1976,7 @@ export type Database = {
         }
         Returns: Json
       }
+      get_menu_for_takeaway: { Args: { _token: string }; Returns: Json }
       get_my_active_deliveries: {
         Args: never
         Returns: {
@@ -2264,6 +2269,29 @@ export type Database = {
           _mode?: Database["public"]["Enums"]["order_mode"]
           _notes: string
           _qr_token: string
+        }
+        Returns: string
+      }
+      place_order_delivery: {
+        Args: {
+          _customer_address: string
+          _customer_lat: number
+          _customer_lng: number
+          _customer_name: string
+          _customer_phone: string
+          _items: Json
+          _notes: string
+          _token: string
+        }
+        Returns: string
+      }
+      place_order_takeaway: {
+        Args: {
+          _customer_name: string
+          _customer_phone: string
+          _items: Json
+          _notes: string
+          _token: string
         }
         Returns: string
       }
