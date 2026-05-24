@@ -43,6 +43,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import { toast } from "sonner";
 import { generateQrPdf, type PerPage, type QrPrintItem } from "@/lib/qr-pdf";
+import { OtherServicesQr } from "@/components/cafeteria/OtherServicesQr";
+
 
 export const Route = createFileRoute("/cafeteria/tables")({ component: () => <CafeTables mode="admin" /> });
 
@@ -249,7 +251,10 @@ export function CafeTables({ mode = "admin" }: { mode?: "admin" | "manager" }) {
         </Button>
       </div>
 
+      {refCode && <OtherServicesQr refCode={refCode} />}
+
       {/* Sections management */}
+
       <Card className="mb-6 p-4">
         <div className="mb-3 flex items-center gap-2">
           <FolderPlus className="h-4 w-4 text-muted-foreground" />
