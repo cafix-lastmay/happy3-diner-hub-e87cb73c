@@ -85,7 +85,7 @@ export function DriverDeliveries() {
 
   return (
     <Card className="p-4">
-      <Tabs defaultValue="incoming">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="incoming" data-incoming-count={incoming.length}>
             <Inbox className="h-4 w-4 me-1" />
