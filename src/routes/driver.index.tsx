@@ -80,6 +80,13 @@ function DriverHome() {
   }, [ready, user]);
 
   useEffect(() => {
+    const onChange = () => load();
+    if (typeof window !== "undefined") window.addEventListener("driver:status-changed", onChange);
+    return () => { if (typeof window !== "undefined") window.removeEventListener("driver:status-changed", onChange); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  useEffect(() => {
     if (!driver) return;
     if (typeof navigator === "undefined" || !navigator.geolocation) return;
     if (driver.status !== "available") {
