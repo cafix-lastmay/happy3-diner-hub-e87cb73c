@@ -69,6 +69,8 @@ export function DriverDeliveries() {
     if (error) { toast.error(error.message); return; }
     toast.success(accept ? t("delivery.driver.accepted") : t("delivery.driver.rejected"));
     setRejectFor(null); setRejectReason("");
+    if (accept) setTab("active");
+    if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("driver:status-changed"));
     load();
   };
 
