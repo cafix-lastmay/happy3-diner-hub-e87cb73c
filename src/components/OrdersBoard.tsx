@@ -343,11 +343,11 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
                         {(isChef || isAdminOrMgr) && o.status === "preparing" && (
                           <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "ready")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_ready")}</Button>
                         )}
-                        {/* Waiter: preparing -> ready ONLY when no chef is required */}
-                        {isWaiter && o.status === "preparing" && !requiresChef && (
+                        {/* Waiter: preparing -> ready. Chef-required rule only blocks dine_in. */}
+                        {isWaiter && o.status === "preparing" && (!requiresChef || o.mode !== "dine_in") && (
                           <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "ready")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_ready")}</Button>
                         )}
-                        {isWaiter && o.status === "preparing" && requiresChef && (
+                        {isWaiter && o.status === "preparing" && requiresChef && o.mode === "dine_in" && (
                           <Badge variant="outline" className="text-[10px]">{t("orders.waiting_chef")}</Badge>
                         )}
                         {(isWaiter || isAdminOrMgr) && o.status === "ready" && (
