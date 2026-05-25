@@ -163,6 +163,33 @@ function DriverHome() {
 
   return (
     <DashboardShell title={t("driver.dashboard.title")} navItems={navItems.filter(n => n.to !== "/driver")}>
+      <Card className="p-4 mb-4 border-2 border-accent/40">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Bike className="h-5 w-5 text-accent" />
+            <div>
+              <div className="text-sm font-semibold">{t("driver.status_label")}</div>
+              <Badge variant={driver.status === "available" ? "default" : "secondary"} className="mt-1">
+                {t(`driver.status.${driver.status}`)}
+              </Badge>
+            </div>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {(["available","busy","unavailable"] as const).map((s) => (
+              <Button
+                key={s}
+                size="sm"
+                variant={driver.status === s ? "default" : "outline"}
+                onClick={() => setStatus(s)}
+                className={driver.status === s && s === "available" ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}
+              >
+                {t(`driver.status.${s}`)}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </Card>
+
       <Tabs defaultValue="deliveries" className="w-full">
         <TabsList className="mb-4 w-full overflow-x-auto justify-start">
           <TabsTrigger value="deliveries">{t("driver.tabs.deliveries") || "التوصيلات والمحفظة"}</TabsTrigger>
