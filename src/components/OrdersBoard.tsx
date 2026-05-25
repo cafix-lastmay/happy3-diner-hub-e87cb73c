@@ -193,7 +193,8 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
         return false;
       }
     } else if (scopeRole === "waiter") {
-      if (scopeIds) {
+      // Takeaway/delivery orders have no table → not bound to any section; show to all waiters
+      if (scopeIds && o.mode === "dine_in") {
         const sec = o.table_id ? tableSectionMap.get(o.table_id) : undefined;
         if (!sec || !scopeIds.has(sec)) return false;
       }
