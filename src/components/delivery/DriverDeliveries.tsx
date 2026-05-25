@@ -33,6 +33,7 @@ function useCountdown(fromIso: string | null, seconds: number) {
 
 export function DriverDeliveries() {
   const { t } = useI18n();
+  const [tab, setTab] = useState<string>("incoming");
   const [rows, setRows] = useState<DeliveryRow[]>([]);
   const [items, setItems] = useState<ItemRow[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
