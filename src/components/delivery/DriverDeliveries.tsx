@@ -33,6 +33,7 @@ function useCountdown(fromIso: string | null, seconds: number) {
 
 export function DriverDeliveries() {
   const { t } = useI18n();
+  const [tab, setTab] = useState<string>("incoming");
   const [rows, setRows] = useState<DeliveryRow[]>([]);
   const [items, setItems] = useState<ItemRow[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
@@ -68,6 +69,8 @@ export function DriverDeliveries() {
     if (error) { toast.error(error.message); return; }
     toast.success(accept ? t("delivery.driver.accepted") : t("delivery.driver.rejected"));
     setRejectFor(null); setRejectReason("");
+    if (accept) setTab("active");
+    if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("driver:status-changed"));
     load();
   };
 
@@ -82,7 +85,7 @@ export function DriverDeliveries() {
 
   return (
     <Card className="p-4">
-      <Tabs defaultValue="incoming">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="incoming" data-incoming-count={incoming.length}>
             <Inbox className="h-4 w-4 me-1" />
