@@ -63,15 +63,18 @@ export function DriverDeliveries() {
   const active = useMemo(() => rows.filter((r) => ["accepted","picked_up","on_the_way"].includes(r.status)), [rows]);
 
   const respond = async (orderId: string, accept: boolean, reason?: string) => {
+    console.log("[respond_to_delivery] →", { _order_id: orderId, _accept: accept, _reason: reason });
+    if (!orderId) { toast.error("Missing order id"); return; }
     setBusy(orderId);
-    const { error } = await supabase.rpc("respond_to_delivery", { _order_id: orderId, _accept: accept, _reason: reason });
+    const { data, error } = await supabase.rpc("respond_to_delivery", { _order_id: orderId, _accept: accept, _reason: reason });
     setBusy(null);
+    console.log("[respond_to_delivery] ←", { data, error });
     if (error) { toast.error(error.message); return; }
     toast.success(accept ? t("delivery.driver.accepted") : t("delivery.driver.rejected"));
     setRejectFor(null); setRejectReason("");
     if (accept) setTab("active");
     if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("driver:status-changed"));
-    load();
+    await load();
   };
 
   const advance = async (orderId: string, status: "picked_up" | "on_the_way" | "delivered") => {
