@@ -139,7 +139,7 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cafeteriaRefCode]);
 
-  const setStatus = async (id: string, status: OrderStatus) => {
+  const setStatus = async (id: string, status: Exclude<OrderStatus, "delivered">) => {
     if (requireActiveShift && !hasActiveShift) { toast.error(t("shift.required_to_act")); return; }
     if (busyId) return;
     setBusyId(id);
