@@ -289,8 +289,8 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
                   const isChef = scopeRole === "chef";
                   const isWaiter = scopeRole === "waiter";
                   const isAdminOrMgr = !scopeRole;
-                  // Timer: stops when order is served or paid
-                  const timerFrozen = o.status === "served" || o.status === "paid";
+                  // Timer: stops when order is served, paid, or completed
+                  const timerFrozen = o.status === "served" || o.status === "paid" || o.status === "paid_at_counter" || o.status === "delivered";
                   const mins = minutesElapsed(o.created_at, timerFrozen ? null : null);
                   const timerColor = mins >= 20 ? "text-destructive" : mins >= 10 ? "text-amber-500" : "text-muted-foreground";
                   const requiresChef = orderRequiresChef(o.id);
