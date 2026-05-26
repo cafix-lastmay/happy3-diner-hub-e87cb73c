@@ -26,7 +26,7 @@ import { ClipboardList, Timer, BellRing } from "lucide-react";
 import { sendServiceCall } from "@/components/ServiceCallsListener";
 import { DeliveryPanel } from "@/components/delivery/DeliveryPanel";
 
-export type OrderStatus = "new" | "preparing" | "ready" | "served" | "paid" | "cancelled" | "awaiting_payment" | "paid_at_counter";
+export type OrderStatus = "new" | "preparing" | "ready" | "served" | "paid" | "cancelled" | "awaiting_payment" | "paid_at_counter" | "delivered";
 export type OrderMode = "dine_in" | "take_away" | "delivery";
 interface Order {
   id: string; cafeteria_ref_code: string; table_label: string; customer_name: string | null;
