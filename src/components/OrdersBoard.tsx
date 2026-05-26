@@ -26,7 +26,7 @@ import { ClipboardList, Timer, BellRing } from "lucide-react";
 import { sendServiceCall } from "@/components/ServiceCallsListener";
 import { DeliveryPanel } from "@/components/delivery/DeliveryPanel";
 
-export type OrderStatus = "new" | "preparing" | "ready" | "served" | "paid" | "cancelled" | "awaiting_payment" | "paid_at_counter";
+export type OrderStatus = "new" | "preparing" | "ready" | "served" | "paid" | "cancelled" | "awaiting_payment" | "paid_at_counter" | "delivered";
 export type OrderMode = "dine_in" | "take_away" | "delivery";
 interface Order {
   id: string; cafeteria_ref_code: string; table_label: string; customer_name: string | null;
@@ -42,7 +42,7 @@ function minutesElapsed(createdAt: string, frozenAt?: string | null): number {
   return Math.max(0, Math.floor((end - start) / 60000));
 }
 
-export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requireActiveShift = false }: { cafeteriaRefCode: string; allowedStatuses?: OrderStatus[]; scopeRole?: "chef" | "waiter"; requireActiveShift?: boolean }) {
+export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requireActiveShift = false, completedView = false }: { cafeteriaRefCode: string; allowedStatuses?: OrderStatus[]; scopeRole?: "chef" | "waiter"; requireActiveShift?: boolean; completedView?: boolean }) {
   const { t } = useI18n();
   const [orders, setOrders] = useState<Order[]>([]);
   const [items, setItems] = useState<OrderItem[]>([]);
@@ -139,7 +139,7 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cafeteriaRefCode]);
 
-  const setStatus = async (id: string, status: OrderStatus) => {
+  const setStatus = async (id: string, status: Exclude<OrderStatus, "delivered">) => {
     if (requireActiveShift && !hasActiveShift) { toast.error(t("shift.required_to_act")); return; }
     if (busyId) return;
     setBusyId(id);
@@ -177,8 +177,12 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
 
   const visible = useMemo(() => orders.filter((o) => {
     if (allowedStatuses && !allowedStatuses.includes(o.status)) return false;
-    if (o.status === "paid" || o.status === "cancelled") return false;
-    if (filterActive && o.status === "served" && !scopeRole) return false;
+    if (completedView) {
+      if (o.status !== "paid" && o.status !== "paid_at_counter" && o.status !== "delivered") return false;
+    } else {
+      if (o.status === "paid" || o.status === "cancelled") return false;
+      if (filterActive && o.status === "served" && !scopeRole) return false;
+    }
 
     if (scopeRole === "chef") {
       if (o.status !== "preparing" && o.status !== "paid_at_counter") return false;
@@ -200,7 +204,7 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
       }
     }
     return true;
-  }), [orders, items, allowedStatuses, filterActive, scopeRole, scopeIds, itemCategoryMap, tableSectionMap]);
+  }), [orders, items, allowedStatuses, filterActive, scopeRole, scopeIds, itemCategoryMap, tableSectionMap, completedView]);
 
   // Group visible orders by table_label, preserving creation order (newest first within group)
   const grouped = useMemo(() => {
@@ -215,7 +219,7 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
 
   const statusVariant: Record<OrderStatus, "default" | "secondary" | "destructive" | "outline"> = {
     new: "default", preparing: "secondary", ready: "outline", served: "secondary", paid: "outline", cancelled: "destructive",
-    awaiting_payment: "destructive", paid_at_counter: "default",
+    awaiting_payment: "destructive", paid_at_counter: "default", delivered: "outline",
   };
 
   const blocked = requireActiveShift && hasActiveShift === false;
@@ -251,7 +255,7 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
           {t("shift.required_to_act")}
         </Card>
       )}
-      {!scopeRole && (
+      {!scopeRole && !completedView && (
         <div className="mb-4 flex gap-2">
           <Button size="sm" variant={filterActive ? "default" : "outline"} onClick={() => setFilterActive(true)}>{t("orders.filter.active")}</Button>
           <Button size="sm" variant={!filterActive ? "default" : "outline"} onClick={() => setFilterActive(false)}>{t("orders.filter.all")}</Button>
@@ -285,8 +289,8 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
                   const isChef = scopeRole === "chef";
                   const isWaiter = scopeRole === "waiter";
                   const isAdminOrMgr = !scopeRole;
-                  // Timer: stops when order is served or paid
-                  const timerFrozen = o.status === "served" || o.status === "paid";
+                  // Timer: stops when order is served, paid, or completed
+                  const timerFrozen = o.status === "served" || o.status === "paid" || o.status === "paid_at_counter" || o.status === "delivered";
                   const mins = minutesElapsed(o.created_at, timerFrozen ? null : null);
                   const timerColor = mins >= 20 ? "text-destructive" : mins >= 10 ? "text-amber-500" : "text-muted-foreground";
                   const requiresChef = orderRequiresChef(o.id);
@@ -329,38 +333,40 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
                             onBlur={(e) => { if (Number(e.target.value) !== Number(o.tip_amount ?? 0)) saveTip(o.id, e.target.value); }} />
                         </div>
                       )}
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {(isWaiter || isAdminOrMgr) && o.status === "awaiting_payment" && (
-                          <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "paid_at_counter")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_paid_at_counter")}</Button>
-                        )}
-                        {(isChef || isAdminOrMgr) && o.status === "paid_at_counter" && (
-                          <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "preparing")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_preparing")}</Button>
-                        )}
-                        {(isWaiter || isAdminOrMgr) && o.status === "new" && (
-                          <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "preparing")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_preparing")}</Button>
-                        )}
-                        {/* Chef: preparing -> ready */}
-                        {(isChef || isAdminOrMgr) && o.status === "preparing" && (
-                          <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "ready")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_ready")}</Button>
-                        )}
-                        {/* Waiter: preparing -> ready. Chef-required rule only blocks dine_in. */}
-                        {isWaiter && o.status === "preparing" && (!requiresChef || o.mode !== "dine_in") && (
-                          <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "ready")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_ready")}</Button>
-                        )}
-                        {isWaiter && o.status === "preparing" && requiresChef && o.mode === "dine_in" && (
-                          <Badge variant="outline" className="text-[10px]">{t("orders.waiting_chef")}</Badge>
-                        )}
-                        {(isWaiter || isAdminOrMgr) && o.status === "ready" && (
-                          <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "served")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_served")}</Button>
-                        )}
-                        {(isWaiter || isAdminOrMgr) && o.status === "served" && (
-                          <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "paid")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_paid")}</Button>
-                        )}
-                        {(isWaiter || isAdminOrMgr) && (o.status === "new" || o.status === "preparing") && (
-                          <Button size="sm" variant="ghost" disabled={disable} onClick={() => setStatus(o.id, "cancelled")}>{t("orders.cancel")}</Button>
-                        )}
-                      </div>
-                      {o.mode === "delivery" && (isWaiter || isAdminOrMgr) && (
+                      {!completedView && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {(isWaiter || isAdminOrMgr) && o.status === "awaiting_payment" && (
+                            <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "paid_at_counter")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_paid_at_counter")}</Button>
+                          )}
+                          {(isChef || isAdminOrMgr) && o.status === "paid_at_counter" && (
+                            <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "preparing")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_preparing")}</Button>
+                          )}
+                          {(isWaiter || isAdminOrMgr) && o.status === "new" && (
+                            <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "preparing")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_preparing")}</Button>
+                          )}
+                          {/* Chef: preparing -> ready */}
+                          {(isChef || isAdminOrMgr) && o.status === "preparing" && (
+                            <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "ready")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_ready")}</Button>
+                          )}
+                          {/* Waiter: preparing -> ready. Chef-required rule only blocks dine_in. */}
+                          {isWaiter && o.status === "preparing" && (!requiresChef || o.mode !== "dine_in") && (
+                            <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "ready")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_ready")}</Button>
+                          )}
+                          {isWaiter && o.status === "preparing" && requiresChef && o.mode === "dine_in" && (
+                            <Badge variant="outline" className="text-[10px]">{t("orders.waiting_chef")}</Badge>
+                          )}
+                          {(isWaiter || isAdminOrMgr) && o.status === "ready" && (
+                            <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "served")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_served")}</Button>
+                          )}
+                          {(isWaiter || isAdminOrMgr) && o.status === "served" && (
+                            <Button size="sm" disabled={disable} onClick={() => setStatus(o.id, "paid")} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("orders.mark_paid")}</Button>
+                          )}
+                          {(isWaiter || isAdminOrMgr) && (o.status === "new" || o.status === "preparing") && (
+                            <Button size="sm" variant="ghost" disabled={disable} onClick={() => setStatus(o.id, "cancelled")}>{t("orders.cancel")}</Button>
+                          )}
+                        </div>
+                      )}
+                      {o.mode === "delivery" && (isWaiter || isAdminOrMgr) && !completedView && (
                         <DeliveryPanel orderId={o.id} cafeteriaRefCode={o.cafeteria_ref_code} />
                       )}
                     </Card>

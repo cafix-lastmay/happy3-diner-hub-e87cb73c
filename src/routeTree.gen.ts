@@ -9,10 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WaiterRouteImport } from './routes/waiter'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ChefRouteImport } from './routes/chef'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OwnerIndexRouteImport } from './routes/owner.index'
 import { Route as MarketerIndexRouteImport } from './routes/marketer.index'
@@ -69,6 +71,11 @@ import { Route as MarketerChildrenRefRouteImport } from './routes/marketer.child
 import { Route as MTakeawayTokenRouteImport } from './routes/m.takeaway.$token'
 import { Route as MDeliveryTokenRouteImport } from './routes/m.delivery.$token'
 
+const WaiterRoute = WaiterRouteImport.update({
+  id: '/waiter',
+  path: '/waiter',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -87,6 +94,11 @@ const NotificationsRoute = NotificationsRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChefRoute = ChefRouteImport.update({
+  id: '/chef',
+  path: '/chef',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -368,10 +380,12 @@ const MDeliveryTokenRoute = MDeliveryTokenRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/chef': typeof ChefRoute
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/waiter': typeof WaiterRoute
   '/cafeteria/history': typeof CafeteriaHistoryRoute
   '/cafeteria/menu': typeof CafeteriaMenuRoute
   '/cafeteria/orders': typeof CafeteriaOrdersRoute
@@ -429,10 +443,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/chef': typeof ChefRoute
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/waiter': typeof WaiterRoute
   '/cafeteria/history': typeof CafeteriaHistoryRoute
   '/cafeteria/menu': typeof CafeteriaMenuRoute
   '/cafeteria/orders': typeof CafeteriaOrdersRoute
@@ -491,10 +507,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/chef': typeof ChefRoute
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/waiter': typeof WaiterRoute
   '/cafeteria/history': typeof CafeteriaHistoryRoute
   '/cafeteria/menu': typeof CafeteriaMenuRoute
   '/cafeteria/orders': typeof CafeteriaOrdersRoute
@@ -554,10 +572,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/chef'
     | '/login'
     | '/notifications'
     | '/privacy'
     | '/terms'
+    | '/waiter'
     | '/cafeteria/history'
     | '/cafeteria/menu'
     | '/cafeteria/orders'
@@ -615,10 +635,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/chef'
     | '/login'
     | '/notifications'
     | '/privacy'
     | '/terms'
+    | '/waiter'
     | '/cafeteria/history'
     | '/cafeteria/menu'
     | '/cafeteria/orders'
@@ -676,10 +698,12 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/chef'
     | '/login'
     | '/notifications'
     | '/privacy'
     | '/terms'
+    | '/waiter'
     | '/cafeteria/history'
     | '/cafeteria/menu'
     | '/cafeteria/orders'
@@ -738,10 +762,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ChefRoute: typeof ChefRoute
   LoginRoute: typeof LoginRoute
   NotificationsRoute: typeof NotificationsRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
+  WaiterRoute: typeof WaiterRoute
   CafeteriaHistoryRoute: typeof CafeteriaHistoryRoute
   CafeteriaMenuRoute: typeof CafeteriaMenuRoute
   CafeteriaOrdersRoute: typeof CafeteriaOrdersRoute
@@ -799,6 +825,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/waiter': {
+      id: '/waiter'
+      path: '/waiter'
+      fullPath: '/waiter'
+      preLoaderRoute: typeof WaiterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -825,6 +858,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chef': {
+      id: '/chef'
+      path: '/chef'
+      fullPath: '/chef'
+      preLoaderRoute: typeof ChefRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -1229,10 +1269,12 @@ const OwnerRechargesRouteWithChildren = OwnerRechargesRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChefRoute: ChefRoute,
   LoginRoute: LoginRoute,
   NotificationsRoute: NotificationsRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
+  WaiterRoute: WaiterRoute,
   CafeteriaHistoryRoute: CafeteriaHistoryRoute,
   CafeteriaMenuRoute: CafeteriaMenuRoute,
   CafeteriaOrdersRoute: CafeteriaOrdersRoute,

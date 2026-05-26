@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { LayoutDashboard, Wallet, History, BookOpen, QrCode, Users, ClipboardList, BarChart3 } from "lucide-react";
 import { DashboardShell } from "@/components/DashboardShell";
 import { OrdersBoard } from "@/components/OrdersBoard";
+import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +16,7 @@ function CafeOrders() {
   const { ready } = useRequireRole("cafeteria_admin");
   const { user } = useAuth();
   const [refCode, setRefCode] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
   useEffect(() => {
     if (!ready || !user) return;
     supabase.from("cafeterias").select("ref_code").eq("user_id", user.id).maybeSingle().then(({ data }) => { if (data) setRefCode(data.ref_code); });
@@ -32,8 +34,12 @@ function CafeOrders() {
   ].filter((n) => n.to !== "/cafeteria");
   return (
     <DashboardShell title={t("cafeteria.dashboard.title")} navItems={navItems} showTrialCard>
-      <h1 className="text-2xl font-bold mb-6">{t("orders.title")}</h1>
-      {refCode ? <OrdersBoard cafeteriaRefCode={refCode} /> : <p>{t("common.loading")}</p>}
+      <h1 className="text-2xl font-bold mb-4">{t("orders.title")}</h1>
+      <div className="mb-6 flex gap-2">
+        <Button size="sm" variant={activeTab === "active" ? "default" : "outline"} onClick={() => setActiveTab("active")}>{t("orders.filter.active")}</Button>
+        <Button size="sm" variant={activeTab === "completed" ? "default" : "outline"} onClick={() => setActiveTab("completed")}>{t("orders.filter.completed")}</Button>
+      </div>
+      {refCode ? <OrdersBoard cafeteriaRefCode={refCode} completedView={activeTab === "completed"} /> : <p>{t("common.loading")}</p>}
     </DashboardShell>
   );
 }
