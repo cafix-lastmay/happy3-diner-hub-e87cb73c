@@ -42,7 +42,7 @@ function minutesElapsed(createdAt: string, frozenAt?: string | null): number {
   return Math.max(0, Math.floor((end - start) / 60000));
 }
 
-export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requireActiveShift = false }: { cafeteriaRefCode: string; allowedStatuses?: OrderStatus[]; scopeRole?: "chef" | "waiter"; requireActiveShift?: boolean }) {
+export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requireActiveShift = false, completedView = false }: { cafeteriaRefCode: string; allowedStatuses?: OrderStatus[]; scopeRole?: "chef" | "waiter"; requireActiveShift?: boolean; completedView?: boolean }) {
   const { t } = useI18n();
   const [orders, setOrders] = useState<Order[]>([]);
   const [items, setItems] = useState<OrderItem[]>([]);
