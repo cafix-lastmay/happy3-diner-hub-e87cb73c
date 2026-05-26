@@ -215,7 +215,7 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
 
   const statusVariant: Record<OrderStatus, "default" | "secondary" | "destructive" | "outline"> = {
     new: "default", preparing: "secondary", ready: "outline", served: "secondary", paid: "outline", cancelled: "destructive",
-    awaiting_payment: "destructive", paid_at_counter: "default",
+    awaiting_payment: "destructive", paid_at_counter: "default", delivered: "outline",
   };
 
   const blocked = requireActiveShift && hasActiveShift === false;
