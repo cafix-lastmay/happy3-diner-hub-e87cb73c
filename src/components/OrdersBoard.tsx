@@ -255,7 +255,7 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
           {t("shift.required_to_act")}
         </Card>
       )}
-      {!scopeRole && (
+      {!scopeRole && !completedView && (
         <div className="mb-4 flex gap-2">
           <Button size="sm" variant={filterActive ? "default" : "outline"} onClick={() => setFilterActive(true)}>{t("orders.filter.active")}</Button>
           <Button size="sm" variant={!filterActive ? "default" : "outline"} onClick={() => setFilterActive(false)}>{t("orders.filter.all")}</Button>
