@@ -177,8 +177,12 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
 
   const visible = useMemo(() => orders.filter((o) => {
     if (allowedStatuses && !allowedStatuses.includes(o.status)) return false;
-    if (o.status === "paid" || o.status === "cancelled") return false;
-    if (filterActive && o.status === "served" && !scopeRole) return false;
+    if (completedView) {
+      if (o.status !== "paid" && o.status !== "paid_at_counter" && o.status !== "delivered") return false;
+    } else {
+      if (o.status === "paid" || o.status === "cancelled") return false;
+      if (filterActive && o.status === "served" && !scopeRole) return false;
+    }
 
     if (scopeRole === "chef") {
       if (o.status !== "preparing" && o.status !== "paid_at_counter") return false;
@@ -200,7 +204,7 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
       }
     }
     return true;
-  }), [orders, items, allowedStatuses, filterActive, scopeRole, scopeIds, itemCategoryMap, tableSectionMap]);
+  }), [orders, items, allowedStatuses, filterActive, scopeRole, scopeIds, itemCategoryMap, tableSectionMap, completedView]);
 
   // Group visible orders by table_label, preserving creation order (newest first within group)
   const grouped = useMemo(() => {
