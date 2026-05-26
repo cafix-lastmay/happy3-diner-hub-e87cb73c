@@ -398,6 +398,7 @@ export const ar = {
   "orders.cancel": "إلغاء",
   "orders.filter.all": "الكل",
   "orders.filter.active": "نشطة",
+  "orders.filter.completed": "المكتملة",
   "orders.tip": "بقشيش",
   "orders.save_tip": "حفظ البقشيش",
   "orders.invalid_tip": "قيمة بقشيش غير صالحة",

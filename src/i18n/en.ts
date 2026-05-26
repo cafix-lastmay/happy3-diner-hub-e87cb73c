@@ -387,6 +387,7 @@ export const en = {
   "orders.cancel": "Cancel",
   "orders.filter.all": "All",
   "orders.filter.active": "Active",
+  "orders.filter.completed": "Completed",
   "orders.tip": "Tip",
   "orders.save_tip": "Save tip",
   "orders.invalid_tip": "Invalid tip amount",
