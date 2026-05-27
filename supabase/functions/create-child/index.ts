@@ -26,31 +26,31 @@ Deno.serve(async (req) => {
     const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!authHeader) return j({ error: "غير مصرح، يرجى تسجيل الدخول" }, 401);
 
     const userClient = createClient(SUPABASE_URL, ANON, { global: { headers: { Authorization: authHeader } } });
     const { data: userRes, error: uErr } = await userClient.auth.getUser();
-    if (uErr || !userRes.user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (uErr || !userRes.user) return j({ error: "غير مصرح، يرجى تسجيل الدخول" }, 401);
     const callerId = userRes.user.id;
 
     const admin = createClient(SUPABASE_URL, SERVICE, { auth: { autoRefreshToken: false, persistSession: false } });
 
     // Determine caller's marketer record (Owner is also a marketer with ref_code "10")
     const { data: caller } = await admin.from("marketers").select("*").eq("user_id", callerId).maybeSingle();
-    if (!caller) return new Response(JSON.stringify({ error: "Caller is not a marketer/owner" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!caller) return j({ error: "هذا الإجراء متاح للمسوّقين أو المالك فقط" }, 403);
 
     const body: Body = await req.json();
     if (!body.email || !body.password || !body.name) {
-      return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return j({ error: "يرجى تعبئة جميع الحقول المطلوبة" }, 400);
     }
     if (body.password.length < 8) {
-      return new Response(JSON.stringify({ error: "Password must be at least 8 characters" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return j({ error: "كلمة المرور يجب أن تكون 8 أحرف على الأقل" }, 400);
     }
     const isOwner = caller.ref_code === "10";
 
     if (body.entity_type === "marketer") {
       // Marketers can only be created up to level 4
-      if (caller.level >= 4) return new Response(JSON.stringify({ error: "Cannot create marketer below level 4" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (caller.level >= 4) return j({ error: "وصلت إلى أقصى عمق للإحالة" }, 400);
 
       const { data: refCode, error: rErr } = await admin.rpc("generate_ref_code", { _parent_ref_code: caller.ref_code, _entity_type: "marketer" });
       if (rErr) throw rErr;
