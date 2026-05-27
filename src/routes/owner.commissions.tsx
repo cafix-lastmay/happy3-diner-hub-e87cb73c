@@ -36,13 +36,14 @@ function OwnerGeneralSettings() {
       .then(({ data }) => setRates((data ?? []) as Rate[]));
     supabase
       .from("app_settings")
-      .select("default_trial_days,footer_banner_text,footer_banner_cta_text,footer_banner_url,footer_banner_enabled,max_driver_radius_km")
+      .select("default_trial_days,footer_banner_text,footer_banner_cta_text,footer_banner_url,footer_banner_enabled,max_driver_radius_km,commission_eligibility_months")
       .eq("id", true)
       .maybeSingle()
       .then(({ data }) => {
         if (data) {
           setTrialDays(Number(data.default_trial_days ?? 21));
           setMaxDriverRadius(Number((data as { max_driver_radius_km: number | null }).max_driver_radius_km ?? 15));
+          setEligibilityMonths(Number((data as { commission_eligibility_months: number | null }).commission_eligibility_months ?? 12));
           setBannerForm({
             text: (data as { footer_banner_text: string | null }).footer_banner_text ?? "",
             cta: (data as { footer_banner_cta_text: string | null }).footer_banner_cta_text ?? "",
@@ -52,6 +53,17 @@ function OwnerGeneralSettings() {
         }
       });
   }, [ready]);
+
+  const saveEligibilityMonths = async () => {
+    setBusy(true);
+    try {
+      const v = Math.max(0, Math.min(120, Number(eligibilityMonths) || 0));
+      const { error } = await supabase.from("app_settings").update({ commission_eligibility_months: v }).eq("id", true);
+      if (error) throw error;
+      toast.success(t("common.success"));
+    } catch (e) { toast.error((e as Error).message); }
+    finally { setBusy(false); }
+  };
 
   const saveMaxRadius = async () => {
     setBusy(true);
