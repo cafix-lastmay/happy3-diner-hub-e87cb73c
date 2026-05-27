@@ -4,6 +4,7 @@ import { ArrowRight, Home, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationsBell } from "@/components/NotificationsBell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth, type Role } from "@/auth/AuthProvider";
 
 const HOME_FOR_ROLE: Partial<Record<Role, string>> = {
@@ -64,6 +65,7 @@ export function MobileHeader({ title }: Props) {
       )}
 
       <div className="flex items-center gap-0">
+        <ThemeToggle />
         <NotificationsBell />
         <LanguageSwitcher />
         <Button variant="ghost" size="icon" aria-label="تسجيل الخروج" onClick={onLogout}>
