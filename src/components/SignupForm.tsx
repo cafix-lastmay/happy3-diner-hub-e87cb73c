@@ -9,6 +9,9 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
+import { extractEdgeError } from "@/lib/edge-error";
+
+
 
 interface Country { code: string; name_en: string; name_ar: string; default_currency: string | null; default_language: string }
 interface Currency { code: string; name_en: string; name_ar: string; symbol: string }
@@ -72,8 +75,9 @@ export function SignupForm({ kind }: Props) {
 
     const { data, error } = await supabase.functions.invoke(fnName, { body: payload });
     if (error || (data as { error?: string })?.error) {
+      const msg = await extractEdgeError(error, data, t("common.error"));
       setLoading(false);
-      toast.error((data as { error?: string })?.error ?? error?.message ?? t("common.error"));
+      toast.error(msg);
       return;
     }
 
@@ -129,15 +133,20 @@ export function SignupForm({ kind }: Props) {
         </div>
         <div className="space-y-2">
           <Label>{t("common.currency")} *</Label>
-          <Select value={form.currency_code} onValueChange={(v) => setForm({ ...form, currency_code: v })}>
-            <SelectTrigger><SelectValue placeholder={t("form.choose_currency")} /></SelectTrigger>
-            <SelectContent>
-              {currencies.map((c) => (
-                <SelectItem key={c.code} value={c.code}>{c.code} — {lang === "ar" ? c.name_ar : c.name_en}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {(() => {
+            const cur = currencies.find((c) => c.code === form.currency_code);
+            const label = cur
+              ? `${cur.code} — ${lang === "ar" ? cur.name_ar : cur.name_en}`
+              : t("form.currency_auto_hint");
+            return (
+              <div className="flex h-10 items-center rounded-md border border-input bg-muted/40 px-3 text-sm text-foreground">
+                {label}
+              </div>
+            );
+          })()}
+          <p className="text-xs text-muted-foreground">{t("form.currency_auto_hint")}</p>
         </div>
+
         <div className="space-y-2">
           <Label>{t("common.phone")}</Label>
           <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
