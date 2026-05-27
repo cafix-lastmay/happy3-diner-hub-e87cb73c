@@ -63,7 +63,13 @@ Deno.serve(async (req) => {
       const { data: created, error: cErr } = await admin.auth.admin.createUser({
         email: body.email, password: body.password, email_confirm: true, user_metadata: { full_name: body.name },
       });
-      if (cErr) throw cErr;
+      if (cErr) {
+        const msg = cErr.message?.toLowerCase() ?? "";
+        if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
+          return j({ error: "هذا البريد الإلكتروني مسجل مسبقاً" }, 400);
+        }
+        throw cErr;
+      }
       const newUserId = created.user!.id;
 
       const { error: mErr } = await admin.from("marketers").insert({
@@ -74,7 +80,7 @@ Deno.serve(async (req) => {
       });
       if (mErr) throw mErr;
       await admin.from("user_roles").upsert({ user_id: newUserId, role: "marketer", entity_ref_code: refCode as string }, { onConflict: "user_id,role" });
-      return new Response(JSON.stringify({ ok: true, ref_code: refCode }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return j({ ok: true, ref_code: refCode });
     }
 
     // CAFETERIA
@@ -83,7 +89,7 @@ Deno.serve(async (req) => {
     if (isOwner && body.parent_ref_code && body.parent_ref_code.trim() !== "" && body.parent_ref_code.trim() !== caller.ref_code) {
       const { data: m, error: mLookupErr } = await admin.from("marketers").select("*").eq("ref_code", body.parent_ref_code.trim()).maybeSingle();
       if (mLookupErr) throw mLookupErr;
-      if (!m) return new Response(JSON.stringify({ error: "Marketer ref code not found" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (!m) return j({ error: "الرقم المرجعي للمسوّق غير موجود" }, 400);
       parentForCafe = m;
     }
     const { data: refCode, error: rErr } = await admin.rpc("generate_ref_code", { _parent_ref_code: parentForCafe.ref_code, _entity_type: "cafeteria" });
@@ -95,7 +101,13 @@ Deno.serve(async (req) => {
     const { data: created, error: cErr } = await admin.auth.admin.createUser({
       email: body.email, password: body.password, email_confirm: true, user_metadata: { full_name: body.name },
     });
-    if (cErr) throw cErr;
+    if (cErr) {
+      const msg = cErr.message?.toLowerCase() ?? "";
+      if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
+        return j({ error: "هذا البريد الإلكتروني مسجل مسبقاً" }, 400);
+      }
+      throw cErr;
+    }
     const newUserId = created.user!.id;
 
     const { error: caErr } = await admin.from("cafeterias").insert({
@@ -105,9 +117,13 @@ Deno.serve(async (req) => {
     });
     if (caErr) throw caErr;
     await admin.from("user_roles").upsert({ user_id: newUserId, role: "cafeteria_admin", entity_ref_code: refCode as string }, { onConflict: "user_id,role" });
-    return new Response(JSON.stringify({ ok: true, ref_code: refCode }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return j({ ok: true, ref_code: refCode });
   } catch (e) {
     console.error("[create-child]", e);
-    return new Response(JSON.stringify({ error: "An internal error occurred" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return j({ error: "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى" }, 500);
   }
 });
+
+function j(b: unknown, status = 200) {
+  return new Response(JSON.stringify(b), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+}
