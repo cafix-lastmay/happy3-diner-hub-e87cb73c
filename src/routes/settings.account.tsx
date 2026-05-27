@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import { useI18n } from "@/i18n/I18nProvider";
 import { toast } from "sonner";
+import { extractEdgeError } from "@/lib/edge-error";
 import { BottomNav } from "@/components/layouts/BottomNav";
 import { MobileHeader } from "@/components/layouts/MobileHeader";
 

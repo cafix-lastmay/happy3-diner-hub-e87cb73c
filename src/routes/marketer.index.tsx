@@ -14,6 +14,7 @@ import { useRequireRole } from "@/auth/useRequireRole";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import { toast } from "sonner";
+import { extractEdgeError } from "@/lib/edge-error";
 
 export const Route = createFileRoute("/marketer/")({
   component: MarketerDashboard,
