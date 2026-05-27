@@ -21,6 +21,7 @@ export type Database = {
           footer_banner_enabled: boolean
           footer_banner_text: string | null
           footer_banner_url: string | null
+          grace_days_after_zero: number
           id: boolean
           max_driver_radius_km: number
           points_per_usd: number
@@ -33,6 +34,7 @@ export type Database = {
           footer_banner_enabled?: boolean
           footer_banner_text?: string | null
           footer_banner_url?: string | null
+          grace_days_after_zero?: number
           id?: boolean
           max_driver_radius_km?: number
           points_per_usd?: number
@@ -45,6 +47,7 @@ export type Database = {
           footer_banner_enabled?: boolean
           footer_banner_text?: string | null
           footer_banner_url?: string | null
+          grace_days_after_zero?: number
           id?: boolean
           max_driver_radius_km?: number
           points_per_usd?: number
