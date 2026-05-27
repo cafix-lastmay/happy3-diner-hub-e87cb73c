@@ -33,6 +33,16 @@
   --color-gold-foreground: var(--gold-foreground);
   --color-cream: var(--cream);
   --color-coffee: var(--coffee);
+  --color-orange: var(--orange);
+  --color-orange-foreground: var(--orange-foreground);
+  --color-pink: var(--pink);
+  --color-pink-foreground: var(--pink-foreground);
+  --color-mint: var(--mint);
+  --color-mint-foreground: var(--mint-foreground);
+  --color-sky: var(--sky);
+  --color-sky-foreground: var(--sky-foreground);
+  --color-violet: var(--violet);
+  --color-violet-foreground: var(--violet-foreground);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -46,83 +56,114 @@
 }
 
 /*
- * Brand: White + Orange + Black
- * - white: clean primary backgrounds
- * - orange: vibrant accent for CTAs / highlights
- * - black: bold contrast for text and primary surfaces
+ * Vibrant palette — violet primary with multi-color accents (mint, pink, orange, sky).
+ * Inspired by the reference design: bright, joyful colors over a clean canvas (light)
+ * or a deep navy-black canvas (dark). Orange is always available as a CTA accent.
  */
 :root {
-  --radius: 0.75rem;
+  --radius: 0.9rem;
 
   --cream: oklch(0.99 0 0);
   --coffee: oklch(0.18 0.01 60);
-  --gold: oklch(0.72 0.19 50);
-  --gold-foreground: oklch(1 0 0);
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.18 0.01 60);
+  /* Multi-color accent set (shared across light + dark) */
+  --violet: oklch(0.62 0.22 290);
+  --violet-foreground: oklch(1 0 0);
+  --orange: oklch(0.74 0.18 55);
+  --orange-foreground: oklch(0.18 0.01 60);
+  --pink: oklch(0.68 0.21 0);
+  --pink-foreground: oklch(1 0 0);
+  --mint: oklch(0.78 0.16 165);
+  --mint-foreground: oklch(0.18 0.05 165);
+  --sky: oklch(0.72 0.14 230);
+  --sky-foreground: oklch(0.18 0.04 230);
+  --gold: oklch(0.78 0.17 80);
+  --gold-foreground: oklch(0.18 0.01 60);
+
+  --background: oklch(0.99 0.005 280);
+  --foreground: oklch(0.18 0.02 280);
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.01 60);
+  --card-foreground: oklch(0.18 0.02 280);
 
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.01 60);
+  --popover-foreground: oklch(0.18 0.02 280);
 
-  --primary: oklch(0.72 0.19 50);
+  /* Primary = vibrant violet (from reference CTA) */
+  --primary: oklch(0.62 0.22 290);
   --primary-foreground: oklch(1 0 0);
 
-  --secondary: oklch(0.96 0.005 60);
-  --secondary-foreground: oklch(0.18 0.01 60);
+  --secondary: oklch(0.96 0.01 280);
+  --secondary-foreground: oklch(0.18 0.02 280);
 
-  --muted: oklch(0.96 0.005 60);
-  --muted-foreground: oklch(0.48 0.01 60);
+  --muted: oklch(0.96 0.01 280);
+  --muted-foreground: oklch(0.48 0.02 280);
 
-  --accent: oklch(0.72 0.19 50);
-  --accent-foreground: oklch(1 0 0);
+  /* Accent = vibrant orange (per user request) */
+  --accent: oklch(0.74 0.18 55);
+  --accent-foreground: oklch(0.18 0.01 60);
 
-  --destructive: oklch(0.58 0.22 27);
+  --destructive: oklch(0.62 0.24 25);
   --destructive-foreground: oklch(1 0 0);
 
-  --border: oklch(0.92 0.005 60);
-  --input: oklch(0.92 0.005 60);
-  --ring: oklch(0.72 0.19 50);
+  --border: oklch(0.92 0.01 280);
+  --input: oklch(0.92 0.01 280);
+  --ring: oklch(0.62 0.22 290);
 
-  --chart-1: oklch(0.72 0.19 50);
-  --chart-2: oklch(0.18 0.01 60);
-  --chart-3: oklch(0.62 0.20 40);
-  --chart-4: oklch(0.55 0.02 60);
-  --chart-5: oklch(0.82 0.15 60);
+  /* Charts use the multi-color accent set */
+  --chart-1: oklch(0.62 0.22 290);
+  --chart-2: oklch(0.78 0.16 165);
+  --chart-3: oklch(0.74 0.18 55);
+  --chart-4: oklch(0.68 0.21 0);
+  --chart-5: oklch(0.72 0.14 230);
 
-  --sidebar: oklch(0.18 0.01 60);
+  --sidebar: oklch(0.18 0.04 280);
   --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.72 0.19 50);
+  --sidebar-primary: oklch(0.62 0.22 290);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.24 0.01 60);
+  --sidebar-accent: oklch(0.24 0.04 280);
   --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-border: oklch(0.28 0.01 60);
-  --sidebar-ring: oklch(0.72 0.19 50);
+  --sidebar-border: oklch(0.28 0.03 280);
+  --sidebar-ring: oklch(0.62 0.22 290);
 }
 
 .dark {
-  --background: oklch(0.14 0.01 60);
+  --background: oklch(0.14 0.03 280);
   --foreground: oklch(0.98 0 0);
-  --card: oklch(0.20 0.01 60);
+  --card: oklch(0.20 0.04 280);
   --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.20 0.01 60);
+  --popover: oklch(0.20 0.04 280);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.72 0.19 50);
+  --primary: oklch(0.68 0.21 290);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.26 0.01 60);
+  --secondary: oklch(0.26 0.04 280);
   --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.26 0.01 60);
-  --muted-foreground: oklch(0.72 0.01 60);
-  --accent: oklch(0.72 0.19 50);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.65 0.22 27);
+  --muted: oklch(0.26 0.04 280);
+  --muted-foreground: oklch(0.74 0.02 280);
+  --accent: oklch(0.76 0.18 55);
+  --accent-foreground: oklch(0.18 0.05 55);
+  --destructive: oklch(0.68 0.24 25);
   --destructive-foreground: oklch(0.98 0 0);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.72 0.19 50);
+  --ring: oklch(0.68 0.21 290);
+
+  /* Brighten accents slightly in dark for the vibrant look */
+  --violet: oklch(0.72 0.22 290);
+  --orange: oklch(0.78 0.18 55);
+  --pink: oklch(0.72 0.22 0);
+  --mint: oklch(0.82 0.18 165);
+  --sky: oklch(0.78 0.16 230);
+  --gold: oklch(0.82 0.18 80);
+
+  --sidebar: oklch(0.12 0.04 280);
+  --sidebar-foreground: oklch(0.98 0 0);
+  --sidebar-primary: oklch(0.72 0.22 290);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.22 0.04 280);
+  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.72 0.22 290);
 }
 
 @layer base {
