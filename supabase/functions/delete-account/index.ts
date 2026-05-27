@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
     const auth = req.headers.get("Authorization");
-    if (!auth) return new Response(JSON.stringify({ error: "missing auth" }), { status: 401, headers: corsHeaders });
+    if (!auth) return new Response(JSON.stringify({ error: "غير مصرح، يرجى تسجيل الدخول" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     const userClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: auth } } },
     );
     const { data: { user }, error: uErr } = await userClient.auth.getUser();
-    if (uErr || !user) return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: corsHeaders });
+    if (uErr || !user) return new Response(JSON.stringify({ error: "غير مصرح، يرجى تسجيل الدخول" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -38,6 +38,6 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error("[delete-account]", e);
-    return new Response(JSON.stringify({ error: "An internal error occurred" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ error: "تعذّر حذف الحساب، حاول مرة أخرى" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
