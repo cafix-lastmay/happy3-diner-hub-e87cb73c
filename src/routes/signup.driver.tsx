@@ -12,6 +12,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Footer } from "@/components/Footer";
 import { useI18n } from "@/i18n/I18nProvider";
 import { supabase } from "@/integrations/supabase/client";
+import { extractEdgeError } from "@/lib/edge-error";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/signup/driver")({ component: SignupDriverPage });
@@ -70,8 +71,9 @@ function SignupDriverPage() {
       body: { ...form, photo_url: photo || undefined },
     });
     if (error || (data as { error?: string })?.error) {
+      const msg = await extractEdgeError(error, data, t("common.error"));
       setLoading(false);
-      toast.error((data as { error?: string })?.error ?? error?.message ?? t("common.error"));
+      toast.error(msg);
       return;
     }
     const { error: signErr } = await supabase.auth.signInWithPassword({ email: form.email, password: form.password });

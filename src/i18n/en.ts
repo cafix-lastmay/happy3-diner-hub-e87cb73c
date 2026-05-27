@@ -468,6 +468,7 @@ export const en = {
 
   "form.choose_country": "Choose country",
   "form.choose_currency": "Choose currency",
+  "form.currency_auto_hint": "Currency is set automatically based on country",
 
   "signup.referral_code": "Referral code",
   "signup.referral_code.placeholder": "e.g. 1001 or 100105",

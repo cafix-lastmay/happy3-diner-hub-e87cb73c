@@ -8,6 +8,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const json = (status: number, body: Record<string, unknown>) =>
+  new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
 interface Body {
   email: string; password: string; full_name: string;
   country_code: string; currency_code: string; language: "ar" | "en";
@@ -20,48 +23,53 @@ Deno.serve(async (req) => {
   try {
     const body: Body = await req.json();
     if (!body.email || !body.password || !body.full_name || !body.country_code || !body.currency_code) {
-      return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return json(400, { error: "يرجى تعبئة جميع الحقول المطلوبة" });
     }
     if (body.password.length < 8) {
-      return new Response(JSON.stringify({ error: "Password must be at least 8 characters" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return json(400, { error: "كلمة المرور يجب أن تكون 8 أحرف على الأقل" });
     }
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { autoRefreshToken: false, persistSession: false } });
 
-    // Rate limit by client IP (5/hour, 20/day)
     const ip = req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
     const { error: rlErr } = await admin.rpc("check_and_record_signup_attempt", { _ip: ip, _kind: "marketer" });
     if (rlErr) {
       const tooMany = rlErr.message?.includes("SIGNUP_RATE_LIMITED");
-      return new Response(JSON.stringify({ error: tooMany ? "Too many signup attempts. Please try again later." : "Internal error" }), { status: tooMany ? 429 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return json(tooMany ? 429 : 500, { error: tooMany ? "عدد محاولات التسجيل تجاوز الحد، حاول لاحقاً" : "حدث خطأ داخلي، حاول مرة أخرى" });
     }
 
-    // Resolve parent: referral_code (if valid active marketer) else Owner "10"
     let parentRef = "10";
     let entityType = "marketer_self";
     let level = 2;
     const refRaw = (body.referral_code ?? "").trim().toUpperCase();
     if (refRaw) {
       const { data: parent } = await admin.from("marketers").select("ref_code, level, is_active").eq("ref_code", refRaw).maybeSingle();
-      if (!parent || !parent.is_active) {
-        return new Response(JSON.stringify({ error: "Invalid referral code" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      }
-      if ((parent.level ?? 1) >= 4) {
-        return new Response(JSON.stringify({ error: "Max referral depth reached" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      }
+      if (!parent) return json(400, { error: "الرقم المرجعي غير صحيح" });
+      if (!parent.is_active) return json(400, { error: "الرقم المرجعي غير مفعّل" });
+      if ((parent.level ?? 1) >= 4) return json(400, { error: "وصلت إلى أقصى عمق للإحالة" });
       parentRef = parent.ref_code;
-      entityType = "marketer"; // 2-digit child under that marketer
+      entityType = "marketer";
       level = (parent.level ?? 1) + 1;
     }
 
     const { data: refCodeRes, error: refErr } = await admin.rpc("generate_ref_code", { _parent_ref_code: parentRef, _entity_type: entityType });
-    if (refErr) throw refErr;
+    if (refErr) {
+      console.error("[signup-marketer] ref_code", refErr);
+      return json(500, { error: "تعذّر إنشاء الرقم المرجعي، حاول مرة أخرى" });
+    }
     const ref_code = refCodeRes as string;
 
     const { data: created, error: cErr } = await admin.auth.admin.createUser({
       email: body.email, password: body.password, email_confirm: true,
       user_metadata: { full_name: body.full_name },
     });
-    if (cErr) throw cErr;
+    if (cErr) {
+      const msg = cErr.message?.toLowerCase() ?? "";
+      if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
+        return json(400, { error: "هذا البريد الإلكتروني مسجل مسبقاً" });
+      }
+      console.error("[signup-marketer] createUser", cErr);
+      return json(500, { error: "تعذّر إنشاء الحساب، حاول مرة أخرى" });
+    }
     const userId = created.user!.id;
 
     const { error: mErr } = await admin.from("marketers").insert({
@@ -69,13 +77,16 @@ Deno.serve(async (req) => {
       name: body.full_name, country_code: body.country_code, currency_code: body.currency_code,
       language: body.language ?? "ar", address: body.address, phone: body.phone, whatsapp: body.whatsapp, email: body.email,
     });
-    if (mErr) throw mErr;
+    if (mErr) {
+      console.error("[signup-marketer] insert", mErr);
+      return json(500, { error: "تعذّر حفظ بيانات المسوّق، حاول مرة أخرى" });
+    }
 
     await admin.from("user_roles").upsert({ user_id: userId, role: "marketer", entity_ref_code: ref_code }, { onConflict: "user_id,role" });
 
-    return new Response(JSON.stringify({ ok: true, ref_code, user_id: userId, parent_ref_code: parentRef }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return json(200, { ok: true, ref_code, user_id: userId, parent_ref_code: parentRef });
   } catch (e) {
     console.error("[signup-marketer]", e);
-    return new Response(JSON.stringify({ error: "An internal error occurred" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return json(500, { error: "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى" });
   }
 });

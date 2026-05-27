@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
 import { supabase } from "@/integrations/supabase/client";
+import { extractEdgeError } from "@/lib/edge-error";
 import { useAuth } from "@/auth/AuthProvider";
 import { toast } from "sonner";
 import { StaffActivePanel } from "@/components/StaffActivePanel";
@@ -64,7 +65,7 @@ function CafeStaff() {
     setBusy(true);
     const { data, error } = await supabase.functions.invoke("add-staff", { body: form });
     setBusy(false);
-    if (error || (data && (data as any).error)) { toast.error((data as any)?.error ?? error?.message ?? "Error"); return; }
+    if (error || (data && (data as any).error)) { toast.error(await extractEdgeError(error, data, t("common.error"))); return; }
     toast.success(t("staff.added"));
     setOpen(false); setForm({ email: "", password: "", full_name: "", role: "waiter", phone: "", vehicle_type: "motorcycle" });
     if (refCode) load(refCode);
@@ -81,7 +82,7 @@ function CafeStaff() {
       body: { staff_user_id: resetTarget.user_id, new_password: newPassword },
     });
     setResetBusy(false);
-    if (error || (data && (data as any).error)) { toast.error((data as any)?.error ?? error?.message ?? "Error"); return; }
+    if (error || (data && (data as any).error)) { toast.error(await extractEdgeError(error, data, t("common.error"))); return; }
     toast.success(t("staff.password_reset"));
     setResetTarget(null); setNewPassword("");
   };

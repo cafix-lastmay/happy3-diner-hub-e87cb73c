@@ -482,6 +482,7 @@ export const ar = {
   // Forms
   "form.choose_country": "اختر البلد",
   "form.choose_currency": "اختر العملة",
+  "form.currency_auto_hint": "العملة تُحدَّد تلقائياً حسب البلد",
 
   // Signup extras
   "signup.referral_code": "كود الإحالة",
