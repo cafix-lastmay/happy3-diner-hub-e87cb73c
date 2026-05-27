@@ -1,7 +1,7 @@
 // Owner: cafeteria detail with edit, manual recharge, password reset, and reports.
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
-import { ArrowLeft, Edit, KeyRound, Coins } from "lucide-react";
+import { ArrowLeft, Edit, KeyRound, Coins, Ban, CheckCircle2 } from "lucide-react";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ import { ownerNavItems } from "@/components/owner/ownerNav";
 import { EditEntityDialog } from "@/components/owner/EditEntityDialog";
 import { AdjustBalanceDialog } from "@/components/owner/AdjustBalanceDialog";
 import { ResetPasswordDialog } from "@/components/owner/ResetPasswordDialog";
+import { SuspendCafeteriaDialog } from "@/components/owner/SuspendCafeteriaDialog";
 
 export const Route = createFileRoute("/owner/cafeterias_/$ref")({ component: OwnerCafeteriaDetail });
 
@@ -22,6 +23,7 @@ interface C {
   country_code: string | null; currency_code: string | null;
   points_balance: number; is_active: boolean; user_id: string | null; created_at: string;
   free_trial_until: string | null;
+  is_suspended: boolean; suspension_reason: string | null;
 }
 
 function OwnerCafeteriaDetail() {
@@ -66,8 +68,26 @@ function OwnerCafeteriaDetail() {
           <EditEntityDialog kind="cafeteria" entity={c} onDone={load} trigger={<Button size="sm" variant="outline" className="gap-2"><Edit className="h-4 w-4" /> {t("owner.actions.edit")}</Button>} />
           <AdjustBalanceDialog kind="cafeteria_points" refCode={c.ref_code} onDone={load} trigger={<Button size="sm" variant="outline" className="gap-2"><Coins className="h-4 w-4" /> {t("owner.actions.recharge_points")}</Button>} />
           {c.user_id && <ResetPasswordDialog userId={c.user_id} trigger={<Button size="sm" variant="outline" className="gap-2"><KeyRound className="h-4 w-4" /> {t("owner.actions.reset_password")}</Button>} />}
+          <SuspendCafeteriaDialog
+            refCode={c.ref_code}
+            isSuspended={c.is_suspended}
+            currentReason={c.suspension_reason}
+            onDone={load}
+            trigger={
+              <Button size="sm" className={`gap-2 ${c.is_suspended ? "bg-green-600 hover:bg-green-700 text-white" : "bg-destructive hover:bg-destructive/90 text-destructive-foreground"}`}>
+                {c.is_suspended ? <><CheckCircle2 className="h-4 w-4" /> تفعيل الكافيتريا</> : <><Ban className="h-4 w-4" /> إيقاف الكافيتريا</>}
+              </Button>
+            }
+          />
         </div>
       </div>
+
+      {c.is_suspended && (
+        <Card className="p-4 mb-4 border-destructive/50 bg-destructive/5">
+          <div className="flex items-center gap-2 text-destructive font-semibold mb-1"><Ban className="h-4 w-4" /> الكافيتريا موقوفة حالياً</div>
+          {c.suspension_reason && <div className="text-sm text-muted-foreground">السبب: {c.suspension_reason}</div>}
+        </Card>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
         <Card className="p-4"><div className="text-xs text-muted-foreground">{t("cafeteria.points_balance") ?? "Points"}</div><div className="text-2xl font-bold text-accent mt-1">{Number(c.points_balance).toFixed(2)}</div></Card>

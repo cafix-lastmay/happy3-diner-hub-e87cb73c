@@ -20,6 +20,8 @@ interface GraceRow {
   grace_period_active: boolean;
   grace_period_started_at: string | null;
   points_balance: number;
+  is_suspended: boolean;
+  suspension_reason: string | null;
 }
 
 const GRACE_HOURS = 72;
@@ -34,7 +36,7 @@ function useGrace() {
     const checkGraceStatus = async () => {
       const { data, error } = await supabase
         .from("cafeterias")
-        .select("free_trial_until, is_active, grace_period_active, grace_period_started_at, points_balance")
+        .select("free_trial_until, is_active, grace_period_active, grace_period_started_at, points_balance, is_suspended, suspension_reason")
         .eq("ref_code", refCode)
         .single();
 
@@ -112,6 +114,24 @@ export function CafeteriaBlockGate({ children }: { children: React.ReactNode }) 
   const { blocked } = useCountdown(row?.grace_period_started_at ?? null);
   const location = useLocation();
   const isRechargeRoute = location.pathname.startsWith("/cafeteria/recharge");
+
+  // Suspension block — overrides everything, no recharge escape.
+  if (row?.is_suspended) {
+    return (
+      <Card className="p-8 border-destructive/50 bg-destructive/5 text-center max-w-xl mx-auto">
+        <Ban className="h-12 w-12 mx-auto text-destructive mb-4" />
+        <h2 className="text-xl font-bold mb-2">تم إيقاف هذه الكافيتريا من قِبل الإدارة</h2>
+        <p className="text-sm text-muted-foreground mb-4">يرجى التواصل مع الدعم.</p>
+        {row.suspension_reason && (
+          <div className="mt-4 rounded-md border border-destructive/40 bg-background/60 p-3 text-sm">
+            <div className="text-xs text-muted-foreground mb-1">سبب الإيقاف</div>
+            <div className="font-medium">{row.suspension_reason}</div>
+          </div>
+        )}
+      </Card>
+    );
+  }
+
   if (!row?.grace_period_active || !blocked) return <>{children}</>;
   if (isRechargeRoute) return <>{children}</>;
   return (

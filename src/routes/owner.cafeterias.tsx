@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ownerNavItems } from "@/components/owner/ownerNav";
 import { exportCsv } from "@/lib/csv";
 import { CreateChildDialog } from "@/components/owner/CreateChildDialog";
+import { SuspendCafeteriaDialog } from "@/components/owner/SuspendCafeteriaDialog";
 
 export const Route = createFileRoute("/owner/cafeterias")({ component: OwnerCafeterias });
 
@@ -21,6 +22,7 @@ interface C {
   points_balance: number; is_active: boolean;
   created_at: string; email: string | null;
   free_trial_until: string | null; trial_consumed: boolean;
+  is_suspended: boolean; suspension_reason: string | null;
 }
 
 function OwnerCafeterias() {
@@ -115,8 +117,19 @@ function OwnerCafeterias() {
                       </span>
                     ) : "—"}
                   </td>
-                  <td className="p-3"><Badge variant={r.is_active ? "default" : "secondary"}>{r.is_active ? "Active" : "Inactive"}</Badge></td>
-                  <td className="p-3"><Link to="/owner/cafeterias/$ref" params={{ ref: r.ref_code }}><Button size="sm" variant="outline">{t("owner.actions.view_details")}</Button></Link></td>
+                  <td className="p-3"><Badge variant={r.is_suspended ? "destructive" : (r.is_active ? "default" : "secondary")}>{r.is_suspended ? "موقوفة" : (r.is_active ? "Active" : "Inactive")}</Badge></td>
+                  <td className="p-3">
+                    <div className="flex gap-2">
+                      <Link to="/owner/cafeterias/$ref" params={{ ref: r.ref_code }}><Button size="sm" variant="outline">{t("owner.actions.view_details")}</Button></Link>
+                      <SuspendCafeteriaDialog
+                        refCode={r.ref_code}
+                        isSuspended={r.is_suspended}
+                        currentReason={r.suspension_reason}
+                        onDone={load}
+                        trigger={<Button size="sm" className={r.is_suspended ? "bg-green-600 hover:bg-green-700 text-white" : "bg-destructive hover:bg-destructive/90 text-destructive-foreground"}>{r.is_suspended ? "تفعيل" : "إيقاف"}</Button>}
+                      />
+                    </div>
+                  </td>
                 </tr>
               );
             })}
