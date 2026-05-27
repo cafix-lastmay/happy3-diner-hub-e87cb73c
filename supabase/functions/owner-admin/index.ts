@@ -25,40 +25,40 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     });
     const { data: ud, error: ue } = await userClient.auth.getUser();
-    if (ue || !ud.user) return j({ error: "Unauthorized" }, 401);
+    if (ue || !ud.user) return j({ error: "غير مصرح، يرجى تسجيل الدخول" }, 401);
 
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
     const { data: roleRow } = await admin.from("user_roles").select("role").eq("user_id", ud.user.id).eq("role", "owner").maybeSingle();
-    if (!roleRow) return j({ error: "Owner role required" }, 403);
+    if (!roleRow) return j({ error: "هذا الإجراء متاح للمالك فقط" }, 403);
 
     const body: Body = await req.json();
 
     if (body.action === "reset_password") {
-      if (!body.user_id || !body.new_password || body.new_password.length < 8) return j({ error: "Password must be at least 8 characters" }, 400);
+      if (!body.user_id || !body.new_password || body.new_password.length < 8) return j({ error: "كلمة المرور يجب أن تكون 8 أحرف على الأقل" }, 400);
       const { error } = await admin.auth.admin.updateUserById(body.user_id, { password: body.new_password });
-      if (error) return j({ error: error.message }, 400);
+      if (error) return j({ error: "تعذّر تحديث كلمة المرور، حاول مرة أخرى" }, 400);
       return j({ ok: true });
     }
 
     if (body.action === "update_marketer" || body.action === "update_cafeteria") {
-      if (!body.ref_code || !body.patch) return j({ error: "Missing ref_code/patch" }, 400);
+      if (!body.ref_code || !body.patch) return j({ error: "بيانات التعديل ناقصة" }, 400);
       const allowed = body.action === "update_marketer" ? ALLOWED_MARKETER : ALLOWED_CAFE;
       const clean: Record<string, unknown> = {};
       for (const k of allowed) if (k in body.patch) clean[k] = body.patch[k];
-      if (Object.keys(clean).length === 0) return j({ error: "Empty patch" }, 400);
+      if (Object.keys(clean).length === 0) return j({ error: "لا توجد تعديلات صالحة للحفظ" }, 400);
       const table = body.action === "update_marketer" ? "marketers" : "cafeterias";
       const { error } = await admin.from(table).update(clean).eq("ref_code", body.ref_code);
       if (error) throw error;
       return j({ ok: true });
     }
 
-    return j({ error: "Unknown action" }, 400);
+    return j({ error: "إجراء غير معروف" }, 400);
   } catch (e) {
     console.error("[owner-admin]", e);
-    return j({ error: "An internal error occurred" }, 500);
+    return j({ error: "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى" }, 500);
   }
 });
 

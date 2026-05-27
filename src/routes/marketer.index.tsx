@@ -48,7 +48,11 @@ function MarketerDashboard() {
   const create = async (e: React.FormEvent) => {
     e.preventDefault();
     const { data, error } = await supabase.functions.invoke("create-child", { body: { entity_type: kind, ...form } });
-    if (error || (data as { error?: string })?.error) { toast.error((data as { error?: string })?.error ?? error?.message ?? ""); return; }
+    if (error || (data as { error?: string })?.error) {
+      const msg = await extractEdgeError(error, data, t("common.error"));
+      toast.error(msg);
+      return;
+    }
     toast.success(`${t("common.success")} — ${(data as { ref_code: string }).ref_code}`);
     setOpen(false);
     setForm({ name: "", email: "", password: "", phone: "", whatsapp: "", address: "" });
