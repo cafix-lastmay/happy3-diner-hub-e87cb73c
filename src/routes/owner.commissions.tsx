@@ -25,6 +25,7 @@ function OwnerGeneralSettings() {
   const [rates, setRates] = useState<Rate[]>([]);
   const [trialDays, setTrialDays] = useState<number>(21);
   const [maxDriverRadius, setMaxDriverRadius] = useState<number>(15);
+  const [eligibilityMonths, setEligibilityMonths] = useState<number>(12);
   const [busy, setBusy] = useState(false);
   const [bannerForm, setBannerForm] = useState({ text: "", cta: "", url: "", enabled: false });
   const [savingBanner, setSavingBanner] = useState(false);

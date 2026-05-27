@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       app_settings: {
         Row: {
+          commission_eligibility_months: number
           default_trial_days: number
           footer_banner_cta_text: string | null
           footer_banner_enabled: boolean
@@ -29,6 +30,7 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          commission_eligibility_months?: number
           default_trial_days?: number
           footer_banner_cta_text?: string | null
           footer_banner_enabled?: boolean
@@ -42,6 +44,7 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          commission_eligibility_months?: number
           default_trial_days?: number
           footer_banner_cta_text?: string | null
           footer_banner_enabled?: boolean
@@ -103,6 +106,7 @@ export type Database = {
           grace_period_started_at: string | null
           id: string
           is_active: boolean
+          is_suspended: boolean
           language: string
           lat: number | null
           lng: number | null
@@ -120,6 +124,9 @@ export type Database = {
           ref_code: string
           service_percent: number
           signup_type: Database["public"]["Enums"]["signup_type"]
+          suspended_at: string | null
+          suspended_by: string | null
+          suspension_reason: string | null
           takeaway_qr_token: string | null
           tax_apply_delivery: boolean
           tax_apply_dine_in: boolean
@@ -153,6 +160,7 @@ export type Database = {
           grace_period_started_at?: string | null
           id?: string
           is_active?: boolean
+          is_suspended?: boolean
           language?: string
           lat?: number | null
           lng?: number | null
@@ -170,6 +178,9 @@ export type Database = {
           ref_code: string
           service_percent?: number
           signup_type: Database["public"]["Enums"]["signup_type"]
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspension_reason?: string | null
           takeaway_qr_token?: string | null
           tax_apply_delivery?: boolean
           tax_apply_dine_in?: boolean
@@ -203,6 +214,7 @@ export type Database = {
           grace_period_started_at?: string | null
           id?: string
           is_active?: boolean
+          is_suspended?: boolean
           language?: string
           lat?: number | null
           lng?: number | null
@@ -220,6 +232,9 @@ export type Database = {
           ref_code?: string
           service_percent?: number
           signup_type?: Database["public"]["Enums"]["signup_type"]
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspension_reason?: string | null
           takeaway_qr_token?: string | null
           tax_apply_delivery?: boolean
           tax_apply_dine_in?: boolean
@@ -756,6 +771,7 @@ export type Database = {
           country_code: string | null
           created_at: string
           currency_code: string | null
+          custom_commission_months: number | null
           email: string | null
           id: string
           is_active: boolean
@@ -777,6 +793,7 @@ export type Database = {
           country_code?: string | null
           created_at?: string
           currency_code?: string | null
+          custom_commission_months?: number | null
           email?: string | null
           id?: string
           is_active?: boolean
@@ -798,6 +815,7 @@ export type Database = {
           country_code?: string | null
           created_at?: string
           currency_code?: string | null
+          custom_commission_months?: number | null
           email?: string | null
           id?: string
           is_active?: boolean
@@ -2205,6 +2223,10 @@ export type Database = {
           day: string
           total_usd: number
         }[]
+      }
+      owner_set_cafeteria_suspension: {
+        Args: { _reason?: string; _ref_code: string; _suspended: boolean }
+        Returns: undefined
       }
       owner_set_cafeteria_trial: {
         Args: { _consumed?: boolean; _ref_code: string; _trial_end: string }
