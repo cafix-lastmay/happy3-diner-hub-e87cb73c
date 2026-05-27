@@ -205,34 +205,34 @@ function RechargeDetail() {
                 <SummaryRow label={t("common.country") || "البلد"} value={r.cafe_country ?? "—"} />
                 <SummaryRow label={t("common.ref_code") || "الرقم المرجعي"} value={<span className="font-mono">{r.cafeteria_ref_code}</span>} />
                 <SummaryRow label={t("recharge.amount_paid") || "المبلغ المدفوع"} value={`$${Number(r.amount_usd).toFixed(2)}`} />
+                <SummaryRow label="سعر الصرف" value={`1 USD = ${Number(r.exchange_rate_to_usd).toFixed(4)} ${r.local_currency}`} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="points">{t("recharge.points_to_credit") || "عدد النقاط المراد شحنها"}</Label>
+                <Label htmlFor="points">النقاط المحسوبة (تلقائي)</Label>
                 <Input
                   id="points"
-                  type="number"
-                  inputMode="numeric"
-                  step={1}
-                  min={1}
-                  value={pointsInput}
-                  onChange={(e) => setPointsInput(e.target.value.replace(/[^\d]/g, ""))}
-                  placeholder="0"
-                  className="text-lg font-bold"
+                  type="text"
+                  value={`${Number(pointsInput || 0).toLocaleString("en-US")} نقطة`}
+                  readOnly
+                  disabled
+                  className="text-lg font-bold bg-muted text-violet cursor-not-allowed"
                 />
-                <p className="text-xs text-muted-foreground">{t("recharge.points_hint") || "أرقام صحيحة فقط بدون كسور"}</p>
+                <p className="text-xs text-muted-foreground">
+                  محسوبة تلقائياً: المبلغ × معامل التحويل × سعر الصرف
+                </p>
               </div>
-              <div className="rounded-md bg-accent/10 p-3 text-sm">
+              <div className="rounded-md bg-accent/10 border border-accent/30 p-3 text-sm">
                 <SummaryRow
-                  label={t("recharge.points_to_credit") || "النقاط"}
-                  value={<span className="font-bold text-accent">{pointsInput || "0"} {r.local_currency}</span>}
+                  label="سيُضاف إلى رصيد الكافيتريا"
+                  value={<span className="font-bold text-accent text-base">{Number(pointsInput || 0).toLocaleString("en-US")} نقطة</span>}
                 />
               </div>
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setApproveOpen(false)} disabled={busy}>{t("common.cancel") || "إلغاء"}</Button>
-            <Button onClick={confirmApprove} disabled={busy || !pointsInput} className="bg-accent text-accent-foreground hover:bg-accent/90">
-              <Check className="h-4 w-4 me-1" /> {t("common.confirm") || "تأكيد"}
+            <Button onClick={confirmApprove} disabled={busy || !pointsInput || Number(pointsInput) <= 0} className="bg-accent text-accent-foreground hover:bg-accent/90">
+              <Check className="h-4 w-4 me-1" /> {t("common.approve") || "اعتماد الشحن"}
             </Button>
           </DialogFooter>
         </DialogContent>
