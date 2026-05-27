@@ -44,7 +44,8 @@ function AccountSettingsPage() {
     try {
       const { data, error } = await supabase.functions.invoke("delete-account");
       if (error || (data as { error?: string })?.error) {
-        throw new Error((data as { error?: string })?.error ?? error?.message);
+        const msg = await extractEdgeError(error, data, t("common.error"));
+        throw new Error(msg);
       }
       await supabase.auth.signOut();
       toast.success(t("account.deleted"));

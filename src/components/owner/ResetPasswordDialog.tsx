@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useI18n } from "@/i18n/I18nProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { extractEdgeError } from "@/lib/edge-error";
 
 interface Props { userId: string; trigger: React.ReactNode }
 
@@ -18,13 +19,15 @@ export function ResetPasswordDialog({ userId, trigger }: Props) {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (pw.length < 8) { toast.error("Password must be at least 8 characters"); return; }
-    if (!/[A-Za-z]/.test(pw) || !/[0-9]/.test(pw)) { toast.error("Use letters and numbers (avoid common passwords)"); return; }
+    if (pw.length < 8) { toast.error(t("staff.password_min")); return; }
+    if (!/[A-Za-z]/.test(pw) || !/[0-9]/.test(pw)) { toast.error(t("staff.password_strength")); return; }
     setBusy(true);
     try {
       const { data, error } = await supabase.functions.invoke("owner-admin", { body: { action: "reset_password", user_id: userId, new_password: pw } });
-      const errMsg = (data as { error?: string })?.error ?? error?.message;
-      if (errMsg) throw new Error(errMsg);
+      if (error || (data as { error?: string })?.error) {
+        const msg = await extractEdgeError(error, data, t("common.error"));
+        throw new Error(msg);
+      }
       toast.success(t("common.success"));
       setOpen(false); setPw("");
     } catch (e) { toast.error((e as Error).message); } finally { setBusy(false); }
