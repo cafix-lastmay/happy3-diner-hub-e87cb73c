@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { FloatingNavMenu } from "@/components/FloatingNavMenu";
 import { NotificationsBell } from "@/components/NotificationsBell";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useAuth } from "@/auth/AuthProvider";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
@@ -120,6 +121,7 @@ export function DashboardShell({ title, navItems, children, showTrialCard }: Pro
               </SheetContent>
             </Sheet>
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <NotificationsBell />
               <LanguageSwitcher />
               <Button variant="ghost" size="sm" onClick={onLogout} className="gap-2">
@@ -130,6 +132,7 @@ export function DashboardShell({ title, navItems, children, showTrialCard }: Pro
 
           {/* Desktop top bar (hidden on mobile to free vertical space) */}
           <header className="hidden lg:flex sticky top-0 z-30 h-16 items-center justify-end gap-2 border-b border-border bg-background/80 backdrop-blur px-4">
+            <ThemeToggle />
             <NotificationsBell />
             <LanguageSwitcher />
             <Button variant="ghost" size="sm" onClick={onLogout} className="gap-2">
