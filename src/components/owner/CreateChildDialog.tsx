@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useI18n } from "@/i18n/I18nProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { extractEdgeError } from "@/lib/edge-error";
 
 interface Props {
   entityType: "marketer" | "cafeteria";
@@ -58,8 +59,11 @@ export function CreateChildDialog({ entityType, trigger, onDone }: Props) {
       body: { entity_type: entityType, ...form },
     });
     setBusy(false);
-    const err = (data as { error?: string } | null)?.error ?? error?.message;
-    if (err) { toast.error(err); return; }
+    if (error || (data as { error?: string } | null)?.error) {
+      const msg = await extractEdgeError(error, data, t("common.error"));
+      toast.error(msg);
+      return;
+    }
     const refCode = (data as { ref_code: string }).ref_code;
     toast.success(`${t("common.success")} — ${refCode}`);
     setOpen(false);

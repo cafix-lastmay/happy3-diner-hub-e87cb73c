@@ -55,7 +55,10 @@ export function EditEntityDialog({ kind, entity, trigger, onDone }: Props) {
       const { data, error } = await supabase.functions.invoke("owner-admin", {
         body: { action: kind === "marketer" ? "update_marketer" : "update_cafeteria", ref_code: entity.ref_code, patch },
       });
-      if (error || (data as { error?: string })?.error) throw new Error((data as { error?: string })?.error ?? error?.message);
+      if (error || (data as { error?: string })?.error) {
+        const msg = await extractEdgeError(error, data, t("common.error"));
+        throw new Error(msg);
+      }
       toast.success(t("common.success"));
       setOpen(false);
       onDone?.();
