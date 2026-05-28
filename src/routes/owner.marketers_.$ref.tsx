@@ -117,6 +117,25 @@ function OwnerMarketerDetail() {
         </dl>
       </Card>
 
+      <Card className="p-6 mb-6 space-y-4">
+        <h2 className="text-lg font-semibold">مدة استحقاق العمولات الخاصة</h2>
+        <p className="text-xs text-muted-foreground">اتركه فارغاً لاستخدام الإعداد العام</p>
+        <div className="space-y-2">
+          <Label>مدة استحقاق العمولات الخاصة (بالأشهر)</Label>
+          <Input
+            type="number"
+            min="0"
+            max="120"
+            value={customMonths}
+            onChange={(e) => setCustomMonths(e.target.value)}
+            placeholder="اتركه فارغاً لاستخدام الإعداد العام"
+          />
+        </div>
+        <Button onClick={saveCustomMonths} disabled={savingMonths} className="bg-accent text-accent-foreground hover:bg-accent/90">
+          {savingMonths ? t("common.loading") : t("common.save")}
+        </Button>
+      </Card>
+
       <div className="grid gap-4 lg:grid-cols-2 mb-6">
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-3">{t("owner.detail.children")}</h2>
