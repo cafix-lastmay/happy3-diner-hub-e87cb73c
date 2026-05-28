@@ -22,6 +22,7 @@ interface M {
   country_code: string | null; currency_code: string | null;
   commission_balance_available: number; commission_balance_frozen: number;
   is_active: boolean; user_id: string | null; created_at: string;
+  custom_commission_months: number | null;
 }
 
 function OwnerMarketerDetail() {
