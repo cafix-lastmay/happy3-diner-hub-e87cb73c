@@ -47,7 +47,10 @@ function OwnerMarketerDetail() {
       supabase.from("commission_transactions").select("id, amount_usd, status, created_at, source_cafeteria_ref_code").eq("marketer_ref_code", ref).order("created_at", { ascending: false }).limit(20),
       supabase.from("withdrawal_requests").select("id, amount_usd, status, created_at").eq("marketer_ref_code", ref).order("created_at", { ascending: false }).limit(20),
     ]);
-    if (mar) setM(mar as M);
+    if (mar) {
+      setM(mar as M);
+      setCustomMonths(mar.custom_commission_months != null ? String(mar.custom_commission_months) : "");
+    }
     setChildren([
       ...(subM ?? []).map((x) => ({ ...x, type: "marketer" })),
       ...(subC ?? []).map((x) => ({ ...x, type: "cafeteria" })),
@@ -57,6 +60,23 @@ function OwnerMarketerDetail() {
   }, [ref]);
 
   useEffect(() => { if (ready) load(); }, [ready, load]);
+
+  const saveCustomMonths = async () => {
+    setSavingMonths(true);
+    try {
+      const val = customMonths.trim() === "" ? null : Math.max(0, Math.min(120, Number(customMonths)));
+      const { error: rpcErr } = await supabase.functions.invoke("owner-admin", {
+        body: { action: "update_marketer", ref_code: ref, patch: { custom_commission_months: val } },
+      });
+      if (rpcErr) throw rpcErr;
+      toast.success(t("common.success"));
+      load();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSavingMonths(false);
+    }
+  };
 
   if (!ready) return null;
   if (!m) return <DashboardShell title={t("owner.dashboard.title")} navItems={ownerNavItems(t)}><div className="p-6">{t("common.loading")}</div></DashboardShell>;
