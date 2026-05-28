@@ -6,6 +6,8 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +15,7 @@ import { ownerNavItems } from "@/components/owner/ownerNav";
 import { EditEntityDialog } from "@/components/owner/EditEntityDialog";
 import { AdjustBalanceDialog } from "@/components/owner/AdjustBalanceDialog";
 import { ResetPasswordDialog } from "@/components/owner/ResetPasswordDialog";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/owner/marketers_/$ref")({ component: OwnerMarketerDetail });
 
@@ -22,6 +25,7 @@ interface M {
   country_code: string | null; currency_code: string | null;
   commission_balance_available: number; commission_balance_frozen: number;
   is_active: boolean; user_id: string | null; created_at: string;
+  custom_commission_months: number | null;
 }
 
 function OwnerMarketerDetail() {
@@ -32,6 +36,8 @@ function OwnerMarketerDetail() {
   const [children, setChildren] = useState<{ ref_code: string; name: string; type: string }[]>([]);
   const [commissions, setCommissions] = useState<{ id: string; amount_usd: number; status: string; created_at: string; source_cafeteria_ref_code: string }[]>([]);
   const [withdrawals, setWithdrawals] = useState<{ id: string; amount_usd: number; status: string; created_at: string }[]>([]);
+  const [customMonths, setCustomMonths] = useState<string>("");
+  const [savingMonths, setSavingMonths] = useState(false);
 
   const load = useCallback(async () => {
     const [{ data: mar }, { data: subM }, { data: subC }, { data: cm }, { data: wd }] = await Promise.all([
@@ -41,7 +47,10 @@ function OwnerMarketerDetail() {
       supabase.from("commission_transactions").select("id, amount_usd, status, created_at, source_cafeteria_ref_code").eq("marketer_ref_code", ref).order("created_at", { ascending: false }).limit(20),
       supabase.from("withdrawal_requests").select("id, amount_usd, status, created_at").eq("marketer_ref_code", ref).order("created_at", { ascending: false }).limit(20),
     ]);
-    if (mar) setM(mar as M);
+    if (mar) {
+      setM(mar as M);
+      setCustomMonths(mar.custom_commission_months != null ? String(mar.custom_commission_months) : "");
+    }
     setChildren([
       ...(subM ?? []).map((x) => ({ ...x, type: "marketer" })),
       ...(subC ?? []).map((x) => ({ ...x, type: "cafeteria" })),
@@ -51,6 +60,23 @@ function OwnerMarketerDetail() {
   }, [ref]);
 
   useEffect(() => { if (ready) load(); }, [ready, load]);
+
+  const saveCustomMonths = async () => {
+    setSavingMonths(true);
+    try {
+      const val = customMonths.trim() === "" ? null : Math.max(0, Math.min(120, Number(customMonths)));
+      const { error: rpcErr } = await supabase.functions.invoke("owner-admin", {
+        body: { action: "update_marketer", ref_code: ref, patch: { custom_commission_months: val } },
+      });
+      if (rpcErr) throw rpcErr;
+      toast.success(t("common.success"));
+      load();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSavingMonths(false);
+    }
+  };
 
   if (!ready) return null;
   if (!m) return <DashboardShell title={t("owner.dashboard.title")} navItems={ownerNavItems(t)}><div className="p-6">{t("common.loading")}</div></DashboardShell>;
@@ -89,6 +115,25 @@ function OwnerMarketerDetail() {
           <div><dt className="text-muted-foreground">Parent</dt><dd className="font-mono">{m.parent_ref_code ?? "—"}</dd></div>
           <div><dt className="text-muted-foreground">Joined</dt><dd>{new Date(m.created_at).toLocaleDateString()}</dd></div>
         </dl>
+      </Card>
+
+      <Card className="p-6 mb-6 space-y-4">
+        <h2 className="text-lg font-semibold">مدة استحقاق العمولات الخاصة</h2>
+        <p className="text-xs text-muted-foreground">اتركه فارغاً لاستخدام الإعداد العام</p>
+        <div className="space-y-2">
+          <Label>مدة استحقاق العمولات الخاصة (بالأشهر)</Label>
+          <Input
+            type="number"
+            min="0"
+            max="120"
+            value={customMonths}
+            onChange={(e) => setCustomMonths(e.target.value)}
+            placeholder="اتركه فارغاً لاستخدام الإعداد العام"
+          />
+        </div>
+        <Button onClick={saveCustomMonths} disabled={savingMonths} className="bg-accent text-accent-foreground hover:bg-accent/90">
+          {savingMonths ? t("common.loading") : t("common.save")}
+        </Button>
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2 mb-6">

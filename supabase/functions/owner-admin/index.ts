@@ -14,7 +14,7 @@ interface Body {
   patch?: Record<string, unknown>;
 }
 
-const ALLOWED_MARKETER = ["name", "phone", "whatsapp", "address", "country_code", "currency_code", "is_active", "email"];
+const ALLOWED_MARKETER = ["name", "phone", "whatsapp", "address", "country_code", "currency_code", "is_active", "email", "custom_commission_months"];
 const ALLOWED_CAFE = ["name", "phone", "whatsapp", "address", "country_code", "currency_code", "is_active", "email", "free_trial_until"];
 
 Deno.serve(async (req) => {
