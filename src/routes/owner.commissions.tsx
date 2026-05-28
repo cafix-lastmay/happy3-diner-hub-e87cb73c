@@ -166,6 +166,16 @@ function OwnerGeneralSettings() {
           </div>
           <Button onClick={saveMaxRadius} disabled={busy} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("common.save")}</Button>
         </Card>
+
+        <Card className="p-6 space-y-4">
+          <h2 className="font-semibold">مدة استحقاق العمولات</h2>
+          <p className="text-xs text-muted-foreground">يستفيد المسوق من العمولات خلال هذه المدة فقط من تاريخ تسجيل الكافيتريا (بالأشهر)</p>
+          <div className="space-y-2">
+            <Label>مدة استحقاق العمولات (بالأشهر)</Label>
+            <Input type="number" min="0" max="120" value={eligibilityMonths} onChange={(e) => setEligibilityMonths(Number(e.target.value))} />
+          </div>
+          <Button onClick={saveEligibilityMonths} disabled={busy} className="bg-accent text-accent-foreground hover:bg-accent/90">{t("common.save")}</Button>
+        </Card>
       </div>
 
       {/* Global footer banner — appears at the bottom of every cafeteria's customer menu */}
