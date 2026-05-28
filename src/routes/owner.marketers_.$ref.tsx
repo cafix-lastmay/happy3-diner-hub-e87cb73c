@@ -6,6 +6,8 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +15,7 @@ import { ownerNavItems } from "@/components/owner/ownerNav";
 import { EditEntityDialog } from "@/components/owner/EditEntityDialog";
 import { AdjustBalanceDialog } from "@/components/owner/AdjustBalanceDialog";
 import { ResetPasswordDialog } from "@/components/owner/ResetPasswordDialog";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/owner/marketers_/$ref")({ component: OwnerMarketerDetail });
 
@@ -33,6 +36,8 @@ function OwnerMarketerDetail() {
   const [children, setChildren] = useState<{ ref_code: string; name: string; type: string }[]>([]);
   const [commissions, setCommissions] = useState<{ id: string; amount_usd: number; status: string; created_at: string; source_cafeteria_ref_code: string }[]>([]);
   const [withdrawals, setWithdrawals] = useState<{ id: string; amount_usd: number; status: string; created_at: string }[]>([]);
+  const [customMonths, setCustomMonths] = useState<string>("");
+  const [savingMonths, setSavingMonths] = useState(false);
 
   const load = useCallback(async () => {
     const [{ data: mar }, { data: subM }, { data: subC }, { data: cm }, { data: wd }] = await Promise.all([
