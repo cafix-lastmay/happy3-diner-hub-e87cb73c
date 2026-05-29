@@ -32,9 +32,6 @@ function TakeawayMenu() {
   const [cart, setCart] = useState<Record<string, number>>({});
   const [itemNotes, setItemNotes] = useState<Record<string, string>>({});
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [phoneError, setPhoneError] = useState(false);
-  const phoneRef = useRef<HTMLInputElement>(null);
   const [notes, setNotes] = useState("");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -163,12 +160,6 @@ function TakeawayMenu() {
 
   const submit = async () => {
     if (sending) return;
-    if (!phone.trim()) {
-      setPhoneError(true);
-      phoneRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      phoneRef.current?.focus();
-      return;
-    }
     if (orderMode === "delivery" && !address.trim()) {
       setAddressError(true);
       return;
@@ -184,7 +175,7 @@ function TakeawayMenu() {
         const { data, error } = await supabase.rpc("place_delivery_order", {
           _takeaway_token: qrToken,
           _customer_name: name,
-          _customer_phone: phone,
+          _customer_phone: "",
           _customer_address: address,
           _customer_lat: (gps?.lat ?? null) as unknown as number,
           _customer_lng: (gps?.lng ?? null) as unknown as number,
@@ -199,7 +190,7 @@ function TakeawayMenu() {
         result = data as unknown as { order_id: string; short_code: string };
       } else {
         const { data, error } = await supabase.rpc("place_takeaway_order", {
-          _takeaway_token: qrToken, _customer_name: name, _customer_phone: phone, _notes: notes, _items: itemsArr,
+          _takeaway_token: qrToken, _customer_name: name, _customer_phone: "", _notes: notes, _items: itemsArr,
         });
         if (error) {
           const msg = (error.message || "").includes("INSUFFICIENT_BALANCE")
@@ -313,7 +304,7 @@ function TakeawayMenu() {
 
       <main className="container mx-auto px-4 py-4">
         {orderId && orderMode === "delivery" && (
-          <CustomerDeliveryTracker orderId={orderId} shortCode={shortCode} currency={cafe?.currency_code} customerPhone={phone} onNewOrder={startNewOrder} />
+          <CustomerDeliveryTracker orderId={orderId} shortCode={shortCode} currency={cafe?.currency_code} customerPhone="" onNewOrder={startNewOrder} />
         )}
 
         {orderId && orderMode === "takeaway" && (
@@ -425,7 +416,6 @@ function TakeawayMenu() {
                 </Card>
                 <Card className="p-3 text-xs space-y-1">
                   <div><span className="text-muted-foreground">{t("takeaway.your_name")}: </span><span className="font-medium">{name || "—"}</span></div>
-                  <div><span className="text-muted-foreground">{t("takeaway.your_phone")}: </span><span className="font-medium" dir="ltr">{phone}</span></div>
                   <div><span className="text-muted-foreground">{t("delivery.address")}: </span><span className="font-medium">{address}</span></div>
                   {gps && <div className="text-muted-foreground">📍 {gps.lat.toFixed(5)}, {gps.lng.toFixed(5)}</div>}
                 </Card>
@@ -457,10 +447,8 @@ function TakeawayMenu() {
                   );
                 })}
                 <Input placeholder={t("takeaway.your_name")} value={name} onChange={(e) => setName(e.target.value)} />
-                <Input ref={phoneRef} type="tel" placeholder={t("takeaway.your_phone")} value={phone} onChange={(e) => { setPhone(e.target.value); setPhoneError(false); }} required className={phoneError ? "border-red-500 focus-visible:ring-red-500" : ""} />
-                {phoneError && (
-                  <p className="text-red-500 text-xs mt-1">{t("takeaway.phone_required")}</p>
-                )}
+
+
 
                 {orderMode === "delivery" && (
                   <>

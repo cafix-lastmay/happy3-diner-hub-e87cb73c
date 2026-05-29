@@ -1,9 +1,10 @@
 // Shared customer-facing menu page for Takeaway and Delivery orders.
-// Loads menu via get_menu_for_takeaway / get_menu_for_delivery RPC.
-// Submits order via place_order_takeaway / place_order_delivery RPC.
+// - Takeaway: name only (no phone).
+// - Delivery: requires login, supports saved customer addresses with a default.
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
 import {
-  Coffee, Plus, Minus, ShoppingCart, ImageIcon, Check, Search, X, MapPin, Phone, User, Bike, Package, Locate
+  Coffee, Plus, Minus, ShoppingCart, ImageIcon, Check, Search, X, MapPin, User, Bike, Package, Locate, Star, StarOff, LogIn
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ interface Cafe {
 }
 interface Cat { id: string; name: string; sort_order: number }
 interface Item { id: string; category_id: string | null; name: string; description: string | null; price: number; image_url: string | null; is_most_popular?: boolean }
+interface SavedAddress { id: string; label: string | null; address: string; lat: number | null; lng: number | null; is_default: boolean }
 
 export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mode }) {
   const { t } = useI18n();
@@ -33,7 +35,6 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   const [items, setItems] = useState<Item[]>([]);
   const [cart, setCart] = useState<Record<string, number>>({});
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
@@ -46,6 +47,12 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+
+  // Delivery-only auth + saved addresses
+  const [session, setSession] = useState<Session | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [addresses, setAddresses] = useState<SavedAddress[]>([]);
+  const [selectedAddrId, setSelectedAddrId] = useState<string | "new" | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,6 +77,65 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
     })();
     return () => { cancelled = true; };
   }, [token, mode]);
+
+  // Auth listener (only matters for delivery)
+  useEffect(() => {
+    if (mode !== "delivery") { setAuthChecked(true); return; }
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      setSession(s);
+      setAuthChecked(true);
+    });
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setAuthChecked(true);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [mode]);
+
+  // Load profile + saved addresses for delivery
+  useEffect(() => {
+    if (mode !== "delivery" || !session?.user) return;
+    (async () => {
+      const [{ data: prof }, { data: addrs }] = await Promise.all([
+        supabase.from("profiles").select("full_name").eq("id", session.user.id).maybeSingle(),
+        supabase.from("customer_addresses").select("*").eq("user_id", session.user.id).order("is_default", { ascending: false }),
+      ]);
+      if (prof?.full_name && !name) setName(prof.full_name);
+      const list = (addrs ?? []) as SavedAddress[];
+      setAddresses(list);
+      const def = list.find((a) => a.is_default) ?? list[0];
+      if (def) {
+        setSelectedAddrId(def.id);
+        setAddress(def.address);
+        setLat(def.lat);
+        setLng(def.lng);
+      } else {
+        setSelectedAddrId("new");
+      }
+    })();
+  }, [mode, session?.user]);
+
+  const pickAddress = (a: SavedAddress) => {
+    setSelectedAddrId(a.id);
+    setAddress(a.address);
+    setLat(a.lat);
+    setLng(a.lng);
+  };
+
+  const startNewAddress = () => {
+    setSelectedAddrId("new");
+    setAddress("");
+    setLat(null);
+    setLng(null);
+  };
+
+  const setDefault = async (id: string) => {
+    if (!session?.user) return;
+    const { error } = await supabase.from("customer_addresses").update({ is_default: true }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    setAddresses((prev) => prev.map((a) => ({ ...a, is_default: a.id === id })));
+    toast.success(t("delivery.addresses.default"));
+  };
 
   const subtotal = useMemo(() => Object.entries(cart).reduce((s, [id, qty]) => {
     const it = items.find((x) => x.id === id);
@@ -117,16 +183,18 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   const submit = async () => {
     if (sending) return;
     if (!name.trim()) { toast.error(t("customer.name_required")); return; }
-    if (!phone.trim()) { toast.error(t("customer.phone_required")); return; }
-    if (mode === "delivery" && !address.trim()) { toast.error(t("customer.address_required")); return; }
+    if (mode === "delivery") {
+      if (!session?.user) { toast.error(t("delivery.auth.required")); return; }
+      if (!address.trim()) { toast.error(t("customer.address_required")); return; }
+    }
     const itemsArr = Object.entries(cart).map(([item_id, qty]) => ({ item_id, qty }));
     if (itemsArr.length === 0) { toast.error(t("customer.empty_cart")); return; }
     setSending(true);
     try {
       const rpc = mode === "take_away" ? "place_order_takeaway" : "place_order_delivery";
       const args: Record<string, unknown> = mode === "take_away"
-        ? { _token: token, _customer_name: name, _customer_phone: phone, _notes: notes, _items: itemsArr }
-        : { _token: token, _customer_name: name, _customer_phone: phone, _customer_address: address, _customer_lat: lat, _customer_lng: lng, _notes: notes, _items: itemsArr };
+        ? { _token: token, _customer_name: name, _customer_phone: "", _notes: notes, _items: itemsArr }
+        : { _token: token, _customer_name: name, _customer_phone: "", _customer_address: address, _customer_lat: lat, _customer_lng: lng, _notes: notes, _items: itemsArr };
       const { data, error } = await supabase.rpc(rpc as never, args as never);
       if (error) {
         const msg = error.message?.includes("CAFETERIA_BLOCKED")
@@ -134,6 +202,17 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
           : error.message;
         toast.error(msg);
         return;
+      }
+      // Save new delivery address for the logged-in customer
+      if (mode === "delivery" && session?.user && selectedAddrId === "new") {
+        const isFirst = addresses.length === 0;
+        await supabase.from("customer_addresses").insert({
+          user_id: session.user.id,
+          address,
+          lat,
+          lng,
+          is_default: isFirst,
+        });
       }
       setOrderId(data as string);
       setCart({}); setNotes(""); setCartOpen(false);
@@ -145,6 +224,11 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">{t("common.loading")}</div>;
   if (invalid) return <div className="min-h-screen flex items-center justify-center text-muted-foreground p-4 text-center">{t("customer.invalid_qr")}</div>;
+
+  // Delivery auth gate
+  if (mode === "delivery" && authChecked && !session) {
+    return <DeliveryAuthGate />;
+  }
 
   const ModeIcon = mode === "take_away" ? Package : Bike;
   const modeLabel = mode === "take_away" ? t("mode.take_away") : t("mode.delivery");
@@ -204,7 +288,6 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
       </div>
 
       <main className="container mx-auto px-4 py-4">
-        {/* Confirmation card after submit */}
         {orderId && (
           <Card className="p-6 mb-4 border-accent border-2 bg-accent/5">
             <div className="flex flex-col items-center text-center space-y-3">
@@ -226,7 +309,6 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
           </Card>
         )}
 
-        {/* Menu sections */}
         {!orderId && (
           <>
             {cats.length === 0 ? (
@@ -282,7 +364,6 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
         )}
       </main>
 
-      {/* Floating cart button */}
       {!orderId && itemCount > 0 && (
         <button
           onClick={() => setCartOpen(true)}
@@ -296,7 +377,6 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
         </button>
       )}
 
-      {/* Cart drawer */}
       {cartOpen && !orderId && (
         <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-end" onClick={() => setCartOpen(false)}>
           <div className="bg-background w-full max-h-[92vh] rounded-t-3xl overflow-y-auto p-4 border-t-2 border-accent/40" onClick={(e) => e.stopPropagation()}>
@@ -324,7 +404,6 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
               })}
             </ul>
 
-            {/* Totals */}
             <div className="space-y-1 text-sm mb-4 border-t border-border pt-3">
               <div className="flex justify-between"><span className="text-muted-foreground">{t("customer.subtotal")}</span><span>{subtotal.toFixed(2)}</span></div>
               {serviceFee > 0 && <div className="flex justify-between"><span className="text-muted-foreground">{t("customer.service_fee")}</span><span>{serviceFee.toFixed(2)}</span></div>}
@@ -341,22 +420,54 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
                 <label className="text-xs font-medium flex items-center gap-1 mb-1"><User className="h-3 w-3" />{t("customer.your_name")} *</label>
                 <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("customer.your_name")} />
               </div>
-              <div>
-                <label className="text-xs font-medium flex items-center gap-1 mb-1"><Phone className="h-3 w-3" />{t("customer.your_phone")} *</label>
-                <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="05XXXXXXXX" type="tel" dir="ltr" />
-              </div>
+
               {mode === "delivery" && (
                 <>
-                  <div>
-                    <label className="text-xs font-medium flex items-center gap-1 mb-1"><MapPin className="h-3 w-3" />{t("customer.your_address")} *</label>
-                    <Textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} placeholder={t("customer.address_placeholder")} />
-                  </div>
-                  <Button type="button" variant="outline" size="sm" onClick={useMyLocation} className="w-full">
-                    <Locate className="h-3 w-3 me-1" />
-                    {lat ? t("customer.geo_captured") : t("customer.use_my_location")}
-                  </Button>
+                  {addresses.length > 0 && (
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">{t("delivery.addresses.saved")}</label>
+                      <div className="space-y-1.5">
+                        {addresses.map((a) => (
+                          <div key={a.id} className={`p-2 rounded-lg border ${selectedAddrId === a.id ? "border-accent bg-accent/5" : "border-border"}`}>
+                            <div className="flex items-start gap-2">
+                              <button type="button" onClick={() => pickAddress(a)} className="flex-1 text-start text-sm min-w-0">
+                                <div className="font-medium truncate flex items-center gap-1">
+                                  {a.address}
+                                  {a.is_default && <Badge variant="secondary" className="text-[9px] px-1 py-0">{t("delivery.addresses.default")}</Badge>}
+                                </div>
+                                {a.lat && a.lng && <div className="text-[10px] text-muted-foreground">📍 {a.lat.toFixed(4)}, {a.lng.toFixed(4)}</div>}
+                              </button>
+                              {!a.is_default && (
+                                <button type="button" onClick={() => setDefault(a.id)} title={t("delivery.addresses.set_default")} className="text-muted-foreground hover:text-accent">
+                                  <StarOff className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                              {a.is_default && <Star className="h-3.5 w-3.5 text-accent" />}
+                            </div>
+                          </div>
+                        ))}
+                        <Button type="button" variant="outline" size="sm" onClick={startNewAddress} className="w-full">
+                          <Plus className="h-3 w-3 me-1" />{t("delivery.addresses.new")}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {(selectedAddrId === "new" || addresses.length === 0) && (
+                    <>
+                      <div>
+                        <label className="text-xs font-medium flex items-center gap-1 mb-1"><MapPin className="h-3 w-3" />{t("customer.your_address")} *</label>
+                        <Textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} placeholder={t("customer.address_placeholder")} />
+                      </div>
+                      <Button type="button" variant="outline" size="sm" onClick={useMyLocation} className="w-full">
+                        <Locate className="h-3 w-3 me-1" />
+                        {lat ? t("customer.geo_captured") : t("customer.use_my_location")}
+                      </Button>
+                    </>
+                  )}
                 </>
               )}
+
               <div>
                 <label className="text-xs font-medium mb-1 block">{t("customer.order_notes")}</label>
                 <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder={t("customer.notes_placeholder")} />
@@ -369,6 +480,74 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function DeliveryAuthGate() {
+  const { t } = useI18n();
+  const [isSignup, setIsSignup] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async () => {
+    if (!email.trim() || !password.trim()) return;
+    setBusy(true);
+    try {
+      if (isSignup) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
+            data: { full_name: fullName },
+          },
+        });
+        if (error) { toast.error(error.message); return; }
+        toast.success(t("delivery.auth.signup"));
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) { toast.error(error.message); return; }
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-secondary/20 to-background">
+      <Card className="p-6 w-full max-w-sm space-y-4">
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 rounded-full bg-accent/15 text-accent flex items-center justify-center mb-2">
+            <LogIn className="h-6 w-6" />
+          </div>
+          <h2 className="text-lg font-bold">{t("delivery.auth.required")}</h2>
+        </div>
+        <div className="space-y-2">
+          {isSignup && (
+            <div>
+              <label className="text-xs font-medium">{t("customer.your_name")}</label>
+              <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
+            </div>
+          )}
+          <div>
+            <label className="text-xs font-medium">{t("common.email")}</label>
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} dir="ltr" />
+          </div>
+          <div>
+            <label className="text-xs font-medium">{t("common.password")}</label>
+            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} dir="ltr" />
+          </div>
+        </div>
+        <Button onClick={submit} disabled={busy} className="w-full">
+          {busy ? t("common.loading") : (isSignup ? t("delivery.auth.signup") : t("delivery.auth.login"))}
+        </Button>
+        <button type="button" onClick={() => setIsSignup((v) => !v)} className="text-xs text-muted-foreground hover:text-accent w-full text-center">
+          {isSignup ? t("delivery.auth.toggle_login") : t("delivery.auth.toggle_signup")}
+        </button>
+      </Card>
     </div>
   );
 }

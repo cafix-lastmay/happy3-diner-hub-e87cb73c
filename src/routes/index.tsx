@@ -64,10 +64,6 @@ function Landing() {
 
         <div className="container mx-auto px-4 py-12 md:py-20">
           <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-4 py-1.5 text-sm">
-              <span className="h-2 w-2 rounded-full bg-accent" />
-              <span className="text-muted-foreground">{t("app.tagline")}</span>
-            </div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-5xl">
               {t("scanner.title")}
             </h1>
@@ -108,25 +104,6 @@ function Landing() {
             </Button>
           </div>
         </Card>
-      </section>
-
-      {/* Features */}
-      <section className="container mx-auto px-4 pb-24">
-        <div className="grid gap-6 md:grid-cols-3">
-          {[
-            { title: t("landing.feature1.title"), desc: t("landing.feature1.desc") },
-            { title: t("landing.feature2.title"), desc: t("landing.feature2.desc") },
-            { title: t("landing.feature3.title"), desc: t("landing.feature3.desc") },
-          ].map((f, i) => (
-            <Card
-              key={i}
-              className="border-border/60 p-6 transition-all hover:border-accent/50 hover:shadow-lg"
-            >
-              <h3 className="mb-2 text-lg font-semibold">{f.title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
-            </Card>
-          ))}
-        </div>
       </section>
 
       <Footer />

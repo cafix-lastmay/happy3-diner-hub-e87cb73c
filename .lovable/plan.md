@@ -1,93 +1,110 @@
+# Plan: 3 UX & Auth Changes
 
-# Takeaway + Delivery Customer Ordering — Implementation Plan
+## Change 1 — Clean landing page (`src/routes/index.tsx`)
 
-Based on your answers, this plan reuses existing systems instead of duplicating them. **No new fee columns, no new price columns on menu_items, no new delivery infra** — only the wiring needed to expose Takeaway/Delivery to customers.
+Remove from the homepage:
+- The chip/banner: *"منصة إدارة الكافيتيريات والمطاعم مع نظام تسويق هرمي ذكي"* (the small pill above the H1).
+- The 3 feature cards section ("نظام أكواد ذكي", "عمولات هرمية تلقائية", "متعدد العملات والبلدان").
 
-## What already exists (untouched)
+Keep: header, QR scanner hero, partner login/signup card, footer.
 
-- `cafeterias.mode_takeaway` / `mode_delivery` / `mode_dine_in` (3 modes)
-- `cafeterias.takeaway_qr_token` (already auto-generated)
-- `service_percent` + `tax_apply_takeaway` / `tax_apply_delivery` toggles
-- `price_tiers` + `menu_item_prices` (full per-tier pricing system, used by `place_order`)
-- `menu_mode_overrides` (per-mode price/visibility per item) — already honored by `place_order`
-- Full delivery flow: `delivery_details` table, `assign_delivery_driver` / `respond_to_delivery` / `update_delivery_status` RPCs, `DriverDeliveries.tsx`, `DeliveryPanel.tsx`, `CustomerDeliveryTracker.tsx`, driver wallet
-- `orders.mode` enum: `dine_in | takeaway | delivery`
+Files: `src/routes/index.tsx` only.
 
-## What's missing (this plan adds)
+---
 
-### 1. Migration
+## Change 2 — "Change password" for every role
 
-- Add column `cafeterias.delivery_qr_token TEXT UNIQUE` (auto-generated, backfilled for existing cafes)
-- Extend `order_status` enum: add `pending_cashier_confirmation`, `ready_for_delivery`
-- New SECURITY DEFINER RPCs:
-  - `get_menu_for_takeaway(_token text)` → cafeteria, categories, items priced from Takeaway tier (+ mode_overrides)
-  - `get_menu_for_delivery(_token text)` → same but Delivery tier
-  - `place_order_takeaway(_token, _customer_name, _customer_phone, _notes, _items)` → creates order with `mode='takeaway'`, `status='pending_cashier_confirmation'`, no `table_id`
-  - `place_order_delivery(_token, _customer_name, _customer_phone, _address, _lat, _lng, _notes, _items)` → creates order with `mode='delivery'`, `status='new'`, also inserts `delivery_details` row with status `pending_assignment` so existing `DeliveryPanel` can assign a driver
-  - `confirm_takeaway_payment(_order_id)` → cafe admin/manager/staff; advances `pending_cashier_confirmation → paid` (triggers existing points deduction)
-- Seed helper: for each cafeteria, if no price_tier with `name IN ('صالة','استلام','توصيل')` exists, create the missing ones. Existing default tier preserved.
-- Reuse Phase 5 driver tracking; no schema changes to `delivery_details` or `drivers`.
+A `/settings/account` page already exists and is shared. Add a **Change Password** card there (instead of duplicating in 6 places), then make sure every role's dashboard has a visible link to it.
 
-### 2. Tables page (`/cafeteria/tables` + `/manager/tables`)
+### New card on `src/routes/settings.account.tsx`
+Form fields:
+- كلمة المرور الحالية
+- كلمة المرور الجديدة (min 6 chars)
+- تأكيد كلمة المرور الجديدة
 
-Add a new section **"QR الخدمات الأخرى"** above the dine-in tables grid (only shown when `mode_takeaway` / `mode_delivery` are enabled). Two cards:
-- **Takeaway QR** → URL `${origin}/m/takeaway/${takeaway_qr_token}` · buttons: Print · Regenerate · Copy
-- **Delivery QR** → URL `${origin}/m/delivery/${delivery_qr_token}` · buttons: Print · Regenerate · Copy
+Flow:
+1. Re-authenticate: `supabase.auth.signInWithPassword({ email: user.email, password: current })`.
+2. If success: `supabase.auth.updateUser({ password: newPassword })`.
+3. Toast success / error, clear fields.
 
-Regenerate writes a new UUID via `crypto.randomUUID().replace(/-/g, '')`.
+### Add navigation links to `/settings/account`
+- Marketer: `src/routes/marketer.index.tsx` (or marketer nav) — add link in account/profile area.
+- Cafeteria admin: `src/routes/cafeteria.settings.tsx` — add link.
+- Manager: `src/routes/manager.settings.tsx` (re-uses cafeteria.settings) — covered automatically.
+- Staff (waiter/chef): add a small "حسابي" section/link in `src/routes/staff.orders.tsx` header or a new `staff.settings` route entry.
+- Driver: `src/routes/driver.index.tsx` "حسابي" tab — add link.
 
-### 3. New customer routes
+No new i18n strings file changes beyond keys for the new card.
 
-- `src/routes/m.takeaway.$token.tsx` — fork of `m.$qrToken.tsx`:
-  - Calls `get_menu_for_takeaway`
-  - Name + Phone required, no table label
-  - On submit → `place_order_takeaway`
-  - Confirmation screen: "تم استلام طلبك. رقم الطلب #XXXXX. يرجى التوجه للكاشير لتأكيد الدفع."
-- `src/routes/m.delivery.$token.tsx` — fork of takeaway:
-  - Calls `get_menu_for_delivery`
-  - Additional Address (textarea) + optional "use my location" GPS
-  - On submit → `place_order_delivery` (writes delivery_details with `pending_assignment`)
-  - Confirmation: order number + link to existing `CustomerDeliveryTracker` at `/order/$orderId/track`
+---
 
-Both pages share extracted bits from `m.$qrToken.tsx` to avoid full duplication (cart, item card, search, categories carousel). Reuse `PromoBanner`, `LanguageSwitcher`.
+## Change 3 — Order page customer fields
 
-### 4. Staff orders (`/cafeteria/orders`, `/manager/`, `/staff/orders`)
+### Dine-in (`src/routes/t.$qrToken.tsx` and `src/routes/m.$qrToken.tsx`)
+- Remove phone input + validation + display.
+- Keep only customer name (optional, as today).
+- Pass `_customer_phone: null` to `place_order` RPC.
 
-- Add tabs row: الكل / الصالة / استلام / توصيل (filters by `orders.mode`)
-- For `mode='takeaway'` + `status='pending_cashier_confirmation'`: show "تأكيد الدفع" button → calls `confirm_takeaway_payment`. After confirmation, normal flow takes over.
-- For `mode='delivery'`: the existing `DeliveryPanel` already handles assignment; just ensure it surfaces in the orders board for delivery rows. No driver dashboard changes needed (Phase 5 system handles pickup → on_the_way → delivered).
+### Takeaway (`src/components/customer/TakeawayDeliveryMenu.tsx` when `mode="take_away"`)
+- Remove phone input + validation for takeaway mode only.
+- Keep name only.
 
-### 5. i18n
+### Delivery (`mode="delivery"` in `TakeawayDeliveryMenu.tsx`)
 
-Add Arabic/English strings for: order modes filter tabs, takeaway/delivery QR card titles, confirmation screen, "confirm payment" button, "QR الخدمات الأخرى", validation errors.
+Add customer authentication and saved-addresses:
 
-## Files
+**Behavior:**
+- If `supabase.auth.getUser()` returns no session → show a "تسجيل الدخول / إنشاء حساب" gate (email + password, with toggle to sign up). Block "Place order" until logged in.
+- If logged in:
+  - Load addresses for this user from new `customer_addresses` table.
+  - Pre-fill name/phone from `profiles` (existing table has `full_name`, `phone`).
+  - Render an address selector listing saved addresses; default address pre-selected.
+  - "إضافة عنوان جديد" expands the existing address/map fields and saves a new row on order.
+  - "تعيين كافتراضي" toggle on each address.
+- After a successful delivery order: upsert the used address (set as default if first one).
 
-```text
-supabase/migrations/<new>.sql                   NEW
-src/routes/m.takeaway.$token.tsx                NEW
-src/routes/m.delivery.$token.tsx                NEW
-src/components/customer/CustomerMenuShared.tsx  NEW (extracted cart/items/search)
-src/routes/cafeteria.tables.tsx                 EDIT (add OtherServicesQr section)
-src/routes/cafeteria.orders.tsx                 EDIT (mode tabs + cashier confirm button)
-src/routes/staff.orders.tsx                     EDIT (same tabs)
-src/i18n/ar.ts, src/i18n/en.ts                  EDIT
-src/integrations/supabase/types.ts              AUTO-REGENERATED (don't touch)
+**Database (new migration):**
+
+```sql
+CREATE TABLE public.customer_addresses (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  label text,
+  address text NOT NULL,
+  lat numeric,
+  lng numeric,
+  is_default boolean NOT NULL DEFAULT false,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.customer_addresses TO authenticated;
+GRANT ALL ON public.customer_addresses TO service_role;
+ALTER TABLE public.customer_addresses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "User manages own addresses" ON public.customer_addresses
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- Trigger to ensure only one default per user
+CREATE FUNCTION public.enforce_single_default_address() ...
 ```
 
-## What I will NOT do (per your answers)
+Profiles row is auto-created today; we'll keep using it for name/phone.
 
-- ❌ Add `dine_in_price/takeaway_price/delivery_price` columns to `menu_items` (use price_tiers instead)
-- ❌ Add `service_fee_dine_in/takeaway/delivery` columns (keep service_percent + apply toggles)
-- ❌ Add `delivery_base_fee` / `delivery_fee_per_km` (existing tiered A/B/C fees stay)
-- ❌ Replace `delivery_details` with `assigned_driver_id` on orders
-- ❌ Add 70/30 driver split (existing wallet system stays)
-- ❌ Rebuild DriverDeliveries / DeliveryPanel
-- ❌ Add separate "delivery distance" entry (existing fee tiers cover this)
+**`place_order` RPC**: already accepts `_customer_phone` as nullable; for delivery we'll still pass it (from profile or saved address).
 
-## Open questions
+---
 
-1. **Default tier names**: I'll seed `صالة` / `استلام` / `توصيل` as three tiers per cafeteria (`صالة` marked default). Items will use existing tier prices; if no per-tier override exists, `menu_items.price` is used (current `place_order` behavior). Is this OK, or do you want different tier names?
-2. **Delivery fee on customer page**: The Phase 5 model assigns a fee tier (A/B/C) only at waiter assignment, not at customer checkout. So the customer's delivery order will show "Subtotal + Service" only — the delivery fee gets added once the waiter assigns a driver/tier. Acceptable, or should the customer pick A/B/C up front?
+## Out of scope
+- No styling/design overhaul of dashboards beyond adding the password card + links.
+- No change to `place_order` RPC signature.
+- No customer "order history" page (only saved addresses).
 
-After you confirm (or answer the 2 questions), I'll implement in this order: migration → tables page QR cards → takeaway customer page → delivery customer page → staff orders tabs + confirm button → i18n.
+## Files touched (summary)
+- `src/routes/index.tsx` — remove 2 sections.
+- `src/routes/settings.account.tsx` — add Change Password card.
+- `src/routes/cafeteria.settings.tsx`, `src/routes/marketer.index.tsx`, `src/routes/driver.index.tsx`, staff settings entry — add link to `/settings/account`.
+- `src/routes/t.$qrToken.tsx`, `src/routes/m.$qrToken.tsx` — strip phone.
+- `src/components/customer/TakeawayDeliveryMenu.tsx` — strip phone for takeaway; add auth gate + address selector for delivery.
+- New migration: `customer_addresses` table + RLS + default-address trigger.
+- `src/i18n/ar.ts` + `en.ts` — new strings.
+
+Approve and I'll execute in this order: migration → frontend changes.
