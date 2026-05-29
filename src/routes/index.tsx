@@ -106,25 +106,6 @@ function Landing() {
         </Card>
       </section>
 
-      {/* Features */}
-      <section className="container mx-auto px-4 pb-24">
-        <div className="grid gap-6 md:grid-cols-3">
-          {[
-            { title: t("landing.feature1.title"), desc: t("landing.feature1.desc") },
-            { title: t("landing.feature2.title"), desc: t("landing.feature2.desc") },
-            { title: t("landing.feature3.title"), desc: t("landing.feature3.desc") },
-          ].map((f, i) => (
-            <Card
-              key={i}
-              className="border-border/60 p-6 transition-all hover:border-accent/50 hover:shadow-lg"
-            >
-              <h3 className="mb-2 text-lg font-semibold">{f.title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-
       <Footer />
 
       {/* Signup type chooser */}
