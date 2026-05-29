@@ -141,3 +141,59 @@ function AccountSettingsPage() {
     </div>
   );
 }
+
+function ChangePasswordCard({ email }: { email: string }) {
+  const { t } = useI18n();
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async () => {
+    if (!email) return;
+    if (next.length < 6) { toast.error(t("password.too_short")); return; }
+    if (next !== confirm) { toast.error(t("password.mismatch")); return; }
+    setBusy(true);
+    try {
+      const { error: verifyErr } = await supabase.auth.signInWithPassword({ email, password: current });
+      if (verifyErr) { toast.error(t("password.current_wrong")); return; }
+      const { error: updErr } = await supabase.auth.updateUser({ password: next });
+      if (updErr) { toast.error(updErr.message); return; }
+      toast.success(t("password.changed"));
+      setCurrent(""); setNext(""); setConfirm("");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Card className="p-4">
+      <div className="flex items-start gap-3">
+        <KeyRound className="h-5 w-5 text-accent shrink-0 mt-0.5" />
+        <div className="flex-1 space-y-3">
+          <div>
+            <h2 className="font-semibold">{t("password.title")}</h2>
+            <p className="mt-1 text-xs text-muted-foreground">{t("password.desc")}</p>
+          </div>
+          <div className="space-y-2">
+            <div>
+              <Label className="text-xs">{t("password.current")}</Label>
+              <Input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" />
+            </div>
+            <div>
+              <Label className="text-xs">{t("password.new")}</Label>
+              <Input type="password" value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" />
+            </div>
+            <div>
+              <Label className="text-xs">{t("password.confirm")}</Label>
+              <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" />
+            </div>
+          </div>
+          <Button onClick={submit} disabled={busy || !current || !next || !confirm} className="w-full sm:w-auto">
+            {busy ? t("common.loading") : t("password.save")}
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+}
