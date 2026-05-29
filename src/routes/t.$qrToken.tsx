@@ -32,9 +32,6 @@ function TakeawayMenu() {
   const [cart, setCart] = useState<Record<string, number>>({});
   const [itemNotes, setItemNotes] = useState<Record<string, string>>({});
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [phoneError, setPhoneError] = useState(false);
-  const phoneRef = useRef<HTMLInputElement>(null);
   const [notes, setNotes] = useState("");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
