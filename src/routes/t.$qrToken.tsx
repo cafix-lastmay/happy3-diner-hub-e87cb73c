@@ -416,7 +416,6 @@ function TakeawayMenu() {
                 </Card>
                 <Card className="p-3 text-xs space-y-1">
                   <div><span className="text-muted-foreground">{t("takeaway.your_name")}: </span><span className="font-medium">{name || "—"}</span></div>
-                  <div><span className="text-muted-foreground">{t("takeaway.your_phone")}: </span><span className="font-medium" dir="ltr">{phone}</span></div>
                   <div><span className="text-muted-foreground">{t("delivery.address")}: </span><span className="font-medium">{address}</span></div>
                   {gps && <div className="text-muted-foreground">📍 {gps.lat.toFixed(5)}, {gps.lng.toFixed(5)}</div>}
                 </Card>
