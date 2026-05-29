@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, ShieldAlert, Trash2 } from "lucide-react";
+import { ArrowLeft, ShieldAlert, Trash2, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
