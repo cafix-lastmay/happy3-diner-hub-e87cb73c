@@ -304,7 +304,7 @@ function TakeawayMenu() {
 
       <main className="container mx-auto px-4 py-4">
         {orderId && orderMode === "delivery" && (
-          <CustomerDeliveryTracker orderId={orderId} shortCode={shortCode} currency={cafe?.currency_code} customerPhone={phone} onNewOrder={startNewOrder} />
+          <CustomerDeliveryTracker orderId={orderId} shortCode={shortCode} currency={cafe?.currency_code} customerPhone="" onNewOrder={startNewOrder} />
         )}
 
         {orderId && orderMode === "takeaway" && (
