@@ -447,10 +447,8 @@ function TakeawayMenu() {
                   );
                 })}
                 <Input placeholder={t("takeaway.your_name")} value={name} onChange={(e) => setName(e.target.value)} />
-                <Input ref={phoneRef} type="tel" placeholder={t("takeaway.your_phone")} value={phone} onChange={(e) => { setPhone(e.target.value); setPhoneError(false); }} required className={phoneError ? "border-red-500 focus-visible:ring-red-500" : ""} />
-                {phoneError && (
-                  <p className="text-red-500 text-xs mt-1">{t("takeaway.phone_required")}</p>
-                )}
+
+
 
                 {orderMode === "delivery" && (
                   <>
