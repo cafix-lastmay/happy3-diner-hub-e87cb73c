@@ -98,11 +98,10 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
     if (mode !== "delivery" || !session?.user) return;
     (async () => {
       const [{ data: prof }, { data: addrs }] = await Promise.all([
-        supabase.from("profiles").select("full_name,phone").eq("id", session.user.id).maybeSingle(),
+        supabase.from("profiles").select("full_name").eq("id", session.user.id).maybeSingle(),
         supabase.from("customer_addresses").select("*").eq("user_id", session.user.id).order("is_default", { ascending: false }),
       ]);
       if (prof?.full_name && !name) setName(prof.full_name);
-      if (prof?.phone) { /* phone loaded, will be used in delivery args below */ }
       const list = (addrs ?? []) as SavedAddress[];
       setAddresses(list);
       const def = list.find((a) => a.is_default) ?? list[0];
