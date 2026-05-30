@@ -194,8 +194,8 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
     try {
       const rpc = mode === "take_away" ? "place_order_takeaway" : "place_order_delivery";
       const args: Record<string, unknown> = mode === "take_away"
-        ? { _token: token, _customer_name: name, _customer_phone: "", _notes: notes, _items: itemsArr }
-        : { _token: token, _customer_name: name, _customer_phone: "", _customer_address: address, _customer_lat: lat, _customer_lng: lng, _notes: notes, _items: itemsArr };
+        ? { _token: token, _customer_name: name, _notes: notes, _items: itemsArr }
+        : { _token: token, _customer_name: name, _customer_address: address, _customer_lat: lat, _customer_lng: lng, _notes: notes, _items: itemsArr };
       const { data, error } = await supabase.rpc(rpc as never, args as never);
       if (error) {
         const msg = error.message?.includes("CAFETERIA_BLOCKED")
