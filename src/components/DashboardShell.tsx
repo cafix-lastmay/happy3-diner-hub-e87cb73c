@@ -146,7 +146,7 @@ export function DashboardShell({ title, navItems, children, showTrialCard }: Pro
             {showTrialCard && <CafeteriaGraceBanner />}
             {showTrialCard ? <CafeteriaBlockGate>{children}</CafeteriaBlockGate> : children}
           </main>
-          <PlatformPromoBanner />
+          
           <Footer />
         </div>
       </div>
