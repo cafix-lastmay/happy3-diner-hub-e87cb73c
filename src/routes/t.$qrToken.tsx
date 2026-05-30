@@ -173,7 +173,7 @@ function TakeawayMenu() {
     try {
       let result: { order_id: string; short_code: string } | null = null;
       if (orderMode === "delivery") {
-        const { data, error } = await supabase.rpc("place_delivery_order", {
+        const { data, error } = await supabase.rpc("place_delivery_order" as never, {
           _takeaway_token: qrToken,
           _customer_name: name,
           _customer_address: address,
@@ -181,7 +181,7 @@ function TakeawayMenu() {
           _customer_lng: (gps?.lng ?? null) as unknown as number,
           _notes: notes,
           _items: itemsArr,
-        });
+        } as never);
         if (error) {
           const msg = (error.message || "").includes("INSUFFICIENT_BALANCE")
             ? t("customer.error.insufficient_balance") : error.message;
