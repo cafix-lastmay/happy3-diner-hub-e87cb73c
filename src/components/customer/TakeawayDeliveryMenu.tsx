@@ -480,6 +480,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
           </div>
         </div>
       )}
+      <PlatformPromoBanner />
     </div>
   );
 }
