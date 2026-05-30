@@ -16,7 +16,7 @@ import { TrialBalanceCard } from "@/components/cafeteria/TrialBalanceCard";
 import { CafeteriaGraceBanner, CafeteriaBlockGate } from "@/components/cafeteria/CafeteriaGracePanel";
 import { GlobalServiceCallsBanner } from "@/components/GlobalServiceCallsBanner";
 import { Footer } from "@/components/Footer";
-import { PlatformPromoBanner } from "@/components/PlatformPromoBanner";
+
 import { BottomNav, BOTTOM_NAV_ROLES } from "@/components/layouts/BottomNav";
 import { MobileHeader } from "@/components/layouts/MobileHeader";
 
