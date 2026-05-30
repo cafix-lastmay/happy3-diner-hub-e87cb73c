@@ -482,6 +482,7 @@ function TakeawayMenu() {
           )}
         </div>
       )}
+      <PlatformPromoBanner />
     </div>
   );
 }
