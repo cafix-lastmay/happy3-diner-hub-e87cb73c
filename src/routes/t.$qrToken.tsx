@@ -13,6 +13,7 @@ import { CustomerDeliveryTracker } from "@/components/delivery/CustomerDeliveryT
 import { useI18n } from "@/i18n/I18nProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { PlatformPromoBanner } from "@/components/PlatformPromoBanner";
 
 export const Route = createFileRoute("/t/$qrToken")({ component: TakeawayMenu });
 
@@ -482,6 +483,7 @@ function TakeawayMenu() {
           )}
         </div>
       )}
+      <PlatformPromoBanner />
     </div>
   );
 }
