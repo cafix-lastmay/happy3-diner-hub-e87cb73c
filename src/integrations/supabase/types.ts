@@ -2349,7 +2349,6 @@ export type Database = {
       place_order_takeaway: {
         Args: {
           _customer_name: string
-          _customer_phone: string
           _items: Json
           _notes: string
           _token: string
