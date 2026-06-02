@@ -213,8 +213,10 @@ function CustomerMenu() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary/20 to-background pb-32">
+      <MenuTypeBanner mode="dine_in" />
       {/* === 1) Cover banner with cafeteria name === */}
       <div className="relative w-full aspect-[16/9] sm:aspect-[3/1] max-h-[260px] overflow-hidden bg-muted">
+
         {cafe?.banner_url ? (
           <img src={cafe.banner_url} alt="" className="w-full h-full object-cover" />
         ) : (
