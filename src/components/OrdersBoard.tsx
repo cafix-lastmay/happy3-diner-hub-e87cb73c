@@ -295,10 +295,17 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
                   const mins = minutesElapsed(o.created_at, timerFrozen ? null : null);
                   const timerColor = mins >= 20 ? "text-destructive" : mins >= 10 ? "text-amber-500" : "text-muted-foreground";
                   const requiresChef = orderRequiresChef(o.id);
+                  const modeStyle = MENU_MODE_STYLES[o.mode ?? "dine_in"];
+                  const ModeIcon = modeStyle.icon;
                   return (
-                    <Card key={o.id} className="p-4">
+                    <Card key={o.id} className={`p-4 relative overflow-hidden ${modeStyle.card}`}>
+                      <div className={`absolute top-0 bottom-0 start-0 w-1.5 ${modeStyle.stripe}`} />
                       <div className="flex items-start justify-between mb-2 gap-2">
                         <div className="min-w-0">
+                          <Badge className={`mb-1 text-[11px] font-bold ${modeStyle.badge}`}>
+                            <ModeIcon className="h-3 w-3 me-1" />
+                            {t(modeStyle.labelKey)}
+                          </Badge>
                           {o.customer_name && <div className="text-xs text-muted-foreground truncate">{o.customer_name}</div>}
                           <div className="text-[10px] text-muted-foreground">{new Date(o.created_at).toLocaleTimeString()}</div>
                           {!timerFrozen && (
@@ -309,13 +316,9 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
                         </div>
                         <div className="flex flex-col items-end gap-1">
                           <Badge variant={statusVariant[o.status]}>{t(`status.${o.status}`)}</Badge>
-                          {o.mode && o.mode !== "dine_in" && (
-                            <Badge variant="outline" className="text-[10px]">
-                              {o.mode === "take_away" ? `🥡 ${t("mode.take_away")}` : `🛵 ${t("mode.delivery")}`}
-                            </Badge>
-                          )}
                         </div>
                       </div>
+
                       <ul className="space-y-1 text-sm border-t border-border pt-2">
                         {its.map((it) => (
                           <li key={it.id} className="flex justify-between"><span>{it.qty}× {it.name_snapshot}</span><span className="text-muted-foreground">{(it.price_snapshot * it.qty).toFixed(2)}</span></li>
