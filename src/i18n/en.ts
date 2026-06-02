@@ -613,6 +613,8 @@ export const en = {
   "mode.dine_in": "Dine-in",
   "mode.take_away": "Take Away",
   "mode.delivery": "Delivery",
+  "menu.type.label": "Menu type",
+  "orders.mode.label": "Order type",
   "owner.max_driver_radius": "Max driver radius",
   "owner.max_driver_radius_hint": "The maximum service radius (in km) that any driver can configure.",
   "settings.payment_instructions": "Payment instructions (shown to customers)",

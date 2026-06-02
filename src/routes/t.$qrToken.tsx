@@ -14,6 +14,7 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { PlatformPromoBanner } from "@/components/PlatformPromoBanner";
+import { MenuTypeBanner } from "@/components/customer/MenuTypeBanner";
 
 export const Route = createFileRoute("/t/$qrToken")({ component: TakeawayMenu });
 
@@ -232,7 +233,9 @@ function TakeawayMenu() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary/20 to-background pb-32">
+      <MenuTypeBanner mode="take_away" />
       <div className="relative w-full aspect-[16/9] sm:aspect-[3/1] max-h-[260px] overflow-hidden bg-muted">
+
         {cafe?.banner_url ? (
           <img src={cafe.banner_url} alt="" className="w-full h-full object-cover" />
         ) : (
