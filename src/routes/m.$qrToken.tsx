@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { sendServiceCall } from "@/components/ServiceCallsListener";
 import { PromoBanner } from "@/components/PromoBanner";
+import { MenuTypeBanner } from "@/components/customer/MenuTypeBanner";
 
 export const Route = createFileRoute("/m/$qrToken")({ component: CustomerMenu });
 
