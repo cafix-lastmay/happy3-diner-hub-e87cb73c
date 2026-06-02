@@ -632,6 +632,8 @@ export const ar = {
   "mode.dine_in": "في المكان",
   "mode.take_away": "خارجي",
   "mode.delivery": "توصيل",
+  "menu.type.label": "نوع المنيو",
+  "orders.mode.label": "نوع الطلب",
   "owner.max_driver_radius": "أقصى نطاق للسائق",
   "owner.max_driver_radius_hint": "أقصى نطاق خدمة (كم) يمكن لأي سائق تحديده.",
   "settings.payment_instructions": "تعليمات الدفع للعملاء",
