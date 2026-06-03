@@ -214,7 +214,6 @@ function CustomerMenu() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary/20 to-background pb-32">
-      <MenuTypeBanner mode="dine_in" />
       {/* === 1) Cover banner with cafeteria name === */}
       <div className="relative w-full aspect-[16/9] sm:aspect-[3/1] max-h-[260px] overflow-hidden bg-muted">
 
@@ -227,21 +226,10 @@ function CustomerMenu() {
         <div className="absolute top-3 end-3">
           <LanguageSwitcher />
         </div>
-        <div className="absolute bottom-3 inset-x-0 px-4 flex items-end justify-between gap-2">
-          <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground drop-shadow-sm truncate">{cafe?.name}</h1>
-            <div className="text-xs text-muted-foreground mt-0.5 flex flex-wrap items-center gap-2">
-              <span>{t("customer.your_table")}: <span className="font-semibold text-foreground">{tbl?.label}</span></span>
-              {activeTier && (
-                <Badge variant="secondary" className="text-[10px] px-2 py-0">
-                  <Star className="h-2.5 w-2.5 me-1 fill-current" />
-                  {activeTier.name}
-                </Badge>
-              )}
-            </div>
-          </div>
-          <div className="h-12 w-12 rounded-full bg-accent/90 text-accent-foreground flex items-center justify-center shadow-lg shrink-0">
-            <Coffee className="h-6 w-6" />
+        <div className="absolute bottom-3 inset-x-0 px-4">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground drop-shadow-sm truncate">{cafe?.name}</h1>
+          <div className="mt-1 text-base sm:text-lg font-bold text-sky-600 dark:text-sky-400">
+            {t("customer.your_table")}: <span className="font-extrabold">{tbl?.label}</span>
           </div>
         </div>
       </div>

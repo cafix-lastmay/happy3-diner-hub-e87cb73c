@@ -233,7 +233,6 @@ function TakeawayMenu() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary/20 to-background pb-32">
-      <MenuTypeBanner mode="take_away" />
       <div className="relative w-full aspect-[16/9] sm:aspect-[3/1] max-h-[260px] overflow-hidden bg-muted">
 
         {cafe?.banner_url ? (
@@ -243,17 +242,10 @@ function TakeawayMenu() {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/30 to-transparent" />
         <div className="absolute top-3 end-3"><LanguageSwitcher /></div>
-        <div className="absolute bottom-3 inset-x-0 px-4 flex items-end justify-between gap-2">
-          <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground drop-shadow-sm truncate">{cafe?.name}</h1>
-            <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-              <ShoppingBag className="h-3 w-3" />
-              <span className="font-semibold text-foreground">{t("takeaway.title")}</span>
-              <span>· {t("takeaway.subtitle")}</span>
-            </div>
-          </div>
-          <div className="h-12 w-12 rounded-full bg-accent/90 text-accent-foreground flex items-center justify-center shadow-lg shrink-0">
-            <Coffee className="h-6 w-6" />
+        <div className="absolute bottom-3 inset-x-0 px-4">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground drop-shadow-sm truncate">{cafe?.name}</h1>
+          <div className="mt-1 text-base sm:text-lg font-extrabold text-amber-600 dark:text-amber-400">
+            Take away
           </div>
         </div>
       </div>
