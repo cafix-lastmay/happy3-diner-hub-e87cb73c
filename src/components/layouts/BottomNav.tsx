@@ -83,7 +83,7 @@ const PRIMARY: Record<RoleKey, Item[]> = {
   ],
   marketer: [
     { to: "/marketer", label: "الرئيسية", icon: LayoutDashboard },
-    { to: "/marketer", label: "شبكتي", icon: Network },
+    { to: "/marketer/calculator", label: "الحاسبة", icon: Calculator },
     { to: "/marketer/commissions", label: "عمولاتي", icon: Wallet },
     { to: "/marketer/withdrawals", label: "السحب", icon: BarChart3 },
   ],
