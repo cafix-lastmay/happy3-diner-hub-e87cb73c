@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Network, Percent, Banknote, Plus, BarChart3, ChevronLeft } from "lucide-react";
+import { LayoutDashboard, Network, Percent, Banknote, Plus, BarChart3, ChevronLeft, Calculator } from "lucide-react";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -71,6 +71,7 @@ function MarketerDashboard() {
   if (!ready) return null;
   const navItems = [
     { to: "/marketer", label: t("common.dashboard"), icon: LayoutDashboard },
+    { to: "/marketer/calculator", label: t("calc.nav"), icon: Calculator },
     { to: "/marketer/commissions", label: t("marketer.nav.commissions"), icon: Percent },
     { to: "/marketer/withdrawals", label: t("marketer.nav.withdrawals"), icon: Banknote },
     { to: "/marketer/reports", label: t("marketer.nav.reports") || "التقارير", icon: BarChart3 },

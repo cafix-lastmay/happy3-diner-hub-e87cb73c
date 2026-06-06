@@ -41,10 +41,12 @@ import { Route as OwnerGrace_periodsRouteImport } from './routes/owner.grace_per
 import { Route as OwnerExchange_ratesRouteImport } from './routes/owner.exchange_rates'
 import { Route as OwnerCountriesRouteImport } from './routes/owner.countries'
 import { Route as OwnerCommissionsRouteImport } from './routes/owner.commissions'
+import { Route as OwnerCalculatorRouteImport } from './routes/owner.calculator'
 import { Route as OwnerCafeteriasRouteImport } from './routes/owner.cafeterias'
 import { Route as MarketerWithdrawalsRouteImport } from './routes/marketer.withdrawals'
 import { Route as MarketerReportsRouteImport } from './routes/marketer.reports'
 import { Route as MarketerCommissionsRouteImport } from './routes/marketer.commissions'
+import { Route as MarketerCalculatorRouteImport } from './routes/marketer.calculator'
 import { Route as ManagerTablesRouteImport } from './routes/manager.tables'
 import { Route as ManagerStaffRouteImport } from './routes/manager.staff'
 import { Route as ManagerSettingsRouteImport } from './routes/manager.settings'
@@ -232,6 +234,11 @@ const OwnerCommissionsRoute = OwnerCommissionsRouteImport.update({
   path: '/owner/commissions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OwnerCalculatorRoute = OwnerCalculatorRouteImport.update({
+  id: '/owner/calculator',
+  path: '/owner/calculator',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OwnerCafeteriasRoute = OwnerCafeteriasRouteImport.update({
   id: '/owner/cafeterias',
   path: '/owner/cafeterias',
@@ -250,6 +257,11 @@ const MarketerReportsRoute = MarketerReportsRouteImport.update({
 const MarketerCommissionsRoute = MarketerCommissionsRouteImport.update({
   id: '/marketer/commissions',
   path: '/marketer/commissions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketerCalculatorRoute = MarketerCalculatorRouteImport.update({
+  id: '/marketer/calculator',
+  path: '/marketer/calculator',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ManagerTablesRoute = ManagerTablesRouteImport.update({
@@ -405,10 +417,12 @@ export interface FileRoutesByFullPath {
   '/manager/settings': typeof ManagerSettingsRoute
   '/manager/staff': typeof ManagerStaffRoute
   '/manager/tables': typeof ManagerTablesRoute
+  '/marketer/calculator': typeof MarketerCalculatorRoute
   '/marketer/commissions': typeof MarketerCommissionsRoute
   '/marketer/reports': typeof MarketerReportsRoute
   '/marketer/withdrawals': typeof MarketerWithdrawalsRoute
   '/owner/cafeterias': typeof OwnerCafeteriasRoute
+  '/owner/calculator': typeof OwnerCalculatorRoute
   '/owner/commissions': typeof OwnerCommissionsRoute
   '/owner/countries': typeof OwnerCountriesRoute
   '/owner/exchange_rates': typeof OwnerExchange_ratesRoute
@@ -468,10 +482,12 @@ export interface FileRoutesByTo {
   '/manager/settings': typeof ManagerSettingsRoute
   '/manager/staff': typeof ManagerStaffRoute
   '/manager/tables': typeof ManagerTablesRoute
+  '/marketer/calculator': typeof MarketerCalculatorRoute
   '/marketer/commissions': typeof MarketerCommissionsRoute
   '/marketer/reports': typeof MarketerReportsRoute
   '/marketer/withdrawals': typeof MarketerWithdrawalsRoute
   '/owner/cafeterias': typeof OwnerCafeteriasRoute
+  '/owner/calculator': typeof OwnerCalculatorRoute
   '/owner/commissions': typeof OwnerCommissionsRoute
   '/owner/countries': typeof OwnerCountriesRoute
   '/owner/exchange_rates': typeof OwnerExchange_ratesRoute
@@ -532,10 +548,12 @@ export interface FileRoutesById {
   '/manager/settings': typeof ManagerSettingsRoute
   '/manager/staff': typeof ManagerStaffRoute
   '/manager/tables': typeof ManagerTablesRoute
+  '/marketer/calculator': typeof MarketerCalculatorRoute
   '/marketer/commissions': typeof MarketerCommissionsRoute
   '/marketer/reports': typeof MarketerReportsRoute
   '/marketer/withdrawals': typeof MarketerWithdrawalsRoute
   '/owner/cafeterias': typeof OwnerCafeteriasRoute
+  '/owner/calculator': typeof OwnerCalculatorRoute
   '/owner/commissions': typeof OwnerCommissionsRoute
   '/owner/countries': typeof OwnerCountriesRoute
   '/owner/exchange_rates': typeof OwnerExchange_ratesRoute
@@ -597,10 +615,12 @@ export interface FileRouteTypes {
     | '/manager/settings'
     | '/manager/staff'
     | '/manager/tables'
+    | '/marketer/calculator'
     | '/marketer/commissions'
     | '/marketer/reports'
     | '/marketer/withdrawals'
     | '/owner/cafeterias'
+    | '/owner/calculator'
     | '/owner/commissions'
     | '/owner/countries'
     | '/owner/exchange_rates'
@@ -660,10 +680,12 @@ export interface FileRouteTypes {
     | '/manager/settings'
     | '/manager/staff'
     | '/manager/tables'
+    | '/marketer/calculator'
     | '/marketer/commissions'
     | '/marketer/reports'
     | '/marketer/withdrawals'
     | '/owner/cafeterias'
+    | '/owner/calculator'
     | '/owner/commissions'
     | '/owner/countries'
     | '/owner/exchange_rates'
@@ -723,10 +745,12 @@ export interface FileRouteTypes {
     | '/manager/settings'
     | '/manager/staff'
     | '/manager/tables'
+    | '/marketer/calculator'
     | '/marketer/commissions'
     | '/marketer/reports'
     | '/marketer/withdrawals'
     | '/owner/cafeterias'
+    | '/owner/calculator'
     | '/owner/commissions'
     | '/owner/countries'
     | '/owner/exchange_rates'
@@ -787,10 +811,12 @@ export interface RootRouteChildren {
   ManagerSettingsRoute: typeof ManagerSettingsRoute
   ManagerStaffRoute: typeof ManagerStaffRoute
   ManagerTablesRoute: typeof ManagerTablesRoute
+  MarketerCalculatorRoute: typeof MarketerCalculatorRoute
   MarketerCommissionsRoute: typeof MarketerCommissionsRoute
   MarketerReportsRoute: typeof MarketerReportsRoute
   MarketerWithdrawalsRoute: typeof MarketerWithdrawalsRoute
   OwnerCafeteriasRoute: typeof OwnerCafeteriasRoute
+  OwnerCalculatorRoute: typeof OwnerCalculatorRoute
   OwnerCommissionsRoute: typeof OwnerCommissionsRoute
   OwnerCountriesRoute: typeof OwnerCountriesRoute
   OwnerExchange_ratesRoute: typeof OwnerExchange_ratesRoute
@@ -1049,6 +1075,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OwnerCommissionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/owner/calculator': {
+      id: '/owner/calculator'
+      path: '/owner/calculator'
+      fullPath: '/owner/calculator'
+      preLoaderRoute: typeof OwnerCalculatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/owner/cafeterias': {
       id: '/owner/cafeterias'
       path: '/owner/cafeterias'
@@ -1075,6 +1108,13 @@ declare module '@tanstack/react-router' {
       path: '/marketer/commissions'
       fullPath: '/marketer/commissions'
       preLoaderRoute: typeof MarketerCommissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketer/calculator': {
+      id: '/marketer/calculator'
+      path: '/marketer/calculator'
+      fullPath: '/marketer/calculator'
+      preLoaderRoute: typeof MarketerCalculatorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/manager/tables': {
@@ -1294,10 +1334,12 @@ const rootRouteChildren: RootRouteChildren = {
   ManagerSettingsRoute: ManagerSettingsRoute,
   ManagerStaffRoute: ManagerStaffRoute,
   ManagerTablesRoute: ManagerTablesRoute,
+  MarketerCalculatorRoute: MarketerCalculatorRoute,
   MarketerCommissionsRoute: MarketerCommissionsRoute,
   MarketerReportsRoute: MarketerReportsRoute,
   MarketerWithdrawalsRoute: MarketerWithdrawalsRoute,
   OwnerCafeteriasRoute: OwnerCafeteriasRoute,
+  OwnerCalculatorRoute: OwnerCalculatorRoute,
   OwnerCommissionsRoute: OwnerCommissionsRoute,
   OwnerCountriesRoute: OwnerCountriesRoute,
   OwnerExchange_ratesRoute: OwnerExchange_ratesRoute,
