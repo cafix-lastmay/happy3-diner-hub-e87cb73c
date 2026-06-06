@@ -22,6 +22,7 @@ import {
   Sparkles,
   Network,
   BellRing,
+  Calculator,
 } from "lucide-react";
 import {
   Sheet,
