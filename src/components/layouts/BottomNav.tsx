@@ -22,6 +22,7 @@ import {
   Sparkles,
   Network,
   BellRing,
+  Calculator,
 } from "lucide-react";
 import {
   Sheet,
@@ -82,7 +83,7 @@ const PRIMARY: Record<RoleKey, Item[]> = {
   ],
   marketer: [
     { to: "/marketer", label: "الرئيسية", icon: LayoutDashboard },
-    { to: "/marketer", label: "شبكتي", icon: Network },
+    { to: "/marketer/calculator", label: "الحاسبة", icon: Calculator },
     { to: "/marketer/commissions", label: "عمولاتي", icon: Wallet },
     { to: "/marketer/withdrawals", label: "السحب", icon: BarChart3 },
   ],
@@ -103,7 +104,14 @@ const OVERFLOW: Partial<Record<RoleKey, Item[]>> = {
     { to: "/cafeteria/settings", label: "الإعدادات", icon: Settings },
     { to: "/settings/notifications", label: "تفضيلات الإشعارات", icon: BellRing },
   ],
+  marketer: [
+    { to: "/marketer", label: "شبكتي", icon: Network },
+    { to: "/marketer/reports", label: "التقارير", icon: BarChart3 },
+    { to: "/settings/notifications", label: "تفضيلات الإشعارات", icon: BellRing },
+    { to: "/settings/account", label: "حسابي", icon: User },
+  ],
   owner: [
+    { to: "/owner/calculator", label: "الحاسبة", icon: Calculator },
     { to: "/owner/reports", label: "التقارير", icon: BarChart3 },
     { to: "/owner/commissions", label: "العمولات", icon: Wallet },
     { to: "/owner/withdrawals", label: "السحب", icon: BarChart3 },
