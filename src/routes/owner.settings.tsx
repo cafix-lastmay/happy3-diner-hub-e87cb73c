@@ -91,16 +91,25 @@ function OwnerSettings() {
     <DashboardShell title={t("owner.dashboard.title")} navItems={ownerNavItems(t)}>
       <h1 className="text-2xl font-bold mb-6">{t("owner.settings.title")}</h1>
 
+      <Card className="p-6 mb-6 max-w-2xl border-2 border-primary/30 bg-primary/5">
+        <h2 className="font-bold text-lg mb-1">💱 معامل التحويل (نقاط/دولار)</h2>
+        <p className="text-xs text-muted-foreground mb-4">
+          هذا الرقم يحدد كم نقطة تحصل عليها الكافيتيريا مقابل كل دولار تشحنه، ويُستخدم أيضاً في حساب عمولات المسوقين.
+          <br />مثال: لو القيمة <b>200</b> فإن شحنة <b>10$</b> = <b>2000 نقطة</b>، ومعامل تحويل النقطة = <b>{(1 / (s.points_per_usd || 1)).toFixed(4)} دولار</b>.
+        </p>
+        <div className="flex flex-wrap gap-2 items-center">
+          <Input type="number" min="1" step="1" className="max-w-[160px] text-lg font-bold" value={s.points_per_usd} onChange={(e) => setS({ ...s, points_per_usd: Number(e.target.value) })} />
+          <span className="text-sm text-muted-foreground">نقطة / دولار</span>
+          <Button size="sm" disabled={busy} onClick={() => saveFields({ points_per_usd: s.points_per_usd })} className="bg-primary text-primary-foreground">حفظ</Button>
+        </div>
+      </Card>
+
       <Card className="p-6 mb-6 max-w-2xl">
         <h2 className="font-semibold mb-4">إعدادات المنصة</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1">
             <Label>الحد الأقصى لنطاق السائق (كم)</Label>
             <Input type="number" min="1" max="200" value={s.max_driver_radius_km} onChange={(e) => setS({ ...s, max_driver_radius_km: Number(e.target.value) })} />
-          </div>
-          <div className="space-y-1">
-            <Label>عدد النقاط لكل دولار</Label>
-            <Input type="number" min="1" step="1" value={s.points_per_usd} onChange={(e) => setS({ ...s, points_per_usd: Number(e.target.value) })} />
           </div>
         </div>
       </Card>
