@@ -183,6 +183,59 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
     );
   };
 
+  // Normalize a phone number to E.164-ish digits for wa.me (strips +, spaces, dashes).
+  const normalizeWa = (raw: string) => raw.replace(/[^\d]/g, "");
+
+  // Build a nicely formatted WhatsApp message for the cafeteria with the order details.
+  const buildWaMessage = (opts: { includeLocation?: boolean; locLat?: number | null; locLng?: number | null } = {}) => {
+    const lines: string[] = [];
+    lines.push(`🛵 *${mode === "delivery" ? t("mode.delivery") : t("mode.take_away")}* — ${cafe?.name ?? ""}`);
+    if (orderId) lines.push(`#${orderId.slice(-6).toUpperCase()}`);
+    lines.push("");
+    lines.push(`👤 ${name}`);
+    if (mode === "delivery" && address.trim()) {
+      lines.push(`📍 ${address}`);
+    }
+    const useLat = opts.locLat ?? lat;
+    const useLng = opts.locLng ?? lng;
+    if (opts.includeLocation && useLat != null && useLng != null) {
+      lines.push(`🗺️ https://maps.google.com/?q=${useLat},${useLng}`);
+    }
+    lines.push("");
+    lines.push("🧾 *الطلب:*");
+    Object.entries(cart).forEach(([id, qty]) => {
+      const it = items.find((x) => x.id === id);
+      if (!it) return;
+      lines.push(`• ${it.name} × ${qty} = ${(Number(it.price) * qty).toFixed(2)} ${cafe?.currency_code ?? ""}`);
+    });
+    lines.push("");
+    lines.push(`💰 ${t("customer.total")}: *${total.toFixed(2)} ${cafe?.currency_code ?? ""}*`);
+    if (notes.trim()) {
+      lines.push("");
+      lines.push(`📝 ${notes}`);
+    }
+    return lines.join("\n");
+  };
+
+  const openWhatsApp = (includeLocation: boolean) => {
+    const num = normalizeWa(cafe?.whatsapp ?? "");
+    if (!num) { toast.error(t("customer.wa_missing")); return; }
+    const send = (locLat: number | null, locLng: number | null) => {
+      const msg = buildWaMessage({ includeLocation, locLat, locLng });
+      const url = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+      window.open(url, "_blank", "noopener");
+    };
+    if (includeLocation && (lat == null || lng == null) && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => { setLat(pos.coords.latitude); setLng(pos.coords.longitude); send(pos.coords.latitude, pos.coords.longitude); },
+        () => { toast.error(t("customer.geo_failed")); send(null, null); }
+      );
+      return;
+    }
+    send(lat, lng);
+  };
+
+
   const submit = async () => {
     if (sending) return;
     if (!name.trim()) { toast.error(t("customer.name_required")); return; }
