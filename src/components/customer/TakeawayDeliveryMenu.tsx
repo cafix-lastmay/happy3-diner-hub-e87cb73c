@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
-  Coffee, Plus, Minus, ShoppingCart, ImageIcon, Check, Search, X, MapPin, User, Bike, Package, Locate, Star, StarOff, LogIn
+  Coffee, Plus, Minus, ShoppingCart, ImageIcon, Check, Search, X, MapPin, User, Bike, Package, Locate, Star, StarOff, LogIn, MessageCircle
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ interface Cafe {
   banner_url?: string | null; service_percent?: number; tax_percent?: number;
   tax_apply_takeaway?: boolean; tax_apply_delivery?: boolean;
   estimated_delivery_minutes?: number;
+  whatsapp?: string | null;
 }
 interface Cat { id: string; name: string; sort_order: number }
 interface Item { id: string; category_id: string | null; name: string; description: string | null; price: number; image_url: string | null; is_most_popular?: boolean }
@@ -45,6 +46,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [lastSnapshot, setLastSnapshot] = useState<{ lines: { name: string; qty: number; price: number }[]; total: number; address: string; lat: number | null; lng: number | null; notes: string; name: string } | null>(null);
   const [invalid, setInvalid] = useState(false);
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
@@ -182,6 +184,68 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
     );
   };
 
+  // Normalize a phone number to E.164-ish digits for wa.me (strips +, spaces, dashes).
+  const normalizeWa = (raw: string) => raw.replace(/[^\d]/g, "");
+
+  // Build a nicely formatted WhatsApp message for the cafeteria with the order details.
+  const buildWaMessage = (opts: { includeLocation?: boolean; locLat?: number | null; locLng?: number | null } = {}) => {
+    const snap = lastSnapshot;
+    const out: string[] = [];
+    out.push(`🛵 *${mode === "delivery" ? t("mode.delivery") : t("mode.take_away")}* — ${cafe?.name ?? ""}`);
+    if (orderId) out.push(`#${orderId.slice(-6).toUpperCase()}`);
+    out.push("");
+    out.push(`👤 ${snap?.name ?? name}`);
+    const addr = snap?.address ?? address;
+    if (mode === "delivery" && addr.trim()) {
+      out.push(`📍 ${addr}`);
+    }
+    const useLat = opts.locLat ?? snap?.lat ?? lat;
+    const useLng = opts.locLng ?? snap?.lng ?? lng;
+    if (opts.includeLocation && useLat != null && useLng != null) {
+      out.push(`🗺️ https://maps.google.com/?q=${useLat},${useLng}`);
+    }
+    out.push("");
+    out.push(`🧾 *${t("customer.your_order")}:*`);
+    if (snap) {
+      snap.lines.forEach((l) => {
+        out.push(`• ${l.name} × ${l.qty} = ${(l.price * l.qty).toFixed(2)} ${cafe?.currency_code ?? ""}`);
+      });
+    } else {
+      Object.entries(cart).forEach(([id, qty]) => {
+        const it = items.find((x) => x.id === id);
+        if (!it) return;
+        out.push(`• ${it.name} × ${qty} = ${(Number(it.price) * qty).toFixed(2)} ${cafe?.currency_code ?? ""}`);
+      });
+    }
+    out.push("");
+    out.push(`💰 ${t("customer.total")}: *${(snap?.total ?? total).toFixed(2)} ${cafe?.currency_code ?? ""}*`);
+    const n = snap?.notes ?? notes;
+    if (n.trim()) {
+      out.push("");
+      out.push(`📝 ${n}`);
+    }
+    return out.join("\n");
+  };
+
+  const openWhatsApp = (includeLocation: boolean) => {
+    const num = normalizeWa(cafe?.whatsapp ?? "");
+    if (!num) { toast.error(t("customer.wa_missing")); return; }
+    const send = (locLat: number | null, locLng: number | null) => {
+      const msg = buildWaMessage({ includeLocation, locLat, locLng });
+      const url = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+      window.open(url, "_blank", "noopener");
+    };
+    if (includeLocation && (lat == null || lng == null) && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => { setLat(pos.coords.latitude); setLng(pos.coords.longitude); send(pos.coords.latitude, pos.coords.longitude); },
+        () => { toast.error(t("customer.geo_failed")); send(null, null); }
+      );
+      return;
+    }
+    send(lat, lng);
+  };
+
+
   const submit = async () => {
     if (sending) return;
     if (!name.trim()) { toast.error(t("customer.name_required")); return; }
@@ -217,6 +281,12 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
         });
       }
       setOrderId(data as string);
+      // Snapshot order details so post-submit WhatsApp button still has them after we clear the cart.
+      const snapLines = Object.entries(cart).map(([id, qty]) => {
+        const it = items.find((x) => x.id === id);
+        return { name: it?.name ?? "", qty, price: it ? Number(it.price) : 0 };
+      });
+      setLastSnapshot({ lines: snapLines, total, address, lat, lng, notes, name });
       setCart({}); setNotes(""); setCartOpen(false);
       toast.success(t("customer.order_sent"));
     } finally {
@@ -302,6 +372,18 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
                   ? t("customer.takeaway.confirmation")
                   : t("customer.delivery.confirmation").replace("{mins}", String(cafe?.estimated_delivery_minutes ?? 30))}
               </p>
+              {cafe?.whatsapp && (
+                <div className="w-full max-w-xs space-y-2 pt-1">
+                  <Button onClick={() => openWhatsApp(false)} className="w-full bg-[#25D366] hover:bg-[#1ebe57] text-white">
+                    <MessageCircle className="h-4 w-4 me-2" />{t("customer.wa_send")}
+                  </Button>
+                  {mode === "delivery" && (
+                    <Button onClick={() => openWhatsApp(true)} variant="outline" className="w-full border-[#25D366] text-[#128C7E] hover:bg-[#25D366]/10">
+                      <MapPin className="h-4 w-4 me-2" />{t("customer.wa_send_with_location")}
+                    </Button>
+                  )}
+                </div>
+              )}
               <Button variant="ghost" size="sm" onClick={() => setOrderId(null)}>{t("customer.new_order")}</Button>
             </div>
           </Card>
