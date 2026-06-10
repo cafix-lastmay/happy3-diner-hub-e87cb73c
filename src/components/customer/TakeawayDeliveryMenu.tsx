@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
-  Coffee, Plus, Minus, ShoppingCart, ImageIcon, Check, Search, X, MapPin, User, Bike, Package, Locate, Star, StarOff, LogIn
+  Coffee, Plus, Minus, ShoppingCart, ImageIcon, Check, Search, X, MapPin, User, Bike, Package, Locate, Star, StarOff, LogIn, MessageCircle
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ interface Cafe {
   banner_url?: string | null; service_percent?: number; tax_percent?: number;
   tax_apply_takeaway?: boolean; tax_apply_delivery?: boolean;
   estimated_delivery_minutes?: number;
+  whatsapp?: string | null;
 }
 interface Cat { id: string; name: string; sort_order: number }
 interface Item { id: string; category_id: string | null; name: string; description: string | null; price: number; image_url: string | null; is_most_popular?: boolean }
