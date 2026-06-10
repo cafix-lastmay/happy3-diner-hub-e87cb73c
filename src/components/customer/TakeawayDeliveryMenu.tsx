@@ -46,6 +46,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [lastSnapshot, setLastSnapshot] = useState<{ lines: { name: string; qty: number; price: number }[]; total: number; address: string; lat: number | null; lng: number | null; notes: string; name: string } | null>(null);
   const [invalid, setInvalid] = useState(false);
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
