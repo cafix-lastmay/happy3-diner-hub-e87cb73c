@@ -281,6 +281,12 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
         });
       }
       setOrderId(data as string);
+      // Snapshot order details so post-submit WhatsApp button still has them after we clear the cart.
+      const snapLines = Object.entries(cart).map(([id, qty]) => {
+        const it = items.find((x) => x.id === id);
+        return { name: it?.name ?? "", qty, price: it ? Number(it.price) : 0 };
+      });
+      setLastSnapshot({ lines: snapLines, total, address, lat, lng, notes, name });
       setCart({}); setNotes(""); setCartOpen(false);
       toast.success(t("customer.order_sent"));
     } finally {
