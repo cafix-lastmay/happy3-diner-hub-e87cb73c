@@ -189,33 +189,42 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
 
   // Build a nicely formatted WhatsApp message for the cafeteria with the order details.
   const buildWaMessage = (opts: { includeLocation?: boolean; locLat?: number | null; locLng?: number | null } = {}) => {
-    const lines: string[] = [];
-    lines.push(`🛵 *${mode === "delivery" ? t("mode.delivery") : t("mode.take_away")}* — ${cafe?.name ?? ""}`);
-    if (orderId) lines.push(`#${orderId.slice(-6).toUpperCase()}`);
-    lines.push("");
-    lines.push(`👤 ${name}`);
-    if (mode === "delivery" && address.trim()) {
-      lines.push(`📍 ${address}`);
+    const snap = lastSnapshot;
+    const out: string[] = [];
+    out.push(`🛵 *${mode === "delivery" ? t("mode.delivery") : t("mode.take_away")}* — ${cafe?.name ?? ""}`);
+    if (orderId) out.push(`#${orderId.slice(-6).toUpperCase()}`);
+    out.push("");
+    out.push(`👤 ${snap?.name ?? name}`);
+    const addr = snap?.address ?? address;
+    if (mode === "delivery" && addr.trim()) {
+      out.push(`📍 ${addr}`);
     }
-    const useLat = opts.locLat ?? lat;
-    const useLng = opts.locLng ?? lng;
+    const useLat = opts.locLat ?? snap?.lat ?? lat;
+    const useLng = opts.locLng ?? snap?.lng ?? lng;
     if (opts.includeLocation && useLat != null && useLng != null) {
-      lines.push(`🗺️ https://maps.google.com/?q=${useLat},${useLng}`);
+      out.push(`🗺️ https://maps.google.com/?q=${useLat},${useLng}`);
     }
-    lines.push("");
-    lines.push("🧾 *الطلب:*");
-    Object.entries(cart).forEach(([id, qty]) => {
-      const it = items.find((x) => x.id === id);
-      if (!it) return;
-      lines.push(`• ${it.name} × ${qty} = ${(Number(it.price) * qty).toFixed(2)} ${cafe?.currency_code ?? ""}`);
-    });
-    lines.push("");
-    lines.push(`💰 ${t("customer.total")}: *${total.toFixed(2)} ${cafe?.currency_code ?? ""}*`);
-    if (notes.trim()) {
-      lines.push("");
-      lines.push(`📝 ${notes}`);
+    out.push("");
+    out.push(`🧾 *${t("customer.your_order")}:*`);
+    if (snap) {
+      snap.lines.forEach((l) => {
+        out.push(`• ${l.name} × ${l.qty} = ${(l.price * l.qty).toFixed(2)} ${cafe?.currency_code ?? ""}`);
+      });
+    } else {
+      Object.entries(cart).forEach(([id, qty]) => {
+        const it = items.find((x) => x.id === id);
+        if (!it) return;
+        out.push(`• ${it.name} × ${qty} = ${(Number(it.price) * qty).toFixed(2)} ${cafe?.currency_code ?? ""}`);
+      });
     }
-    return lines.join("\n");
+    out.push("");
+    out.push(`💰 ${t("customer.total")}: *${(snap?.total ?? total).toFixed(2)} ${cafe?.currency_code ?? ""}*`);
+    const n = snap?.notes ?? notes;
+    if (n.trim()) {
+      out.push("");
+      out.push(`📝 ${n}`);
+    }
+    return out.join("\n");
   };
 
   const openWhatsApp = (includeLocation: boolean) => {
