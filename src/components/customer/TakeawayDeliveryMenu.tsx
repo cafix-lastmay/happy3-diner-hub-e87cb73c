@@ -372,6 +372,18 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
                   ? t("customer.takeaway.confirmation")
                   : t("customer.delivery.confirmation").replace("{mins}", String(cafe?.estimated_delivery_minutes ?? 30))}
               </p>
+              {cafe?.whatsapp && (
+                <div className="w-full max-w-xs space-y-2 pt-1">
+                  <Button onClick={() => openWhatsApp(false)} className="w-full bg-[#25D366] hover:bg-[#1ebe57] text-white">
+                    <MessageCircle className="h-4 w-4 me-2" />{t("customer.wa_send")}
+                  </Button>
+                  {mode === "delivery" && (
+                    <Button onClick={() => openWhatsApp(true)} variant="outline" className="w-full border-[#25D366] text-[#128C7E] hover:bg-[#25D366]/10">
+                      <MapPin className="h-4 w-4 me-2" />{t("customer.wa_send_with_location")}
+                    </Button>
+                  )}
+                </div>
+              )}
               <Button variant="ghost" size="sm" onClick={() => setOrderId(null)}>{t("customer.new_order")}</Button>
             </div>
           </Card>
