@@ -382,6 +382,8 @@ function ExtendedSettings({ refCode }: { refCode: string }) {
 
       {/* Take Away QR */}
       {data.mode_takeaway && <TakeawayQrCard refCode={refCode} />}
+      {/* Delivery QR */}
+      {data.mode_delivery && <DeliveryQrCard refCode={refCode} />}
 
       {data.mode_delivery && (
         <Card className="p-6 space-y-4">
