@@ -100,11 +100,10 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   useEffect(() => {
     if (mode !== "delivery" || !session?.user) return;
     (async () => {
-      const [{ data: prof }, { data: addrs }] = await Promise.all([
-        supabase.from("profiles").select("full_name").eq("id", session.user.id).maybeSingle(),
-        supabase.from("customer_addresses").select("*").eq("user_id", session.user.id).order("is_default", { ascending: false }),
-      ]);
-      if (prof?.full_name && !name) setName(prof.full_name);
+      const { data: addrs } = await supabase.from("customer_addresses").select("*").eq("user_id", session.user.id).order("is_default", { ascending: false });
+      // Do NOT auto-fill the customer name from the auth profile: the same browser
+      // may be logged in as the cafeteria owner, and we'd leak the cafeteria name
+      // into the "your name" field. The customer always types their own name.
       const list = (addrs ?? []) as SavedAddress[];
       setAddresses(list);
       const def = list.find((a) => a.is_default) ?? list[0];
