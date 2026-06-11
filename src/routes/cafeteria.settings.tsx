@@ -382,6 +382,8 @@ function ExtendedSettings({ refCode }: { refCode: string }) {
 
       {/* Take Away QR */}
       {data.mode_takeaway && <TakeawayQrCard refCode={refCode} />}
+      {/* Delivery QR */}
+      {data.mode_delivery && <DeliveryQrCard refCode={refCode} />}
 
       {data.mode_delivery && (
         <Card className="p-6 space-y-4">
@@ -517,6 +519,35 @@ function TakeawayQrCard({ refCode }: { refCode: string }) {
         <Input readOnly value={pickupUrl} className="font-mono text-xs" />
         <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(pickupUrl); toast.success(t("settings.takeaway_qr.copied")); }}>{t("settings.takeaway_qr.copy")}</Button>
         <Button variant="outline" size="sm" asChild><a href={pickupUrl} target="_blank" rel="noreferrer">{t("pickup.title")}</a></Button>
+      </div>
+    </Card>
+  );
+}
+
+function DeliveryQrCard({ refCode }: { refCode: string }) {
+  const { t } = useI18n();
+  const [token, setToken] = useState<string | null>(null);
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("cafeterias").select("delivery_qr_token").eq("ref_code", refCode).maybeSingle();
+      setToken((data as { delivery_qr_token: string } | null)?.delivery_qr_token ?? null);
+    })();
+  }, [refCode]);
+  if (!token) return null;
+  const url = typeof window !== "undefined" ? `${window.location.origin}/m/delivery/${token}` : `/m/delivery/${token}`;
+  return (
+    <Card className="p-6 space-y-4 border-2 border-emerald-500/40 bg-emerald-500/5">
+      <h2 className="font-semibold">🛵 {t("mode.delivery")} — QR</h2>
+      <p className="text-xs text-muted-foreground">اطبع الكود أو شارك الرابط مع العملاء لاستقبال طلبات التوصيل.</p>
+      <div className="flex flex-col items-center gap-3">
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-border">
+          <QRCodeSVG value={url} size={200} level="M" includeMargin={false} />
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Input readOnly value={url} className="font-mono text-xs" />
+        <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(url); toast.success(t("settings.takeaway_qr.copied")); }}>{t("settings.takeaway_qr.copy")}</Button>
+        <Button variant="outline" size="sm" asChild><a href={url} target="_blank" rel="noreferrer">{t("settings.takeaway_qr.open")}</a></Button>
       </div>
     </Card>
   );
