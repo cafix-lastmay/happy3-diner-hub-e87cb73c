@@ -2339,7 +2339,6 @@ export type Database = {
           _customer_lat: number
           _customer_lng: number
           _customer_name: string
-          _customer_phone: string
           _items: Json
           _notes: string
           _token: string
