@@ -717,3 +717,55 @@ INSERT INTO public."user_roles" ("id", "user_id", "role", "entity_ref_code", "cr
 -- See appended block below (fetched via service-role read).
 
 COMMIT;
+
+
+-- ============ auth.users export ============
+-- 40 users. auth.users is managed by Supabase Auth and cannot be inserted directly.
+-- Recreate users via the Supabase Auth Admin API on the new project, then map IDs.
+-- The block below is a reference-only staging table.
+
+CREATE TABLE IF NOT EXISTS public._auth_users_backup (
+  id uuid PRIMARY KEY,
+  email text,
+  created_at timestamptz
+);
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('587a16a0-1bcb-472c-81bf-82efc465ff30', 'yaserras@gmail.com', '2026-05-21 16:14:48.106711+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('3b077289-46e8-400f-b973-ce99f1d81750', 'ahmed.mark@cafix.test', '2026-05-21 20:16:09.210661+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('95664e7e-7766-45e5-84eb-07f534b9d0f1', 'sara.mark@cafix.test', '2026-05-21 20:16:48.151805+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('f3c57815-cc7e-413b-a9ca-52f4b376d6bc', 'khalid.sub@cafix.test', '2026-05-21 20:26:07.581238+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('f22d3a35-0d7b-4f3d-9a1e-24881d04718e', 'cafe.nakhba@cafix.test', '2026-05-21 20:54:07.985031+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('e1c53de7-2380-48df-8294-527c90e920f3', 'cafe.asdiqa@cafix.test', '2026-05-21 20:55:51.789089+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('b338b84f-60c3-42c6-bb4c-cedf9f5d4645', 'cafe.thawqa@cafix.test', '2026-05-21 20:56:11.974694+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('0b1ecec4-103a-4ca5-b890-e788018251cb', 'mgr.sabah@cafix.test', '2026-05-21 21:08:07.671113+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('81e64541-4656-4710-b60d-38f96b2d4128', 'mgr.masa@cafix.test', '2026-05-21 21:08:09.69449+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('6b7034d0-2bed-49b9-a145-d7aea0373e08', 'waiter.ali@cafix.test', '2026-05-21 21:08:11.804365+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('34c4bbc0-c435-4ca5-b5fa-6be147205182', 'waiter.omar@cafix.test', '2026-05-21 21:08:14.710863+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('4225c162-5f68-4f8f-8dd7-0d5617c85cad', 'waiter.fatima@cafix.test', '2026-05-21 21:08:18.353288+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('6d96c0b9-96a8-47ac-a74c-ad75414280f5', 'waiter.nour@cafix.test', '2026-05-21 21:08:20.527526+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('751e0839-9d10-42c1-8914-02f8ff2af4be', 'chef.grill@cafix.test', '2026-05-21 21:08:22.159129+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('fbd64937-6568-4e32-81c1-2710f2539e85', 'chef.sweet@cafix.test', '2026-05-21 21:08:23.882873+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('639dc576-920a-4788-85a1-5874f67df2a5', 'chef.drinks@cafix.test', '2026-05-21 21:08:26.00568+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('05686174-cb15-4c14-a3af-a43b25dae208', 'mgr.layla@cafix.test', '2026-05-21 21:12:21.503166+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('56636983-a846-470d-823c-025294ff3d1a', 'mgr.karim@cafix.test', '2026-05-21 21:12:36.218266+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('33acd6d2-2df7-413c-9d40-0f224a496e31', 'waiter.dina@cafix.test', '2026-05-21 21:12:38.33188+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('941d30fa-3fc1-480f-b188-8fdf0147de78', 'waiter.samir@cafix.test', '2026-05-21 21:12:40.208873+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('a13cb31a-f76d-403e-9126-516f39ed9304', 'waiter.rania@cafix.test', '2026-05-21 21:12:41.827073+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('1b8058d6-3dbe-436f-9877-ddcdf418eb89', 'chef.burger@cafix.test', '2026-05-21 21:12:43.392682+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('df6fcda2-8e01-45af-8479-3c1a7c77d6e9', 'chef.pizza@cafix.test', '2026-05-21 21:12:44.893173+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('a59ff9fb-abd9-40fd-b019-0709718de742', 'driver.sami@cafix.test', '2026-05-21 21:12:46.502282+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('f280f845-2017-4e44-9a69-23b54e697f6d', 'driver.tarek@cafix.test', '2026-05-21 21:12:48.157742+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('1b8cc998-c51b-411b-b38a-5700bf3753c1', 'mgr.solo@cafix.test', '2026-05-21 21:15:43.774805+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('f1615e10-87d0-4107-9c1b-49056b0a74f8', 'waiter.mona@cafix.test', '2026-05-21 21:15:45.966839+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('ad98917c-121e-4970-b58b-741829768164', 'waiter.yusuf@cafix.test', '2026-05-21 21:15:53.330759+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('98672b7d-2cdf-44d6-912b-2c3b1ba8f434', 'waiter.leen@cafix.test', '2026-05-21 21:15:55.34234+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('11049e72-eeb8-4163-b497-acb11991525d', 'chef.bfast@cafix.test', '2026-05-21 21:15:57.117639+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('8c93139f-5d37-435f-b235-4b28a4457dfa', 'chef.lunch@cafix.test', '2026-05-21 21:15:58.583876+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('18e95524-ee9b-4f3b-93af-30918c07172f', 'driver.wael@cafix.test', '2026-05-21 21:16:00.377604+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('b85ce99a-f17c-4e82-b1c5-262e828af478', 'driver.nabil@cafix.test', '2026-05-21 21:16:01.731918+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('d627449d-8428-4dfa-831c-b555f5111fa3', 'driver.ziad@cafix.test', '2026-05-21 21:18:27.258422+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('7926376b-76a8-4d33-8051-c9f31c6f4c9d', 'driver.rami@cafix.test', '2026-05-21 21:18:28.753007+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('b5d6cdbd-ad54-4dea-837d-1639898d0e42', 'driver.hani@cafix.test', '2026-05-21 21:18:30.096403+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('27ad3383-0290-4431-8a3e-d75b59171edd', 'cafe.dubai@cafix.test', '2026-05-29 09:33:57.402896+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('712f0f45-de93-491a-9a2c-7b19f3f4a954', 'cafe.cairo@cafix.test', '2026-05-29 09:35:04.450678+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('af679ee6-10b5-4047-86ea-45084c0ac23e', 'yasserrass50@gmail.com', '2026-05-30 09:53:15.993689+00');
+INSERT INTO public._auth_users_backup (id, email, created_at) VALUES ('0ea22dc6-1bdf-421a-8ec3-eb160671d7e2', 'ughbhhh@hkgkgk.com', '2026-06-03 11:48:14.355225+00');
