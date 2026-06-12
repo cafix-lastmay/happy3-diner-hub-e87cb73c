@@ -321,7 +321,7 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
       try {
         setUploadProgress(20);
         const safeName = `${crypto.randomUUID()}.${pendingBlob.ext}`;
-        const path = `${user.id}/${safeName}`;
+        const path = `${refCode}/${safeName}`;
         setUploadProgress(50);
         const { error: upErr } = await supabase.storage
           .from("menu-images")
