@@ -1,4 +1,4 @@
--- Backup generated 2026-06-12T13:04:59.878094Z
+-- Backup generated 2026-06-12T13:05:26.049039Z
 -- Source project: xcouhvtmrrnnzkfjfaaz
 -- Contains: public.* tables (INSERTs) + auth.users (id,email,created_at)
 
@@ -714,3 +714,6 @@ INSERT INTO public."user_roles" ("id", "user_id", "role", "entity_ref_code", "cr
 -- (no rows)
 
 -- ============ auth.users (id, email, created_at) ============
+-- See appended block below (fetched via service-role read).
+
+COMMIT;
