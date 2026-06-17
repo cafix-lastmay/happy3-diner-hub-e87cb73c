@@ -963,6 +963,50 @@ export type Database = {
           },
         ]
       }
+      menu_item_sizes: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_available: boolean
+          is_default: boolean
+          menu_item_id: string
+          name: string
+          price: number
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_available?: boolean
+          is_default?: boolean
+          menu_item_id: string
+          name: string
+          price?: number
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_available?: boolean
+          is_default?: boolean
+          menu_item_id?: string
+          name?: string
+          price?: number
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_item_sizes_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "menu_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       menu_items: {
         Row: {
           cafeteria_ref_code: string
@@ -1146,6 +1190,9 @@ export type Database = {
           order_id: string
           price_snapshot: number
           qty: number
+          size_id: string | null
+          size_name: string | null
+          unit_price: number | null
         }
         Insert: {
           created_at?: string
@@ -1156,6 +1203,9 @@ export type Database = {
           order_id: string
           price_snapshot: number
           qty: number
+          size_id?: string | null
+          size_name?: string | null
+          unit_price?: number | null
         }
         Update: {
           created_at?: string
@@ -1166,6 +1216,9 @@ export type Database = {
           order_id?: string
           price_snapshot?: number
           qty?: number
+          size_id?: string | null
+          size_name?: string | null
+          unit_price?: number | null
         }
         Relationships: [
           {
