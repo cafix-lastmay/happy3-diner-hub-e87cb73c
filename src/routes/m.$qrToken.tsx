@@ -22,8 +22,16 @@ export const Route = createFileRoute("/m/$qrToken")({ component: CustomerMenu })
 interface Tbl { id: string; cafeteria_ref_code: string; label: string }
 interface Cafe { ref_code: string; name: string; currency_code: string | null; menu_header_url?: string | null; menu_footer_url?: string | null; banner_url?: string | null }
 interface Cat { id: string; name: string; sort_order: number }
-interface Item { id: string; category_id: string | null; name: string; description: string | null; price: number; image_url: string | null; is_most_popular?: boolean }
+interface Size { id: string; name: string; description: string | null; price: number; is_default: boolean; sort_order: number }
+interface Item { id: string; category_id: string | null; name: string; description: string | null; price: number; image_url: string | null; is_most_popular?: boolean; sizes?: Size[] }
+interface CartLine { item_id: string; size_id: string | null; size_name: string | null; name: string; price: number; qty: number }
 interface FooterBanner { enabled: boolean; text: string | null; cta_text: string | null; url: string | null }
+
+const lineKey = (itemId: string, sizeId: string | null) => `${itemId}|${sizeId ?? ""}`;
+const defaultSizeFor = (it: Item): Size | null => {
+  if (!it.sizes || it.sizes.length === 0) return null;
+  return it.sizes.find((s) => s.is_default) ?? it.sizes[0];
+};
 interface ActiveTier { id: string; name: string }
 
 const ORDER_STORAGE_PREFIX = "cafeteria_order_";
@@ -36,7 +44,8 @@ function CustomerMenu() {
   const [cats, setCats] = useState<Cat[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const [popular, setPopular] = useState<Item[]>([]);
-  const [cart, setCart] = useState<Record<string, number>>({});
+  const [cart, setCart] = useState<Record<string, CartLine>>({});
+  const [selectedSize, setSelectedSize] = useState<Record<string, string>>({});
   const [itemNotes, setItemNotes] = useState<Record<string, string>>({});
   const [name, setName] = useState("");
   const [notes, setNotes] = useState("");
@@ -128,23 +137,32 @@ function CustomerMenu() {
     return () => clearInterval(interval);
   }, [orderId, qrToken]);
 
-  const total = useMemo(() => Object.entries(cart).reduce((s, [id, qty]) => {
-    const it = items.find((x) => x.id === id);
-    return s + (it ? Number(it.price) * qty : 0);
-  }, 0), [cart, items]);
+  const total = useMemo(() => Object.values(cart).reduce((s, ln) => s + ln.price * ln.qty, 0), [cart]);
 
-  const itemCount = useMemo(() => Object.values(cart).reduce((a, b) => a + b, 0), [cart]);
+  const itemCount = useMemo(() => Object.values(cart).reduce((a, b) => a + b.qty, 0), [cart]);
 
-  const setQty = (id: string, qty: number) => {
+  const getSelectedSize = (it: Item): Size | null => {
+    if (!it.sizes || it.sizes.length === 0) return null;
+    const chosen = selectedSize[it.id];
+    if (chosen) return it.sizes.find((s) => s.id === chosen) ?? defaultSizeFor(it);
+    return defaultSizeFor(it);
+  };
+  const setQtyFor = (it: Item, qty: number) => {
+    const sz = getSelectedSize(it);
+    const key = lineKey(it.id, sz?.id ?? null);
     setCart((c) => {
       const r = { ...c };
-      if (qty <= 0) delete r[id];
-      else r[id] = qty;
+      if (qty <= 0) delete r[key];
+      else r[key] = { item_id: it.id, size_id: sz?.id ?? null, size_name: sz?.name ?? null, name: it.name, price: sz ? sz.price : Number(it.price), qty };
       return r;
     });
   };
-  const inc = (id: string) => setQty(id, (cart[id] ?? 0) + 1);
-  const dec = (id: string) => setQty(id, (cart[id] ?? 0) - 1);
+  const qtyOf = (it: Item) => {
+    const sz = getSelectedSize(it);
+    return cart[lineKey(it.id, sz?.id ?? null)]?.qty ?? 0;
+  };
+  const inc = (it: Item) => setQtyFor(it, qtyOf(it) + 1);
+  const dec = (it: Item) => setQtyFor(it, qtyOf(it) - 1);
 
   const scrollToCat = (id: string) => {
     setActiveCat(id);
@@ -160,10 +178,11 @@ function CustomerMenu() {
 
   const submit = async () => {
     if (!tbl || sending) return;
-    const itemsArr = Object.entries(cart).map(([item_id, qty]) => ({
-      item_id,
-      qty,
-      notes: itemNotes[item_id] || "",
+    const itemsArr = Object.values(cart).map((ln) => ({
+      item_id: ln.item_id,
+      qty: ln.qty,
+      size_id: ln.size_id,
+      notes: itemNotes[lineKey(ln.item_id, ln.size_id)] || "",
     }));
     if (itemsArr.length === 0) return;
     setSending(true);
@@ -336,7 +355,9 @@ function CustomerMenu() {
             <div className="-mx-4 overflow-x-auto scrollbar-hide">
               <div className="flex gap-3 px-4 min-w-max">
                 {popular.map((it) => {
-                  const qty = cart[it.id] ?? 0;
+                  const qty = qtyOf(it);
+                  const sz = getSelectedSize(it);
+                  const dispPrice = sz ? sz.price : Number(it.price);
                   return (
                     <Card
                       key={it.id}
@@ -349,7 +370,7 @@ function CustomerMenu() {
                           <div className="w-full h-full flex items-center justify-center"><ImageIcon className="h-8 w-8 text-muted-foreground/40" /></div>
                         )}
                         <button
-                          onClick={() => inc(it.id)}
+                          onClick={() => inc(it)}
                           className="absolute bottom-2 end-2 h-8 w-8 rounded-full bg-accent text-accent-foreground shadow-lg flex items-center justify-center active:scale-95"
                           aria-label={t("customer.add_to_cart")}
                         >
@@ -358,7 +379,7 @@ function CustomerMenu() {
                       </div>
                       <div className="p-2">
                         <div className="text-sm font-semibold leading-tight line-clamp-1">{it.name}</div>
-                        <div className="font-bold text-accent text-sm mt-1">{Number(it.price).toFixed(2)} <span className="text-[10px] font-normal text-muted-foreground">{cafe?.currency_code}</span></div>
+                        <div className="font-bold text-accent text-sm mt-1">{dispPrice.toFixed(2)} <span className="text-[10px] font-normal text-muted-foreground">{cafe?.currency_code}</span></div>
                       </div>
                     </Card>
                   );
@@ -377,11 +398,14 @@ function CustomerMenu() {
                 <ItemCard
                   key={it.id}
                   it={it}
-                  qty={cart[it.id] ?? 0}
+                  qty={qtyOf(it)}
+                  selectedSizeId={getSelectedSize(it)?.id ?? null}
                   notes={itemNotes[it.id] ?? ""}
                   notesOpen={notesOpenFor === it.id}
                   currency={cafe?.currency_code}
-                  onSetQty={setQty}
+                  onInc={() => inc(it)}
+                  onDec={() => dec(it)}
+                  onPickSize={(sid) => setSelectedSize((m) => ({ ...m, [it.id]: sid }))}
                   onSetNotes={(n) => setItemNotes((m) => ({ ...m, [it.id]: n }))}
                   onToggleNotes={() => setNotesOpenFor((v) => v === it.id ? null : it.id)}
                   t={t}
@@ -412,11 +436,14 @@ function CustomerMenu() {
                     <ItemCard
                       key={it.id}
                       it={it}
-                      qty={cart[it.id] ?? 0}
+                      qty={qtyOf(it)}
+                      selectedSizeId={getSelectedSize(it)?.id ?? null}
                       notes={itemNotes[it.id] ?? ""}
                       notesOpen={notesOpenFor === it.id}
                       currency={cafe?.currency_code}
-                      onSetQty={setQty}
+                      onInc={() => inc(it)}
+                      onDec={() => dec(it)}
+                      onPickSize={(sid) => setSelectedSize((m) => ({ ...m, [it.id]: sid }))}
                       onSetNotes={(n) => setItemNotes((m) => ({ ...m, [it.id]: n }))}
                       onToggleNotes={() => setNotesOpenFor((v) => v === it.id ? null : it.id)}
                       t={t}
@@ -474,20 +501,20 @@ function CustomerMenu() {
                 <button onClick={() => setCartOpen(false)} className="text-muted-foreground text-sm">✕</button>
               </div>
               <div className="max-h-48 overflow-y-auto space-y-2 -mx-2 px-2">
-                {Object.entries(cart).map(([id, qty]) => {
-                  const it = items.find((x) => x.id === id);
-                  if (!it) return null;
-                  return (
-                    <div key={id} className="flex items-center gap-2 text-sm">
-                      <span className="font-bold text-accent w-6">{qty}×</span>
-                      <span className="flex-1 truncate">{it.name}</span>
-                      <span className="font-medium">{(Number(it.price) * qty).toFixed(2)}</span>
-                      <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => dec(id)}>
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  );
-                })}
+                {Object.entries(cart).map(([key, ln]) => (
+                  <div key={key} className="flex items-center gap-2 text-sm">
+                    <span className="font-bold text-accent w-6">{ln.qty}×</span>
+                    <span className="flex-1 truncate">
+                      {ln.name}{ln.size_name ? <span className="text-muted-foreground"> — {ln.size_name}</span> : null}
+                    </span>
+                    <span className="font-medium">{(ln.price * ln.qty).toFixed(2)}</span>
+                    <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setCart((c) => {
+                      const r = { ...c }; if (ln.qty <= 1) delete r[key]; else r[key] = { ...ln, qty: ln.qty - 1 }; return r;
+                    })}>
+                      <Minus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-border font-bold">
                 <span>{t("customer.cart")}</span>
@@ -506,20 +533,26 @@ function CustomerMenu() {
   );
 }
 
-// === Image-first item card with quantity input + notes ===
+// === Image-first item card with quantity input + sizes + notes ===
 function ItemCard({
-  it, qty, notes, notesOpen, currency, onSetQty, onSetNotes, onToggleNotes, t,
+  it, qty, selectedSizeId, notes, notesOpen, currency, onInc, onDec, onPickSize, onSetNotes, onToggleNotes, t,
 }: {
   it: Item;
   qty: number;
+  selectedSizeId: string | null;
   notes: string;
   notesOpen: boolean;
   currency: string | null | undefined;
-  onSetQty: (id: string, qty: number) => void;
+  onInc: () => void;
+  onDec: () => void;
+  onPickSize: (sizeId: string) => void;
   onSetNotes: (n: string) => void;
   onToggleNotes: () => void;
   t: (k: string) => string;
 }) {
+  const sizes = it.sizes ?? [];
+  const sz = sizes.find((s) => s.id === selectedSizeId) ?? null;
+  const displayPrice = sz ? sz.price : Number(it.price);
   return (
     <Card className={`overflow-hidden transition-all ${qty > 0 ? "ring-2 ring-accent" : ""}`}>
       <div className="flex gap-3 p-3">
@@ -544,23 +577,30 @@ function ItemCard({
           {it.description && (
             <p className="text-[11px] text-muted-foreground line-clamp-2 mt-1">{it.description}</p>
           )}
+          {sizes.length > 0 && (
+            <div className="mt-1.5 flex flex-wrap gap-1">
+              {sizes.map((s) => {
+                const active = (sz?.id ?? "") === s.id;
+                return (
+                  <button key={s.id} type="button" onClick={() => onPickSize(s.id)}
+                    className={`text-[11px] px-2 py-0.5 rounded-full border ${active ? "bg-accent text-accent-foreground border-accent" : "border-border bg-muted text-foreground"}`}>
+                    {s.name} · {Number(s.price).toFixed(2)}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {sz?.description && <div className="text-[11px] text-muted-foreground italic mt-0.5">{sz.description}</div>}
           <div className="font-bold text-accent text-sm mt-1.5">
-            {Number(it.price).toFixed(2)} <span className="text-[10px] font-normal text-muted-foreground">{currency}</span>
+            {displayPrice.toFixed(2)} <span className="text-[10px] font-normal text-muted-foreground">{currency}</span>
           </div>
           <div className="mt-auto pt-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-1 bg-muted rounded-full p-0.5">
-              <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full" onClick={() => onSetQty(it.id, Math.max(0, qty - 1))}>
+              <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full" onClick={onDec}>
                 <Minus className="h-3 w-3" />
               </Button>
-              <input
-                type="number"
-                min={0}
-                value={qty}
-                onChange={(e) => onSetQty(it.id, Math.max(0, parseInt(e.target.value || "0", 10) || 0))}
-                className="w-9 text-center bg-transparent text-sm font-bold focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                aria-label="quantity"
-              />
-              <Button size="icon" className="h-7 w-7 rounded-full bg-accent text-accent-foreground hover:bg-accent/90" onClick={() => onSetQty(it.id, qty + 1)}>
+              <span className="w-9 text-center text-sm font-bold">{qty}</span>
+              <Button size="icon" className="h-7 w-7 rounded-full bg-accent text-accent-foreground hover:bg-accent/90" onClick={onInc}>
                 <Plus className="h-3 w-3" />
               </Button>
             </div>

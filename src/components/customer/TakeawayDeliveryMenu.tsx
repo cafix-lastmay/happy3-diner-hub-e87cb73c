@@ -28,15 +28,24 @@ interface Cafe {
   whatsapp?: string | null;
 }
 interface Cat { id: string; name: string; sort_order: number }
-interface Item { id: string; category_id: string | null; name: string; description: string | null; price: number; image_url: string | null; is_most_popular?: boolean }
+interface Size { id: string; name: string; description: string | null; price: number; is_default: boolean; sort_order: number }
+interface Item { id: string; category_id: string | null; name: string; description: string | null; price: number; image_url: string | null; is_most_popular?: boolean; sizes?: Size[] }
+interface CartLine { item_id: string; size_id: string | null; size_name: string | null; name: string; price: number; qty: number }
 interface SavedAddress { id: string; label: string | null; address: string; lat: number | null; lng: number | null; is_default: boolean }
+
+const lineKey = (itemId: string, sizeId: string | null) => `${itemId}|${sizeId ?? ""}`;
+const defaultSizeFor = (it: Item): Size | null => {
+  if (!it.sizes || it.sizes.length === 0) return null;
+  return it.sizes.find((s) => s.is_default) ?? it.sizes[0];
+};
 
 export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mode }) {
   const { t } = useI18n();
   const [cafe, setCafe] = useState<Cafe | null>(null);
   const [cats, setCats] = useState<Cat[]>([]);
   const [items, setItems] = useState<Item[]>([]);
-  const [cart, setCart] = useState<Record<string, number>>({});
+  const [cart, setCart] = useState<Record<string, CartLine>>({});
+  const [selectedSize, setSelectedSize] = useState<Record<string, string>>({});
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [lat, setLat] = useState<number | null>(null);
@@ -140,10 +149,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
     toast.success(t("delivery.addresses.default"));
   };
 
-  const subtotal = useMemo(() => Object.entries(cart).reduce((s, [id, qty]) => {
-    const it = items.find((x) => x.id === id);
-    return s + (it ? Number(it.price) * qty : 0);
-  }, 0), [cart, items]);
+  const subtotal = useMemo(() => Object.values(cart).reduce((s, ln) => s + ln.price * ln.qty, 0), [cart]);
 
   const serviceFee = useMemo(() => {
     if (!cafe?.service_percent) return 0;
@@ -158,17 +164,39 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   }, [subtotal, cafe, mode]);
 
   const total = subtotal + serviceFee + taxFee;
-  const itemCount = useMemo(() => Object.values(cart).reduce((a, b) => a + b, 0), [cart]);
+  const itemCount = useMemo(() => Object.values(cart).reduce((a, b) => a + b.qty, 0), [cart]);
 
-  const setQty = (id: string, qty: number) => {
+  const getSelectedSize = (it: Item): Size | null => {
+    if (!it.sizes || it.sizes.length === 0) return null;
+    const chosen = selectedSize[it.id];
+    if (chosen) return it.sizes.find((s) => s.id === chosen) ?? defaultSizeFor(it);
+    return defaultSizeFor(it);
+  };
+  const setQtyFor = (it: Item, qty: number) => {
+    const sz = getSelectedSize(it);
+    const key = lineKey(it.id, sz?.id ?? null);
     setCart((c) => {
       const r = { ...c };
-      if (qty <= 0) delete r[id]; else r[id] = qty;
+      if (qty <= 0) delete r[key];
+      else r[key] = { item_id: it.id, size_id: sz?.id ?? null, size_name: sz?.name ?? null, name: it.name, price: sz ? sz.price : Number(it.price), qty };
       return r;
     });
   };
-  const inc = (id: string) => setQty(id, (cart[id] ?? 0) + 1);
-  const dec = (id: string) => setQty(id, (cart[id] ?? 0) - 1);
+  const qtyOf = (it: Item) => {
+    const sz = getSelectedSize(it);
+    return cart[lineKey(it.id, sz?.id ?? null)]?.qty ?? 0;
+  };
+  const inc = (it: Item) => setQtyFor(it, qtyOf(it) + 1);
+  const dec = (it: Item) => setQtyFor(it, qtyOf(it) - 1);
+  const decKey = (key: string) => setCart((c) => {
+    const ln = c[key]; if (!ln) return c;
+    const r = { ...c }; if (ln.qty <= 1) delete r[key]; else r[key] = { ...ln, qty: ln.qty - 1 };
+    return r;
+  });
+  const incKey = (key: string) => setCart((c) => {
+    const ln = c[key]; if (!ln) return c;
+    return { ...c, [key]: { ...ln, qty: ln.qty + 1 } };
+  });
 
   const scrollToCat = (id: string) => {
     setActiveCat(id);
@@ -210,10 +238,9 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
         out.push(`• ${l.name} × ${l.qty} = ${(l.price * l.qty).toFixed(2)} ${cafe?.currency_code ?? ""}`);
       });
     } else {
-      Object.entries(cart).forEach(([id, qty]) => {
-        const it = items.find((x) => x.id === id);
-        if (!it) return;
-        out.push(`• ${it.name} × ${qty} = ${(Number(it.price) * qty).toFixed(2)} ${cafe?.currency_code ?? ""}`);
+      Object.values(cart).forEach((ln) => {
+        const label = ln.size_name ? `${ln.name} — ${ln.size_name}` : ln.name;
+        out.push(`• ${label} × ${ln.qty} = ${(ln.price * ln.qty).toFixed(2)} ${cafe?.currency_code ?? ""}`);
       });
     }
     out.push("");
@@ -252,7 +279,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
       if (!session?.user) { toast.error(t("delivery.auth.required")); return; }
       if (!address.trim()) { toast.error(t("customer.address_required")); return; }
     }
-    const itemsArr = Object.entries(cart).map(([item_id, qty]) => ({ item_id, qty }));
+    const itemsArr = Object.values(cart).map((ln) => ({ item_id: ln.item_id, qty: ln.qty, size_id: ln.size_id }));
     if (itemsArr.length === 0) { toast.error(t("customer.empty_cart")); return; }
     setSending(true);
     try {
@@ -280,11 +307,11 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
         });
       }
       setOrderId(data as string);
-      // Snapshot order details so post-submit WhatsApp button still has them after we clear the cart.
-      const snapLines = Object.entries(cart).map(([id, qty]) => {
-        const it = items.find((x) => x.id === id);
-        return { name: it?.name ?? "", qty, price: it ? Number(it.price) : 0 };
-      });
+      const snapLines = Object.values(cart).map((ln) => ({
+        name: ln.size_name ? `${ln.name} — ${ln.size_name}` : ln.name,
+        qty: ln.qty,
+        price: ln.price,
+      }));
       setLastSnapshot({ lines: snapLines, total, address, lat, lng, notes, name });
       setCart({}); setNotes(""); setCartOpen(false);
       toast.success(t("customer.order_sent"));
@@ -402,7 +429,9 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
                   <h2 className="text-lg font-bold mb-3 px-1">{c.name}</h2>
                   <div className="grid gap-3">
                     {catItems.map((it) => {
-                      const qty = cart[it.id] ?? 0;
+                      const sz = getSelectedSize(it);
+                      const qty = qtyOf(it);
+                      const displayPrice = sz ? sz.price : Number(it.price);
                       return (
                         <Card key={it.id} className={`p-3 flex gap-3 transition-all ${qty > 0 ? "ring-2 ring-accent" : ""}`}>
                           <div className="w-20 h-20 rounded-lg bg-muted overflow-hidden shrink-0">
@@ -415,19 +444,33 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
                           <div className="flex-1 min-w-0">
                             <div className="font-semibold text-sm">{it.name}</div>
                             {it.description && <div className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{it.description}</div>}
+                            {it.sizes && it.sizes.length > 0 && (
+                              <div className="mt-1.5 flex flex-wrap gap-1">
+                                {it.sizes.map((s) => {
+                                  const active = (sz?.id ?? "") === s.id;
+                                  return (
+                                    <button key={s.id} type="button" onClick={() => setSelectedSize((m) => ({ ...m, [it.id]: s.id }))}
+                                      className={`text-[11px] px-2 py-0.5 rounded-full border ${active ? "bg-accent text-accent-foreground border-accent" : "border-border bg-muted text-foreground"}`}>
+                                      {s.name} · {Number(s.price).toFixed(2)}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
+                            {sz?.description && <div className="text-[11px] text-muted-foreground mt-0.5 italic">{sz.description}</div>}
                             <div className="mt-1 flex items-center justify-between">
                               <div className="font-bold text-accent text-sm">
-                                {Number(it.price).toFixed(2)} <span className="text-[10px] font-normal text-muted-foreground">{cafe?.currency_code}</span>
+                                {displayPrice.toFixed(2)} <span className="text-[10px] font-normal text-muted-foreground">{cafe?.currency_code}</span>
                               </div>
                               {qty === 0 ? (
-                                <Button size="sm" onClick={() => inc(it.id)} className="h-7 bg-accent text-accent-foreground hover:bg-accent/90">
+                                <Button size="sm" onClick={() => inc(it)} className="h-7 bg-accent text-accent-foreground hover:bg-accent/90">
                                   <Plus className="h-3 w-3" />
                                 </Button>
                               ) : (
                                 <div className="inline-flex items-center gap-1 rounded-full bg-muted">
-                                  <button onClick={() => dec(it.id)} className="h-7 w-7 inline-flex items-center justify-center"><Minus className="h-3 w-3" /></button>
+                                  <button onClick={() => dec(it)} className="h-7 w-7 inline-flex items-center justify-center"><Minus className="h-3 w-3" /></button>
                                   <span className="text-xs font-bold w-6 text-center">{qty}</span>
-                                  <button onClick={() => inc(it.id)} className="h-7 w-7 inline-flex items-center justify-center bg-accent text-accent-foreground rounded-full"><Plus className="h-3 w-3" /></button>
+                                  <button onClick={() => inc(it)} className="h-7 w-7 inline-flex items-center justify-center bg-accent text-accent-foreground rounded-full"><Plus className="h-3 w-3" /></button>
                                 </div>
                               )}
                             </div>
@@ -464,23 +507,21 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
               <button onClick={() => setCartOpen(false)}><X className="h-5 w-5" /></button>
             </div>
             <ul className="space-y-2 mb-4">
-              {Object.entries(cart).map(([id, qty]) => {
-                const it = items.find((x) => x.id === id);
-                if (!it) return null;
-                return (
-                  <li key={id} className="flex items-center justify-between gap-2 border-b border-border pb-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">{it.name}</div>
-                      <div className="text-xs text-muted-foreground">{Number(it.price).toFixed(2)} × {qty}</div>
+              {Object.entries(cart).map(([key, ln]) => (
+                <li key={key} className="flex items-center justify-between gap-2 border-b border-border pb-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium truncate">
+                      {ln.name}{ln.size_name ? <span className="text-muted-foreground"> — {ln.size_name}</span> : null}
                     </div>
-                    <div className="inline-flex items-center gap-1 rounded-full bg-muted">
-                      <button onClick={() => dec(id)} className="h-7 w-7 inline-flex items-center justify-center"><Minus className="h-3 w-3" /></button>
-                      <span className="text-xs font-bold w-6 text-center">{qty}</span>
-                      <button onClick={() => inc(id)} className="h-7 w-7 inline-flex items-center justify-center bg-accent text-accent-foreground rounded-full"><Plus className="h-3 w-3" /></button>
-                    </div>
-                  </li>
-                );
-              })}
+                    <div className="text-xs text-muted-foreground">{ln.price.toFixed(2)} × {ln.qty}</div>
+                  </div>
+                  <div className="inline-flex items-center gap-1 rounded-full bg-muted">
+                    <button onClick={() => decKey(key)} className="h-7 w-7 inline-flex items-center justify-center"><Minus className="h-3 w-3" /></button>
+                    <span className="text-xs font-bold w-6 text-center">{ln.qty}</span>
+                    <button onClick={() => incKey(key)} className="h-7 w-7 inline-flex items-center justify-center bg-accent text-accent-foreground rounded-full"><Plus className="h-3 w-3" /></button>
+                  </div>
+                </li>
+              ))}
             </ul>
 
             <div className="space-y-1 text-sm mb-4 border-t border-border pt-3">

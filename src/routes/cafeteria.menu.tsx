@@ -27,6 +27,7 @@ type ModeKey = "dine_in" | "take_away" | "delivery";
 interface Cat { id: string; name: string; sort_order: number; is_active: boolean }
 interface Item { id: string; category_id: string | null; name: string; description: string | null; price: number; image_url: string | null; is_available: boolean; is_most_popular: boolean; sort_order: number }
 interface Tier { id: string; name: string; is_default: boolean }
+interface ItemSize { id: string; menu_item_id: string; name: string; description: string | null; price: number; is_default: boolean; sort_order: number; is_available: boolean }
 interface ItemPrice { item_id: string; tier_id: string; price: number }
 interface ModeOverride { item_id: string; mode: ModeKey; name: string | null; description: string | null; image_url: string | null; price: number | null; is_visible: boolean }
 interface CatVis { category_id: string; mode: ModeKey; is_visible: boolean }
@@ -75,6 +76,9 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [busy, setBusy] = useState(false);
   const [copying, setCopying] = useState(false);
+  const [dialogSizes, setDialogSizes] = useState<ItemSize[]>([]);
+  const [newSize, setNewSize] = useState({ name: "", description: "", price: "0" });
+  const [sizesBusy, setSizesBusy] = useState(false);
 
   const isDineIn = modeTab === "dine_in";
 
@@ -259,15 +263,18 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
     if (!isDineIn) return;
     setForm({ name: "", description: "", price: "0", category_id: categoryId ?? "", is_available: true, is_most_popular: false, image_url: "" });
     setTierOverrides({});
+    setDialogSizes([]);
     resetImageState();
     setItemDialog({ open: true, categoryId });
   };
-  const openEditItem = (it: Item) => {
+  const openEditItem = async (it: Item) => {
     if (isDineIn) {
       setForm({ name: it.name, description: it.description ?? "", price: String(it.price), category_id: it.category_id ?? "", is_available: it.is_available, is_most_popular: !!it.is_most_popular, image_url: it.image_url ?? "" });
       const ov: Record<string, string> = {};
       itemPrices.filter((p) => p.item_id === it.id).forEach((p) => { ov[p.tier_id] = String(p.price); });
       setTierOverrides(ov);
+      const { data: sizes } = await supabase.from("menu_item_sizes").select("*").eq("menu_item_id", it.id).order("sort_order").order("name");
+      setDialogSizes((sizes ?? []) as ItemSize[]);
     } else {
       const o = getOverride(it.id);
       setForm({
@@ -280,9 +287,65 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
         image_url: o?.image_url ?? it.image_url ?? "",
       });
       setTierOverrides({});
+      setDialogSizes([]);
     }
     resetImageState();
     setItemDialog({ open: true, editing: it });
+  };
+
+  // ===== sizes editor =====
+  const reloadSizes = async (itemId: string) => {
+    const { data } = await supabase.from("menu_item_sizes").select("*").eq("menu_item_id", itemId).order("sort_order").order("name");
+    setDialogSizes((data ?? []) as ItemSize[]);
+  };
+  const addSize = async () => {
+    if (!itemDialog.editing) { toast.error(t("menu.sizes.save_item_first") || "Save item first"); return; }
+    const nm = newSize.name.trim();
+    if (!nm) { toast.error(t("error.required_field")); return; }
+    setSizesBusy(true);
+    const isFirst = dialogSizes.length === 0;
+    const { error } = await supabase.from("menu_item_sizes").insert({
+      menu_item_id: itemDialog.editing.id,
+      name: nm,
+      description: newSize.description.trim() || null,
+      price: Number(newSize.price) || 0,
+      is_default: isFirst,
+      sort_order: dialogSizes.length,
+      is_available: true,
+    });
+    setSizesBusy(false);
+    if (error) { toast.error(error.message); return; }
+    setNewSize({ name: "", description: "", price: "0" });
+    reloadSizes(itemDialog.editing.id);
+  };
+  const updateSize = async (id: string, patch: Partial<ItemSize>) => {
+    setDialogSizes((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
+    const { error } = await supabase.from("menu_item_sizes").update(patch).eq("id", id);
+    if (error) { toast.error(error.message); if (itemDialog.editing) reloadSizes(itemDialog.editing.id); }
+  };
+  const setDefaultSize = async (id: string) => {
+    if (!itemDialog.editing) return;
+    // Unset all defaults first to avoid unique-index conflict, then set the chosen one.
+    await supabase.from("menu_item_sizes").update({ is_default: false }).eq("menu_item_id", itemDialog.editing.id);
+    await supabase.from("menu_item_sizes").update({ is_default: true }).eq("id", id);
+    reloadSizes(itemDialog.editing.id);
+  };
+  const deleteSize = async (id: string) => {
+    if (!confirm(t("common.confirm"))) return;
+    const { error } = await supabase.from("menu_item_sizes").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    if (itemDialog.editing) reloadSizes(itemDialog.editing.id);
+  };
+  const moveSize = async (id: string, dir: -1 | 1) => {
+    const idx = dialogSizes.findIndex((s) => s.id === id);
+    const swap = idx + dir;
+    if (idx < 0 || swap < 0 || swap >= dialogSizes.length) return;
+    const a = dialogSizes[idx], b = dialogSizes[swap];
+    await Promise.all([
+      supabase.from("menu_item_sizes").update({ sort_order: b.sort_order }).eq("id", a.id),
+      supabase.from("menu_item_sizes").update({ sort_order: a.sort_order }).eq("id", b.id),
+    ]);
+    if (itemDialog.editing) reloadSizes(itemDialog.editing.id);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -743,7 +806,65 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
                 ))}
               </div>
             )}
+
+            {isDineIn && (
+              <div className="rounded-md border border-border p-3 space-y-3">
+                <Label className="flex items-center gap-2 m-0"><Tags className="h-4 w-4" /> الأحجام والأسعار</Label>
+                <p className="text-xs text-muted-foreground">
+                  أضف أحجام متعددة (مثل: صغير/وسط/كبير). الحجم الافتراضي يُحدّد تلقائياً عند فتح الصنف.
+                </p>
+                {!itemDialog.editing && (
+                  <p className="text-xs text-amber-600">احفظ الصنف أولاً ثم أعد فتحه لإضافة الأحجام.</p>
+                )}
+                {itemDialog.editing && (
+                  <>
+                    {dialogSizes.length === 0 ? (
+                      <p className="text-xs text-muted-foreground">لا توجد أحجام بعد.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {dialogSizes.map((s, i) => (
+                          <div key={s.id} className={`rounded border border-border p-2 space-y-1 ${!s.is_available ? "opacity-50" : ""}`}>
+                            <div className="flex items-center gap-1">
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0" disabled={i === 0} onClick={() => moveSize(s.id, -1)}><ArrowUp className="h-3 w-3" /></Button>
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0" disabled={i === dialogSizes.length - 1} onClick={() => moveSize(s.id, 1)}><ArrowDown className="h-3 w-3" /></Button>
+                              <Input value={s.name} onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, name: e.target.value } : x))} onBlur={(e) => updateSize(s.id, { name: e.target.value })} className="h-7 flex-1" placeholder="الاسم (صغير/وسط/كبير)" />
+                              <Input type="number" step="0.01" value={s.price} onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, price: Number(e.target.value) } : x))} onBlur={(e) => updateSize(s.id, { price: Number(e.target.value) || 0 })} className="h-7 w-24" />
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => deleteSize(s.id)}><Trash2 className="h-3 w-3" /></Button>
+                            </div>
+                            <Textarea value={s.description ?? ""} onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, description: e.target.value } : x))} onBlur={(e) => updateSize(s.id, { description: e.target.value || null })} rows={1} placeholder="وصف اختياري للحجم" className="text-xs" />
+                            <div className="flex items-center gap-3 text-xs">
+                              <label className="flex items-center gap-1">
+                                <input type="radio" name={`def-${itemDialog.editing?.id}`} checked={s.is_default} onChange={() => setDefaultSize(s.id)} />
+                                <Star className={`h-3 w-3 ${s.is_default ? "text-accent fill-accent" : ""}`} /> افتراضي
+                              </label>
+                              <label className="flex items-center gap-1">
+                                <Switch checked={s.is_available} onCheckedChange={(v) => updateSize(s.id, { is_available: v })} />
+                                متاح
+                              </label>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex items-end gap-2 pt-2 border-t border-border">
+                      <div className="flex-1">
+                        <Label className="text-xs">اسم الحجم</Label>
+                        <Input value={newSize.name} onChange={(e) => setNewSize({ ...newSize, name: e.target.value })} className="h-7" placeholder="صغير" />
+                      </div>
+                      <div className="w-24">
+                        <Label className="text-xs">السعر</Label>
+                        <Input type="number" step="0.01" value={newSize.price} onChange={(e) => setNewSize({ ...newSize, price: e.target.value })} className="h-7" />
+                      </div>
+                      <Button size="sm" disabled={sizesBusy} onClick={addSize}>
+                        {sizesBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />} إضافة
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
+
           <DialogFooter>
             <Button variant="ghost" onClick={() => { if (!busy) { resetImageState(); setItemDialog({ open: false }); } }} disabled={busy}>{t("common.cancel")}</Button>
             <Button onClick={saveItem} disabled={busy || imgState === "processing"} className="bg-accent text-accent-foreground hover:bg-accent/90">
