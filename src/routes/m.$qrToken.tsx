@@ -398,11 +398,14 @@ function CustomerMenu() {
                 <ItemCard
                   key={it.id}
                   it={it}
-                  qty={cart[it.id] ?? 0}
+                  qty={qtyOf(it)}
+                  selectedSizeId={getSelectedSize(it)?.id ?? null}
                   notes={itemNotes[it.id] ?? ""}
                   notesOpen={notesOpenFor === it.id}
                   currency={cafe?.currency_code}
-                  onSetQty={setQty}
+                  onInc={() => inc(it)}
+                  onDec={() => dec(it)}
+                  onPickSize={(sid) => setSelectedSize((m) => ({ ...m, [it.id]: sid }))}
                   onSetNotes={(n) => setItemNotes((m) => ({ ...m, [it.id]: n }))}
                   onToggleNotes={() => setNotesOpenFor((v) => v === it.id ? null : it.id)}
                   t={t}
@@ -433,11 +436,14 @@ function CustomerMenu() {
                     <ItemCard
                       key={it.id}
                       it={it}
-                      qty={cart[it.id] ?? 0}
+                      qty={qtyOf(it)}
+                      selectedSizeId={getSelectedSize(it)?.id ?? null}
                       notes={itemNotes[it.id] ?? ""}
                       notesOpen={notesOpenFor === it.id}
                       currency={cafe?.currency_code}
-                      onSetQty={setQty}
+                      onInc={() => inc(it)}
+                      onDec={() => dec(it)}
+                      onPickSize={(sid) => setSelectedSize((m) => ({ ...m, [it.id]: sid }))}
                       onSetNotes={(n) => setItemNotes((m) => ({ ...m, [it.id]: n }))}
                       onToggleNotes={() => setNotesOpenFor((v) => v === it.id ? null : it.id)}
                       t={t}
