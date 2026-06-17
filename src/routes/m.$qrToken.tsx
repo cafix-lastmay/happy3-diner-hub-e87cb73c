@@ -501,20 +501,20 @@ function CustomerMenu() {
                 <button onClick={() => setCartOpen(false)} className="text-muted-foreground text-sm">✕</button>
               </div>
               <div className="max-h-48 overflow-y-auto space-y-2 -mx-2 px-2">
-                {Object.entries(cart).map(([id, qty]) => {
-                  const it = items.find((x) => x.id === id);
-                  if (!it) return null;
-                  return (
-                    <div key={id} className="flex items-center gap-2 text-sm">
-                      <span className="font-bold text-accent w-6">{qty}×</span>
-                      <span className="flex-1 truncate">{it.name}</span>
-                      <span className="font-medium">{(Number(it.price) * qty).toFixed(2)}</span>
-                      <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => dec(id)}>
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  );
-                })}
+                {Object.entries(cart).map(([key, ln]) => (
+                  <div key={key} className="flex items-center gap-2 text-sm">
+                    <span className="font-bold text-accent w-6">{ln.qty}×</span>
+                    <span className="flex-1 truncate">
+                      {ln.name}{ln.size_name ? <span className="text-muted-foreground"> — {ln.size_name}</span> : null}
+                    </span>
+                    <span className="font-medium">{(ln.price * ln.qty).toFixed(2)}</span>
+                    <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setCart((c) => {
+                      const r = { ...c }; if (ln.qty <= 1) delete r[key]; else r[key] = { ...ln, qty: ln.qty - 1 }; return r;
+                    })}>
+                      <Minus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-border font-bold">
                 <span>{t("customer.cart")}</span>
@@ -533,20 +533,26 @@ function CustomerMenu() {
   );
 }
 
-// === Image-first item card with quantity input + notes ===
+// === Image-first item card with quantity input + sizes + notes ===
 function ItemCard({
-  it, qty, notes, notesOpen, currency, onSetQty, onSetNotes, onToggleNotes, t,
+  it, qty, selectedSizeId, notes, notesOpen, currency, onInc, onDec, onPickSize, onSetNotes, onToggleNotes, t,
 }: {
   it: Item;
   qty: number;
+  selectedSizeId: string | null;
   notes: string;
   notesOpen: boolean;
   currency: string | null | undefined;
-  onSetQty: (id: string, qty: number) => void;
+  onInc: () => void;
+  onDec: () => void;
+  onPickSize: (sizeId: string) => void;
   onSetNotes: (n: string) => void;
   onToggleNotes: () => void;
   t: (k: string) => string;
 }) {
+  const sizes = it.sizes ?? [];
+  const sz = sizes.find((s) => s.id === selectedSizeId) ?? null;
+  const displayPrice = sz ? sz.price : Number(it.price);
   return (
     <Card className={`overflow-hidden transition-all ${qty > 0 ? "ring-2 ring-accent" : ""}`}>
       <div className="flex gap-3 p-3">
@@ -571,23 +577,30 @@ function ItemCard({
           {it.description && (
             <p className="text-[11px] text-muted-foreground line-clamp-2 mt-1">{it.description}</p>
           )}
+          {sizes.length > 0 && (
+            <div className="mt-1.5 flex flex-wrap gap-1">
+              {sizes.map((s) => {
+                const active = (sz?.id ?? "") === s.id;
+                return (
+                  <button key={s.id} type="button" onClick={() => onPickSize(s.id)}
+                    className={`text-[11px] px-2 py-0.5 rounded-full border ${active ? "bg-accent text-accent-foreground border-accent" : "border-border bg-muted text-foreground"}`}>
+                    {s.name} · {Number(s.price).toFixed(2)}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {sz?.description && <div className="text-[11px] text-muted-foreground italic mt-0.5">{sz.description}</div>}
           <div className="font-bold text-accent text-sm mt-1.5">
-            {Number(it.price).toFixed(2)} <span className="text-[10px] font-normal text-muted-foreground">{currency}</span>
+            {displayPrice.toFixed(2)} <span className="text-[10px] font-normal text-muted-foreground">{currency}</span>
           </div>
           <div className="mt-auto pt-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-1 bg-muted rounded-full p-0.5">
-              <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full" onClick={() => onSetQty(it.id, Math.max(0, qty - 1))}>
+              <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full" onClick={onDec}>
                 <Minus className="h-3 w-3" />
               </Button>
-              <input
-                type="number"
-                min={0}
-                value={qty}
-                onChange={(e) => onSetQty(it.id, Math.max(0, parseInt(e.target.value || "0", 10) || 0))}
-                className="w-9 text-center bg-transparent text-sm font-bold focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                aria-label="quantity"
-              />
-              <Button size="icon" className="h-7 w-7 rounded-full bg-accent text-accent-foreground hover:bg-accent/90" onClick={() => onSetQty(it.id, qty + 1)}>
+              <span className="w-9 text-center text-sm font-bold">{qty}</span>
+              <Button size="icon" className="h-7 w-7 rounded-full bg-accent text-accent-foreground hover:bg-accent/90" onClick={onInc}>
                 <Plus className="h-3 w-3" />
               </Button>
             </div>
