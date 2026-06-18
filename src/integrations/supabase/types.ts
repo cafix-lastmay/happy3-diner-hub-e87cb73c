@@ -973,6 +973,9 @@ export type Database = {
           menu_item_id: string
           name: string
           price: number
+          price_delivery: number | null
+          price_dine_in: number | null
+          price_takeaway: number | null
           sort_order: number
         }
         Insert: {
@@ -984,6 +987,9 @@ export type Database = {
           menu_item_id: string
           name: string
           price?: number
+          price_delivery?: number | null
+          price_dine_in?: number | null
+          price_takeaway?: number | null
           sort_order?: number
         }
         Update: {
@@ -995,6 +1001,9 @@ export type Database = {
           menu_item_id?: string
           name?: string
           price?: number
+          price_delivery?: number | null
+          price_dine_in?: number | null
+          price_takeaway?: number | null
           sort_order?: number
         }
         Relationships: [
@@ -1021,6 +1030,7 @@ export type Database = {
           price: number
           rating_avg: number
           rating_count: number
+          sizes_enabled: boolean
           sort_order: number
           updated_at: string
         }
@@ -1037,6 +1047,7 @@ export type Database = {
           price?: number
           rating_avg?: number
           rating_count?: number
+          sizes_enabled?: boolean
           sort_order?: number
           updated_at?: string
         }
@@ -1053,6 +1064,7 @@ export type Database = {
           price?: number
           rating_avg?: number
           rating_count?: number
+          sizes_enabled?: boolean
           sort_order?: number
           updated_at?: string
         }
