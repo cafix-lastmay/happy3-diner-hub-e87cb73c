@@ -25,9 +25,9 @@ export const Route = createFileRoute("/cafeteria/menu")({ component: () => <Cafe
 type ModeKey = "dine_in" | "take_away" | "delivery";
 
 interface Cat { id: string; name: string; sort_order: number; is_active: boolean }
-interface Item { id: string; category_id: string | null; name: string; description: string | null; price: number; image_url: string | null; is_available: boolean; is_most_popular: boolean; sort_order: number }
+interface Item { id: string; category_id: string | null; name: string; description: string | null; price: number; image_url: string | null; is_available: boolean; is_most_popular: boolean; sort_order: number; sizes_enabled: boolean }
 interface Tier { id: string; name: string; is_default: boolean }
-interface ItemSize { id: string; menu_item_id: string; name: string; description: string | null; price: number; is_default: boolean; sort_order: number; is_available: boolean }
+interface ItemSize { id: string; menu_item_id: string; name: string; description: string | null; price: number; price_dine_in: number | null; price_takeaway: number | null; price_delivery: number | null; is_default: boolean; sort_order: number; is_available: boolean }
 interface ItemPrice { item_id: string; tier_id: string; price: number }
 interface ModeOverride { item_id: string; mode: ModeKey; name: string | null; description: string | null; image_url: string | null; price: number | null; is_visible: boolean }
 interface CatVis { category_id: string; mode: ModeKey; is_visible: boolean }
@@ -69,7 +69,7 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
   const [modeTab, setModeTab] = useState<ModeKey>("dine_in");
   const [tierOverrides, setTierOverrides] = useState<Record<string, string>>({});
   const [itemDialog, setItemDialog] = useState<{ open: boolean; editing?: Item; categoryId?: string }>({ open: false });
-  const [form, setForm] = useState({ name: "", description: "", price: "0", category_id: "", is_available: true, is_most_popular: false, image_url: "" });
+  const [form, setForm] = useState({ name: "", description: "", price: "0", category_id: "", is_available: true, is_most_popular: false, image_url: "", sizes_enabled: false });
   const [pendingBlob, setPendingBlob] = useState<{ blob: Blob; ext: string } | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [imgState, setImgState] = useState<"idle" | "processing" | "ready">("idle");
@@ -91,7 +91,7 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
       supabase.from("category_mode_visibility").select("category_id,mode,is_visible"),
     ]);
     setCats((c ?? []).filter((x: any) => !!x?.id).map((x: any) => ({ ...x, name: safeText(x.name), sort_order: safeNumber(x.sort_order), is_active: x.is_active !== false })) as Cat[]);
-    setItems((i ?? []).filter((x: any) => !!x?.id).map((x: any) => ({ ...x, category_id: x.category_id ?? null, name: safeText(x.name), description: safeText(x.description), price: safeNumber(x.price), image_url: safeImageUrl(x.image_url), is_available: safeBool(x.is_available), is_most_popular: safeBool(x.is_most_popular), sort_order: safeNumber(x.sort_order) })) as Item[]);
+    setItems((i ?? []).filter((x: any) => !!x?.id).map((x: any) => ({ ...x, category_id: x.category_id ?? null, name: safeText(x.name), description: safeText(x.description), price: safeNumber(x.price), image_url: safeImageUrl(x.image_url), is_available: safeBool(x.is_available), is_most_popular: safeBool(x.is_most_popular), sort_order: safeNumber(x.sort_order), sizes_enabled: safeBool(x.sizes_enabled) })) as Item[]);
     setTiers((tiersData ?? []).filter((x: any) => !!x?.id).map((x: any) => ({ ...x, name: safeText(x.name), is_default: !!x.is_default })) as Tier[]);
     setOverrides((ovr ?? []).filter((x: any) => !!x?.item_id && (x.mode === "dine_in" || x.mode === "take_away" || x.mode === "delivery")).map((x: any) => ({ ...x, name: safeText(x.name), description: safeText(x.description), image_url: safeImageUrl(x.image_url), price: x.price == null ? null : safeNumber(x.price), is_visible: safeBool(x.is_visible, true) })) as ModeOverride[]);
     setCatVis((cv ?? []).filter((x: any) => !!x?.category_id && (x.mode === "dine_in" || x.mode === "take_away" || x.mode === "delivery")).map((x: any) => ({ ...x, is_visible: safeBool(x.is_visible, true) })) as CatVis[]);
@@ -261,7 +261,7 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
   const openNewItem = (categoryId?: string) => {
     // adding new items is only allowed in dine_in (base menu)
     if (!isDineIn) return;
-    setForm({ name: "", description: "", price: "0", category_id: categoryId ?? "", is_available: true, is_most_popular: false, image_url: "" });
+    setForm({ name: "", description: "", price: "0", category_id: categoryId ?? "", is_available: true, is_most_popular: false, image_url: "", sizes_enabled: false });
     setTierOverrides({});
     setDialogSizes([]);
     resetImageState();
@@ -269,7 +269,7 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
   };
   const openEditItem = async (it: Item) => {
     if (isDineIn) {
-      setForm({ name: it.name, description: it.description ?? "", price: String(it.price), category_id: it.category_id ?? "", is_available: it.is_available, is_most_popular: !!it.is_most_popular, image_url: it.image_url ?? "" });
+      setForm({ name: it.name, description: it.description ?? "", price: String(it.price), category_id: it.category_id ?? "", is_available: it.is_available, is_most_popular: !!it.is_most_popular, image_url: it.image_url ?? "", sizes_enabled: !!it.sizes_enabled });
       const ov: Record<string, string> = {};
       itemPrices.filter((p) => p.item_id === it.id).forEach((p) => { ov[p.tier_id] = String(p.price); });
       setTierOverrides(ov);
@@ -285,6 +285,7 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
         is_available: o ? o.is_visible : true,
         is_most_popular: !!it.is_most_popular,
         image_url: o?.image_url ?? it.image_url ?? "",
+        sizes_enabled: !!it.sizes_enabled,
       });
       setTierOverrides({});
       setDialogSizes([]);
@@ -304,11 +305,15 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
     if (!nm) { toast.error(t("error.required_field")); return; }
     setSizesBusy(true);
     const isFirst = dialogSizes.length === 0;
+    const basePrice = Number(newSize.price) || 0;
     const { error } = await supabase.from("menu_item_sizes").insert({
       menu_item_id: itemDialog.editing.id,
       name: nm,
       description: newSize.description.trim() || null,
-      price: Number(newSize.price) || 0,
+      price: basePrice,
+      price_dine_in: basePrice,
+      price_takeaway: basePrice,
+      price_delivery: basePrice,
       is_default: isFirst,
       sort_order: dialogSizes.length,
       is_available: true,
@@ -413,6 +418,7 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
         image_url,
         is_available: form.is_available,
         is_most_popular: form.is_most_popular,
+        sizes_enabled: form.sizes_enabled,
       };
       let error;
       let savedId: string | null = itemDialog.editing?.id ?? null;
@@ -809,57 +815,92 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
 
             {isDineIn && (
               <div className="rounded-md border border-border p-3 space-y-3">
-                <Label className="flex items-center gap-2 m-0"><Tags className="h-4 w-4" /> الأحجام والأسعار</Label>
-                <p className="text-xs text-muted-foreground">
-                  أضف أحجام متعددة (مثل: صغير/وسط/كبير). الحجم الافتراضي يُحدّد تلقائياً عند فتح الصنف.
+                <div className="flex items-center justify-between gap-2">
+                  <Label className="flex items-center gap-2 m-0"><Tags className="h-4 w-4" /> تفعيل الأحجام المتعددة لهذا الصنف</Label>
+                  <Switch checked={form.sizes_enabled} onCheckedChange={(v) => setForm({ ...form, sizes_enabled: v })} />
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  عند التفعيل، تظهر الأحجام للعميل ويُستخدم سعر الحجم بدل السعر الأساسي. عند التعطيل، يُستخدم السعر الأساسي للصنف وتُتجاهَل الأحجام تماماً.
                 </p>
-                {!itemDialog.editing && (
-                  <p className="text-xs text-amber-600">احفظ الصنف أولاً ثم أعد فتحه لإضافة الأحجام.</p>
-                )}
-                {itemDialog.editing && (
-                  <>
-                    {dialogSizes.length === 0 ? (
-                      <p className="text-xs text-muted-foreground">لا توجد أحجام بعد.</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {dialogSizes.map((s, i) => (
-                          <div key={s.id} className={`rounded border border-border p-2 space-y-1 ${!s.is_available ? "opacity-50" : ""}`}>
-                            <div className="flex items-center gap-1">
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0" disabled={i === 0} onClick={() => moveSize(s.id, -1)}><ArrowUp className="h-3 w-3" /></Button>
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0" disabled={i === dialogSizes.length - 1} onClick={() => moveSize(s.id, 1)}><ArrowDown className="h-3 w-3" /></Button>
-                              <Input value={s.name} onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, name: e.target.value } : x))} onBlur={(e) => updateSize(s.id, { name: e.target.value })} className="h-7 flex-1" placeholder="الاسم (صغير/وسط/كبير)" />
-                              <Input type="number" step="0.01" value={s.price} onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, price: Number(e.target.value) } : x))} onBlur={(e) => updateSize(s.id, { price: Number(e.target.value) || 0 })} className="h-7 w-24" />
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => deleteSize(s.id)}><Trash2 className="h-3 w-3" /></Button>
-                            </div>
-                            <Textarea value={s.description ?? ""} onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, description: e.target.value } : x))} onBlur={(e) => updateSize(s.id, { description: e.target.value || null })} rows={1} placeholder="وصف اختياري للحجم" className="text-xs" />
-                            <div className="flex items-center gap-3 text-xs">
-                              <label className="flex items-center gap-1">
-                                <input type="radio" name={`def-${itemDialog.editing?.id}`} checked={s.is_default} onChange={() => setDefaultSize(s.id)} />
-                                <Star className={`h-3 w-3 ${s.is_default ? "text-accent fill-accent" : ""}`} /> افتراضي
-                              </label>
-                              <label className="flex items-center gap-1">
-                                <Switch checked={s.is_available} onCheckedChange={(v) => updateSize(s.id, { is_available: v })} />
-                                متاح
-                              </label>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+
+                {form.sizes_enabled && (
+                  <div className="space-y-3 pt-2 border-t border-border">
+                    <Label className="flex items-center gap-2 m-0"><Tags className="h-4 w-4" /> الأحجام والأسعار</Label>
+                    <p className="text-xs text-muted-foreground">
+                      حدّد لكل حجم سعراً مستقلاً لكل نوع منيو (صالة / تيك أواي / دليفري).
+                    </p>
+                    {!itemDialog.editing && (
+                      <p className="text-xs text-amber-600">احفظ الصنف أولاً ثم أعد فتحه لإضافة الأحجام.</p>
                     )}
-                    <div className="flex items-end gap-2 pt-2 border-t border-border">
-                      <div className="flex-1">
-                        <Label className="text-xs">اسم الحجم</Label>
-                        <Input value={newSize.name} onChange={(e) => setNewSize({ ...newSize, name: e.target.value })} className="h-7" placeholder="صغير" />
-                      </div>
-                      <div className="w-24">
-                        <Label className="text-xs">السعر</Label>
-                        <Input type="number" step="0.01" value={newSize.price} onChange={(e) => setNewSize({ ...newSize, price: e.target.value })} className="h-7" />
-                      </div>
-                      <Button size="sm" disabled={sizesBusy} onClick={addSize}>
-                        {sizesBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />} إضافة
-                      </Button>
-                    </div>
-                  </>
+                    {itemDialog.editing && (
+                      <>
+                        {dialogSizes.length === 0 ? (
+                          <p className="text-xs text-muted-foreground">لا توجد أحجام بعد.</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {dialogSizes.map((s, i) => (
+                              <div key={s.id} className={`rounded border border-border p-2 space-y-2 ${!s.is_available ? "opacity-50" : ""}`}>
+                                <div className="flex items-center gap-1">
+                                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0" disabled={i === 0} onClick={() => moveSize(s.id, -1)}><ArrowUp className="h-3 w-3" /></Button>
+                                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0" disabled={i === dialogSizes.length - 1} onClick={() => moveSize(s.id, 1)}><ArrowDown className="h-3 w-3" /></Button>
+                                  <Input value={s.name} onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, name: e.target.value } : x))} onBlur={(e) => updateSize(s.id, { name: e.target.value })} className="h-7 flex-1" placeholder="الاسم (صغير/وسط/كبير)" />
+                                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => deleteSize(s.id)}><Trash2 className="h-3 w-3" /></Button>
+                                </div>
+                                <Textarea value={s.description ?? ""} onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, description: e.target.value } : x))} onBlur={(e) => updateSize(s.id, { description: e.target.value || null })} rows={1} placeholder="وصف اختياري للحجم" className="text-xs" />
+                                <div className="grid grid-cols-3 gap-2">
+                                  <div>
+                                    <Label className="text-[11px] flex items-center gap-1"><Utensils className="h-3 w-3" /> صالة</Label>
+                                    <Input type="number" step="0.01" value={s.price_dine_in ?? ""} placeholder={String(s.price)}
+                                      onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, price_dine_in: e.target.value === "" ? null : Number(e.target.value) } : x))}
+                                      onBlur={(e) => updateSize(s.id, { price_dine_in: e.target.value === "" ? null : Number(e.target.value) })}
+                                      className="h-7" />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[11px] flex items-center gap-1"><ShoppingBag className="h-3 w-3" /> تيك أواي</Label>
+                                    <Input type="number" step="0.01" value={s.price_takeaway ?? ""} placeholder={String(s.price)}
+                                      onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, price_takeaway: e.target.value === "" ? null : Number(e.target.value) } : x))}
+                                      onBlur={(e) => updateSize(s.id, { price_takeaway: e.target.value === "" ? null : Number(e.target.value) })}
+                                      className="h-7" />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[11px] flex items-center gap-1"><Bike className="h-3 w-3" /> دليفري</Label>
+                                    <Input type="number" step="0.01" value={s.price_delivery ?? ""} placeholder={String(s.price)}
+                                      onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, price_delivery: e.target.value === "" ? null : Number(e.target.value) } : x))}
+                                      onBlur={(e) => updateSize(s.id, { price_delivery: e.target.value === "" ? null : Number(e.target.value) })}
+                                      className="h-7" />
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3 text-xs">
+                                  <label className="flex items-center gap-1">
+                                    <input type="radio" name={`def-${itemDialog.editing?.id}`} checked={s.is_default} onChange={() => setDefaultSize(s.id)} />
+                                    <Star className={`h-3 w-3 ${s.is_default ? "text-accent fill-accent" : ""}`} /> افتراضي
+                                  </label>
+                                  <label className="flex items-center gap-1">
+                                    <Switch checked={s.is_available} onCheckedChange={(v) => updateSize(s.id, { is_available: v })} />
+                                    متاح
+                                  </label>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <div className="flex items-end gap-2 pt-2 border-t border-border">
+                          <div className="flex-1">
+                            <Label className="text-xs">اسم الحجم</Label>
+                            <Input value={newSize.name} onChange={(e) => setNewSize({ ...newSize, name: e.target.value })} className="h-7" placeholder="صغير" />
+                          </div>
+                          <div className="w-24">
+                            <Label className="text-xs">السعر الافتراضي</Label>
+                            <Input type="number" step="0.01" value={newSize.price} onChange={(e) => setNewSize({ ...newSize, price: e.target.value })} className="h-7" />
+                          </div>
+                          <Button size="sm" disabled={sizesBusy} onClick={addSize}>
+                            {sizesBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />} إضافة
+                          </Button>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">يُضاف بنفس السعر للأنواع الثلاثة، عدّل بعد ذلك سعر كل نوع.</p>
+                      </>
+                    )}
+                  </div>
                 )}
               </div>
             )}
