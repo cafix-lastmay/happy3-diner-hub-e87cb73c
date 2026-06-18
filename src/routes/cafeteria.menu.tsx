@@ -261,7 +261,7 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
   const openNewItem = (categoryId?: string) => {
     // adding new items is only allowed in dine_in (base menu)
     if (!isDineIn) return;
-    setForm({ name: "", description: "", price: "0", category_id: categoryId ?? "", is_available: true, is_most_popular: false, image_url: "" });
+    setForm({ name: "", description: "", price: "0", category_id: categoryId ?? "", is_available: true, is_most_popular: false, image_url: "", sizes_enabled: false });
     setTierOverrides({});
     setDialogSizes([]);
     resetImageState();
@@ -269,7 +269,7 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
   };
   const openEditItem = async (it: Item) => {
     if (isDineIn) {
-      setForm({ name: it.name, description: it.description ?? "", price: String(it.price), category_id: it.category_id ?? "", is_available: it.is_available, is_most_popular: !!it.is_most_popular, image_url: it.image_url ?? "" });
+      setForm({ name: it.name, description: it.description ?? "", price: String(it.price), category_id: it.category_id ?? "", is_available: it.is_available, is_most_popular: !!it.is_most_popular, image_url: it.image_url ?? "", sizes_enabled: !!it.sizes_enabled });
       const ov: Record<string, string> = {};
       itemPrices.filter((p) => p.item_id === it.id).forEach((p) => { ov[p.tier_id] = String(p.price); });
       setTierOverrides(ov);
@@ -285,6 +285,7 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
         is_available: o ? o.is_visible : true,
         is_most_popular: !!it.is_most_popular,
         image_url: o?.image_url ?? it.image_url ?? "",
+        sizes_enabled: !!it.sizes_enabled,
       });
       setTierOverrides({});
       setDialogSizes([]);
