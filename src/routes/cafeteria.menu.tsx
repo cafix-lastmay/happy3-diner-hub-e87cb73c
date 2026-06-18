@@ -25,9 +25,9 @@ export const Route = createFileRoute("/cafeteria/menu")({ component: () => <Cafe
 type ModeKey = "dine_in" | "take_away" | "delivery";
 
 interface Cat { id: string; name: string; sort_order: number; is_active: boolean }
-interface Item { id: string; category_id: string | null; name: string; description: string | null; price: number; image_url: string | null; is_available: boolean; is_most_popular: boolean; sort_order: number }
+interface Item { id: string; category_id: string | null; name: string; description: string | null; price: number; image_url: string | null; is_available: boolean; is_most_popular: boolean; sort_order: number; sizes_enabled: boolean }
 interface Tier { id: string; name: string; is_default: boolean }
-interface ItemSize { id: string; menu_item_id: string; name: string; description: string | null; price: number; is_default: boolean; sort_order: number; is_available: boolean }
+interface ItemSize { id: string; menu_item_id: string; name: string; description: string | null; price: number; price_dine_in: number | null; price_takeaway: number | null; price_delivery: number | null; is_default: boolean; sort_order: number; is_available: boolean }
 interface ItemPrice { item_id: string; tier_id: string; price: number }
 interface ModeOverride { item_id: string; mode: ModeKey; name: string | null; description: string | null; image_url: string | null; price: number | null; is_visible: boolean }
 interface CatVis { category_id: string; mode: ModeKey; is_visible: boolean }
