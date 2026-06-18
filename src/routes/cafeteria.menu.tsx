@@ -305,11 +305,15 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
     if (!nm) { toast.error(t("error.required_field")); return; }
     setSizesBusy(true);
     const isFirst = dialogSizes.length === 0;
+    const basePrice = Number(newSize.price) || 0;
     const { error } = await supabase.from("menu_item_sizes").insert({
       menu_item_id: itemDialog.editing.id,
       name: nm,
       description: newSize.description.trim() || null,
-      price: Number(newSize.price) || 0,
+      price: basePrice,
+      price_dine_in: basePrice,
+      price_takeaway: basePrice,
+      price_delivery: basePrice,
       is_default: isFirst,
       sort_order: dialogSizes.length,
       is_available: true,
