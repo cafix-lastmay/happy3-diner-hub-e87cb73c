@@ -418,6 +418,7 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
         image_url,
         is_available: form.is_available,
         is_most_popular: form.is_most_popular,
+        sizes_enabled: form.sizes_enabled,
       };
       let error;
       let savedId: string | null = itemDialog.editing?.id ?? null;
