@@ -815,57 +815,92 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
 
             {isDineIn && (
               <div className="rounded-md border border-border p-3 space-y-3">
-                <Label className="flex items-center gap-2 m-0"><Tags className="h-4 w-4" /> الأحجام والأسعار</Label>
-                <p className="text-xs text-muted-foreground">
-                  أضف أحجام متعددة (مثل: صغير/وسط/كبير). الحجم الافتراضي يُحدّد تلقائياً عند فتح الصنف.
+                <div className="flex items-center justify-between gap-2">
+                  <Label className="flex items-center gap-2 m-0"><Tags className="h-4 w-4" /> تفعيل الأحجام المتعددة لهذا الصنف</Label>
+                  <Switch checked={form.sizes_enabled} onCheckedChange={(v) => setForm({ ...form, sizes_enabled: v })} />
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  عند التفعيل، تظهر الأحجام للعميل ويُستخدم سعر الحجم بدل السعر الأساسي. عند التعطيل، يُستخدم السعر الأساسي للصنف وتُتجاهَل الأحجام تماماً.
                 </p>
-                {!itemDialog.editing && (
-                  <p className="text-xs text-amber-600">احفظ الصنف أولاً ثم أعد فتحه لإضافة الأحجام.</p>
-                )}
-                {itemDialog.editing && (
-                  <>
-                    {dialogSizes.length === 0 ? (
-                      <p className="text-xs text-muted-foreground">لا توجد أحجام بعد.</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {dialogSizes.map((s, i) => (
-                          <div key={s.id} className={`rounded border border-border p-2 space-y-1 ${!s.is_available ? "opacity-50" : ""}`}>
-                            <div className="flex items-center gap-1">
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0" disabled={i === 0} onClick={() => moveSize(s.id, -1)}><ArrowUp className="h-3 w-3" /></Button>
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0" disabled={i === dialogSizes.length - 1} onClick={() => moveSize(s.id, 1)}><ArrowDown className="h-3 w-3" /></Button>
-                              <Input value={s.name} onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, name: e.target.value } : x))} onBlur={(e) => updateSize(s.id, { name: e.target.value })} className="h-7 flex-1" placeholder="الاسم (صغير/وسط/كبير)" />
-                              <Input type="number" step="0.01" value={s.price} onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, price: Number(e.target.value) } : x))} onBlur={(e) => updateSize(s.id, { price: Number(e.target.value) || 0 })} className="h-7 w-24" />
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => deleteSize(s.id)}><Trash2 className="h-3 w-3" /></Button>
-                            </div>
-                            <Textarea value={s.description ?? ""} onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, description: e.target.value } : x))} onBlur={(e) => updateSize(s.id, { description: e.target.value || null })} rows={1} placeholder="وصف اختياري للحجم" className="text-xs" />
-                            <div className="flex items-center gap-3 text-xs">
-                              <label className="flex items-center gap-1">
-                                <input type="radio" name={`def-${itemDialog.editing?.id}`} checked={s.is_default} onChange={() => setDefaultSize(s.id)} />
-                                <Star className={`h-3 w-3 ${s.is_default ? "text-accent fill-accent" : ""}`} /> افتراضي
-                              </label>
-                              <label className="flex items-center gap-1">
-                                <Switch checked={s.is_available} onCheckedChange={(v) => updateSize(s.id, { is_available: v })} />
-                                متاح
-                              </label>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+
+                {form.sizes_enabled && (
+                  <div className="space-y-3 pt-2 border-t border-border">
+                    <Label className="flex items-center gap-2 m-0"><Tags className="h-4 w-4" /> الأحجام والأسعار</Label>
+                    <p className="text-xs text-muted-foreground">
+                      حدّد لكل حجم سعراً مستقلاً لكل نوع منيو (صالة / تيك أواي / دليفري).
+                    </p>
+                    {!itemDialog.editing && (
+                      <p className="text-xs text-amber-600">احفظ الصنف أولاً ثم أعد فتحه لإضافة الأحجام.</p>
                     )}
-                    <div className="flex items-end gap-2 pt-2 border-t border-border">
-                      <div className="flex-1">
-                        <Label className="text-xs">اسم الحجم</Label>
-                        <Input value={newSize.name} onChange={(e) => setNewSize({ ...newSize, name: e.target.value })} className="h-7" placeholder="صغير" />
-                      </div>
-                      <div className="w-24">
-                        <Label className="text-xs">السعر</Label>
-                        <Input type="number" step="0.01" value={newSize.price} onChange={(e) => setNewSize({ ...newSize, price: e.target.value })} className="h-7" />
-                      </div>
-                      <Button size="sm" disabled={sizesBusy} onClick={addSize}>
-                        {sizesBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />} إضافة
-                      </Button>
-                    </div>
-                  </>
+                    {itemDialog.editing && (
+                      <>
+                        {dialogSizes.length === 0 ? (
+                          <p className="text-xs text-muted-foreground">لا توجد أحجام بعد.</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {dialogSizes.map((s, i) => (
+                              <div key={s.id} className={`rounded border border-border p-2 space-y-2 ${!s.is_available ? "opacity-50" : ""}`}>
+                                <div className="flex items-center gap-1">
+                                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0" disabled={i === 0} onClick={() => moveSize(s.id, -1)}><ArrowUp className="h-3 w-3" /></Button>
+                                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0" disabled={i === dialogSizes.length - 1} onClick={() => moveSize(s.id, 1)}><ArrowDown className="h-3 w-3" /></Button>
+                                  <Input value={s.name} onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, name: e.target.value } : x))} onBlur={(e) => updateSize(s.id, { name: e.target.value })} className="h-7 flex-1" placeholder="الاسم (صغير/وسط/كبير)" />
+                                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => deleteSize(s.id)}><Trash2 className="h-3 w-3" /></Button>
+                                </div>
+                                <Textarea value={s.description ?? ""} onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, description: e.target.value } : x))} onBlur={(e) => updateSize(s.id, { description: e.target.value || null })} rows={1} placeholder="وصف اختياري للحجم" className="text-xs" />
+                                <div className="grid grid-cols-3 gap-2">
+                                  <div>
+                                    <Label className="text-[11px] flex items-center gap-1"><Utensils className="h-3 w-3" /> صالة</Label>
+                                    <Input type="number" step="0.01" value={s.price_dine_in ?? ""} placeholder={String(s.price)}
+                                      onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, price_dine_in: e.target.value === "" ? null : Number(e.target.value) } : x))}
+                                      onBlur={(e) => updateSize(s.id, { price_dine_in: e.target.value === "" ? null : Number(e.target.value) })}
+                                      className="h-7" />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[11px] flex items-center gap-1"><ShoppingBag className="h-3 w-3" /> تيك أواي</Label>
+                                    <Input type="number" step="0.01" value={s.price_takeaway ?? ""} placeholder={String(s.price)}
+                                      onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, price_takeaway: e.target.value === "" ? null : Number(e.target.value) } : x))}
+                                      onBlur={(e) => updateSize(s.id, { price_takeaway: e.target.value === "" ? null : Number(e.target.value) })}
+                                      className="h-7" />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[11px] flex items-center gap-1"><Bike className="h-3 w-3" /> دليفري</Label>
+                                    <Input type="number" step="0.01" value={s.price_delivery ?? ""} placeholder={String(s.price)}
+                                      onChange={(e) => setDialogSizes((p) => p.map((x) => x.id === s.id ? { ...x, price_delivery: e.target.value === "" ? null : Number(e.target.value) } : x))}
+                                      onBlur={(e) => updateSize(s.id, { price_delivery: e.target.value === "" ? null : Number(e.target.value) })}
+                                      className="h-7" />
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3 text-xs">
+                                  <label className="flex items-center gap-1">
+                                    <input type="radio" name={`def-${itemDialog.editing?.id}`} checked={s.is_default} onChange={() => setDefaultSize(s.id)} />
+                                    <Star className={`h-3 w-3 ${s.is_default ? "text-accent fill-accent" : ""}`} /> افتراضي
+                                  </label>
+                                  <label className="flex items-center gap-1">
+                                    <Switch checked={s.is_available} onCheckedChange={(v) => updateSize(s.id, { is_available: v })} />
+                                    متاح
+                                  </label>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <div className="flex items-end gap-2 pt-2 border-t border-border">
+                          <div className="flex-1">
+                            <Label className="text-xs">اسم الحجم</Label>
+                            <Input value={newSize.name} onChange={(e) => setNewSize({ ...newSize, name: e.target.value })} className="h-7" placeholder="صغير" />
+                          </div>
+                          <div className="w-24">
+                            <Label className="text-xs">السعر الافتراضي</Label>
+                            <Input type="number" step="0.01" value={newSize.price} onChange={(e) => setNewSize({ ...newSize, price: e.target.value })} className="h-7" />
+                          </div>
+                          <Button size="sm" disabled={sizesBusy} onClick={addSize}>
+                            {sizesBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />} إضافة
+                          </Button>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">يُضاف بنفس السعر للأنواع الثلاثة، عدّل بعد ذلك سعر كل نوع.</p>
+                      </>
+                    )}
+                  </div>
                 )}
               </div>
             )}
