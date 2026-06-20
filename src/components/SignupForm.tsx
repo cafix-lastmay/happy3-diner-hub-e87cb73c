@@ -38,7 +38,9 @@ export function SignupForm({ kind }: Props) {
     phone: "",
     whatsapp: "",
     referral_code: "",
+    business_type: "full_cafe" as "full_cafe" | "home_seller",
   });
+
 
   useEffect(() => {
     supabase.from("countries").select("*").order("name_en").then(({ data }) => setCountries((data ?? []) as Country[]));
