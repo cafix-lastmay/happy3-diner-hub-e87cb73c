@@ -16,7 +16,9 @@ interface Body {
   country_code: string; currency_code: string; language: "ar" | "en";
   address?: string; phone?: string; whatsapp?: string;
   referral_code?: string;
+  business_type?: "full_cafe" | "home_seller";
 }
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
