@@ -1,5 +1,5 @@
 // /cafeteria → home sellers go to /seller, full cafes go to /cafeteria/orders.
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, isRedirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/cafeteria/")({
@@ -12,13 +12,12 @@ export const Route = createFileRoute("/cafeteria/")({
           .select("business_type")
           .eq("user_id", user.id)
           .maybeSingle();
-        if (data?.business_type === "home_seller") {
+        if ((data as { business_type?: string } | null)?.business_type === "home_seller") {
           throw redirect({ to: "/seller" });
         }
       }
     } catch (e) {
-      // If it's a redirect, rethrow
-      if (e && typeof e === "object" && "to" in e) throw e;
+      if (isRedirect(e)) throw e;
     }
     throw redirect({ to: "/cafeteria/orders" });
   },
