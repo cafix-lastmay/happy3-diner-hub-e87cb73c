@@ -93,6 +93,7 @@ export function SignupForm({ kind }: Props) {
     }
     toast.success(`${t("common.success")} — ${t("common.ref_code")}: ${(data as { ref_code: string }).ref_code}`);
     navigate({ to: kind === "marketer" ? "/marketer" : "/cafeteria" });
+
   };
 
   const nameLabel = kind === "marketer" ? t("common.name") : t("common.cafeteria_name");
