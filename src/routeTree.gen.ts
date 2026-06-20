@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WaiterRouteImport } from './routes/waiter'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SellerRouteImport } from './routes/seller'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LoginRouteImport } from './routes/login'
@@ -81,6 +82,11 @@ const WaiterRoute = WaiterRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellerRoute = SellerRouteImport.update({
+  id: '/seller',
+  path: '/seller',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -396,6 +402,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/privacy': typeof PrivacyRoute
+  '/seller': typeof SellerRoute
   '/terms': typeof TermsRoute
   '/waiter': typeof WaiterRoute
   '/cafeteria/history': typeof CafeteriaHistoryRoute
@@ -461,6 +468,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/privacy': typeof PrivacyRoute
+  '/seller': typeof SellerRoute
   '/terms': typeof TermsRoute
   '/waiter': typeof WaiterRoute
   '/cafeteria/history': typeof CafeteriaHistoryRoute
@@ -527,6 +535,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/privacy': typeof PrivacyRoute
+  '/seller': typeof SellerRoute
   '/terms': typeof TermsRoute
   '/waiter': typeof WaiterRoute
   '/cafeteria/history': typeof CafeteriaHistoryRoute
@@ -594,6 +603,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/notifications'
     | '/privacy'
+    | '/seller'
     | '/terms'
     | '/waiter'
     | '/cafeteria/history'
@@ -659,6 +669,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/notifications'
     | '/privacy'
+    | '/seller'
     | '/terms'
     | '/waiter'
     | '/cafeteria/history'
@@ -724,6 +735,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/notifications'
     | '/privacy'
+    | '/seller'
     | '/terms'
     | '/waiter'
     | '/cafeteria/history'
@@ -790,6 +802,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   NotificationsRoute: typeof NotificationsRoute
   PrivacyRoute: typeof PrivacyRoute
+  SellerRoute: typeof SellerRoute
   TermsRoute: typeof TermsRoute
   WaiterRoute: typeof WaiterRoute
   CafeteriaHistoryRoute: typeof CafeteriaHistoryRoute
@@ -863,6 +876,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seller': {
+      id: '/seller'
+      path: '/seller'
+      fullPath: '/seller'
+      preLoaderRoute: typeof SellerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -1313,6 +1333,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   NotificationsRoute: NotificationsRoute,
   PrivacyRoute: PrivacyRoute,
+  SellerRoute: SellerRoute,
   TermsRoute: TermsRoute,
   WaiterRoute: WaiterRoute,
   CafeteriaHistoryRoute: CafeteriaHistoryRoute,
@@ -1374,12 +1395,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

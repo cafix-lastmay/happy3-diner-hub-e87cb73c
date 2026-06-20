@@ -16,7 +16,9 @@ interface Body {
   country_code: string; currency_code: string; language: "ar" | "en";
   address?: string; phone?: string; whatsapp?: string;
   referral_code?: string;
+  business_type?: "full_cafe" | "home_seller";
 }
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -70,11 +72,16 @@ Deno.serve(async (req) => {
     }
     const userId = created.user!.id;
 
+    const bizType = body.business_type === "home_seller" ? "home_seller" : "full_cafe";
     const { error: caErr } = await admin.from("cafeterias").insert({
       user_id: userId, ref_code, parent_ref_code: parentRef, signup_type: "self_signup",
       name: body.name, country_code: body.country_code, currency_code: body.currency_code,
       language: body.language ?? "ar", address: body.address, phone: body.phone, whatsapp: body.whatsapp, email: body.email,
+      business_type: bizType,
+      // Home sellers default to takeaway+delivery only (no dine-in)
+      ...(bizType === "home_seller" ? { mode_dine_in: false, mode_takeaway: true, mode_delivery: true } : {}),
     });
+
     if (caErr) {
       console.error("[signup-cafeteria] insert", caErr);
       return json(500, { error: "تعذّر حفظ بيانات الكافيتيريا، حاول مرة أخرى" });

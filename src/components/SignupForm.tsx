@@ -38,7 +38,9 @@ export function SignupForm({ kind }: Props) {
     phone: "",
     whatsapp: "",
     referral_code: "",
+    business_type: "full_cafe" as "full_cafe" | "home_seller",
   });
+
 
   useEffect(() => {
     supabase.from("countries").select("*").order("name_en").then(({ data }) => setCountries((data ?? []) as Country[]));
@@ -91,6 +93,7 @@ export function SignupForm({ kind }: Props) {
     }
     toast.success(`${t("common.success")} — ${t("common.ref_code")}: ${(data as { ref_code: string }).ref_code}`);
     navigate({ to: kind === "marketer" ? "/marketer" : "/cafeteria" });
+
   };
 
   const nameLabel = kind === "marketer" ? t("common.name") : t("common.cafeteria_name");
@@ -112,6 +115,30 @@ export function SignupForm({ kind }: Props) {
           <Label>{nameLabel} *</Label>
           <Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         </div>
+        {kind === "cafeteria" && (
+          <div className="space-y-2 sm:col-span-2">
+            <Label>{t("signup.business_type.label")} *</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, business_type: "full_cafe" })}
+                className={`rounded-lg border-2 p-3 text-start text-sm transition ${form.business_type === "full_cafe" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
+              >
+                <div className="font-semibold">{t("signup.business_type.full_cafe")}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{t("signup.business_type.full_cafe.hint")}</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, business_type: "home_seller" })}
+                className={`rounded-lg border-2 p-3 text-start text-sm transition ${form.business_type === "home_seller" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
+              >
+                <div className="font-semibold">{t("signup.business_type.home_seller")}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{t("signup.business_type.home_seller.hint")}</div>
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-2">
           <Label>{t("common.email")} *</Label>
           <Input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
