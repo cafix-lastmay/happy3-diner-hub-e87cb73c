@@ -88,6 +88,7 @@ export type Database = {
           address: string | null
           auto_approve_shifts: boolean
           banner_url: string | null
+          business_type: Database["public"]["Enums"]["business_type"]
           country_code: string | null
           created_at: string
           currency_code: string | null
@@ -142,6 +143,7 @@ export type Database = {
           address?: string | null
           auto_approve_shifts?: boolean
           banner_url?: string | null
+          business_type?: Database["public"]["Enums"]["business_type"]
           country_code?: string | null
           created_at?: string
           currency_code?: string | null
@@ -196,6 +198,7 @@ export type Database = {
           address?: string | null
           auto_approve_shifts?: boolean
           banner_url?: string | null
+          business_type?: Database["public"]["Enums"]["business_type"]
           country_code?: string | null
           created_at?: string
           currency_code?: string | null
@@ -1018,6 +1021,7 @@ export type Database = {
       }
       menu_items: {
         Row: {
+          available_today: boolean
           cafeteria_ref_code: string
           category_id: string | null
           created_at: string
@@ -1035,6 +1039,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          available_today?: boolean
           cafeteria_ref_code: string
           category_id?: string | null
           created_at?: string
@@ -1052,6 +1057,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          available_today?: boolean
           cafeteria_ref_code?: string
           category_id?: string | null
           created_at?: string
@@ -2521,6 +2527,7 @@ export type Database = {
         | "chef"
         | "manager"
         | "driver"
+      business_type: "full_cafe" | "home_seller"
       commission_status: "frozen" | "available" | "withdrawn"
       delivery_fee_tier: "a" | "b" | "c"
       delivery_status:
@@ -2684,6 +2691,7 @@ export const Constants = {
         "manager",
         "driver",
       ],
+      business_type: ["full_cafe", "home_seller"],
       commission_status: ["frozen", "available", "withdrawn"],
       delivery_fee_tier: ["a", "b", "c"],
       delivery_status: [
