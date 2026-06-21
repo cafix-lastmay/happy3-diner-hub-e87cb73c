@@ -2144,6 +2144,13 @@ export type Database = {
           driver_rated: boolean
         }[]
       }
+      get_enabled_payment_methods: {
+        Args: { _ref_code: string }
+        Returns: {
+          method: Database["public"]["Enums"]["payment_method_type"]
+          wallet_number: string
+        }[]
+      }
       get_menu_for_delivery: { Args: { _token: string }; Returns: Json }
       get_menu_for_qr: {
         Args: {
