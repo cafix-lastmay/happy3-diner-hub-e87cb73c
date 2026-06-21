@@ -300,12 +300,39 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
     }
     const itemsArr = Object.values(cart).map((ln) => ({ item_id: ln.item_id, qty: ln.qty, size_id: ln.size_id }));
     if (itemsArr.length === 0) { toast.error(t("customer.empty_cart")); return; }
+
+    // Payment validation (only when the cafeteria has any methods configured)
+    if (paymentMethods.length > 0) {
+      if (!paymentMethod) { toast.error("اختر طريقة الدفع"); return; }
+      if (paymentMethod !== "cash_on_delivery" && !payerWallet.trim()) {
+        toast.error("أدخل رقم المحفظة التي حوّلت منها"); return;
+      }
+    }
+
     setSending(true);
+    let proofUrl: string | null = null;
     try {
+      // Upload proof if provided
+      if (proofFile && paymentMethod && paymentMethod !== "cash_on_delivery" && cafe) {
+        setUploadingProof(true);
+        const ext = proofFile.name.split(".").pop() || "jpg";
+        const path = `${cafe.ref_code}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("payment-proofs").upload(path, proofFile, { upsert: false });
+        setUploadingProof(false);
+        if (upErr) { toast.error("تعذّر رفع إثبات التحويل: " + upErr.message); setSending(false); return; }
+        proofUrl = path;
+      }
+
       const rpc = mode === "take_away" ? "place_order_takeaway" : "place_order_delivery";
-      const args: Record<string, unknown> = mode === "take_away"
+      const baseArgs: Record<string, unknown> = mode === "take_away"
         ? { _token: token, _customer_name: name, _notes: notes, _items: itemsArr }
         : { _token: token, _customer_name: name, _customer_address: address, _customer_lat: lat, _customer_lng: lng, _notes: notes, _items: itemsArr };
+      const args = {
+        ...baseArgs,
+        _payment_method: paymentMethod ?? null,
+        _payer_wallet_number: paymentMethod && paymentMethod !== "cash_on_delivery" ? payerWallet.trim() : null,
+        _payment_proof_url: proofUrl,
+      };
       const { data, error } = await supabase.rpc(rpc as never, args as never);
       if (error) {
         const msg = error.message?.includes("CAFETERIA_BLOCKED")
@@ -333,6 +360,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
       }));
       setLastSnapshot({ lines: snapLines, total, address, lat, lng, notes, name });
       setCart({}); setNotes(""); setCartOpen(false);
+      setPayerWallet(""); setProofFile(null);
       toast.success(t("customer.order_sent"));
     } finally {
       setSending(false);
