@@ -314,12 +314,13 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
 
   const submit = async () => {
     if (sending) return;
-    if (!name.trim()) { toast.error(t("customer.name_required")); return; }
     const phoneClean = phone.replace(/[^\d+]/g, "");
     if (phoneClean.length < 6) { toast.error("رقم هاتف غير صحيح"); return; }
+    const effName = name.trim() || `عميل ${phoneClean.slice(-4)}`;
     if (mode === "delivery") {
       if (!address.trim()) { toast.error(t("customer.address_required")); return; }
     }
+
     const itemsArr = Object.values(cart).map((ln) => ({ item_id: ln.item_id, qty: ln.qty, size_id: ln.size_id }));
     if (itemsArr.length === 0) { toast.error(t("customer.empty_cart")); return; }
 
