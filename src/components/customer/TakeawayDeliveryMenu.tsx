@@ -370,7 +370,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
       }
       // Save to localStorage keyed by phone for next visit
       try {
-        localStorage.setItem(`cx:${phoneClean}`, JSON.stringify({ name, address, lat, lng }));
+        localStorage.setItem(`cx:${phoneClean}`, JSON.stringify({ name: effName, address, lat, lng }));
         localStorage.setItem("cx:last_phone", phoneClean);
       } catch { /* ignore */ }
 
