@@ -315,8 +315,9 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   const submit = async () => {
     if (sending) return;
     if (!name.trim()) { toast.error(t("customer.name_required")); return; }
+    const phoneClean = phone.replace(/[^\d+]/g, "");
+    if (phoneClean.length < 6) { toast.error("رقم هاتف غير صحيح"); return; }
     if (mode === "delivery") {
-      if (!session?.user) { toast.error(t("delivery.auth.required")); return; }
       if (!address.trim()) { toast.error(t("customer.address_required")); return; }
     }
     const itemsArr = Object.values(cart).map((ln) => ({ item_id: ln.item_id, qty: ln.qty, size_id: ln.size_id }));
@@ -333,7 +334,6 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
     setSending(true);
     let proofUrl: string | null = null;
     try {
-      // Upload proof if provided
       if (proofFile && paymentMethod && paymentMethod !== "cash_on_delivery" && cafe) {
         setUploadingProof(true);
         const ext = proofFile.name.split(".").pop() || "jpg";
@@ -346,8 +346,12 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
 
       const rpc = mode === "take_away" ? "place_order_takeaway" : "place_order_delivery";
       const baseArgs: Record<string, unknown> = mode === "take_away"
-        ? { _token: token, _customer_name: name, _notes: notes, _items: itemsArr }
-        : { _token: token, _customer_name: name, _customer_address: address, _customer_lat: lat, _customer_lng: lng, _notes: notes, _items: itemsArr };
+        ? { _token: token, _customer_name: name, _notes: notes, _items: itemsArr,
+            _customer_phone: phoneClean, _customer_address: address || null,
+            _customer_lat: lat, _customer_lng: lng }
+        : { _token: token, _customer_name: name, _customer_address: address,
+            _customer_lat: lat, _customer_lng: lng, _notes: notes, _items: itemsArr,
+            _customer_phone: phoneClean };
       const args = {
         ...baseArgs,
         _payment_method: paymentMethod ?? null,
@@ -362,17 +366,12 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
         toast.error(msg);
         return;
       }
-      // Save new delivery address for the logged-in customer
-      if (mode === "delivery" && session?.user && selectedAddrId === "new") {
-        const isFirst = addresses.length === 0;
-        await supabase.from("customer_addresses").insert({
-          user_id: session.user.id,
-          address,
-          lat,
-          lng,
-          is_default: isFirst,
-        });
-      }
+      // Save to localStorage keyed by phone for next visit
+      try {
+        localStorage.setItem(`cx:${phoneClean}`, JSON.stringify({ name, address, lat, lng }));
+        localStorage.setItem("cx:last_phone", phoneClean);
+      } catch { /* ignore */ }
+
       setOrderId(data as string);
       const snapLines = Object.values(cart).map((ln) => ({
         name: ln.size_name ? `${ln.name} — ${ln.size_name}` : ln.name,
@@ -391,10 +390,6 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   if (loading) return <div className="min-h-screen flex items-center justify-center">{t("common.loading")}</div>;
   if (invalid) return <div className="min-h-screen flex items-center justify-center text-muted-foreground p-4 text-center">{t("customer.invalid_qr")}</div>;
 
-  // Delivery auth gate
-  if (mode === "delivery" && authChecked && !session) {
-    return <DeliveryAuthGate />;
-  }
 
   const ModeIcon = mode === "take_away" ? Package : Bike;
   const modeLabel = mode === "take_away" ? t("mode.take_away") : t("mode.delivery");
