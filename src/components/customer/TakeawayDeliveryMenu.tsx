@@ -475,7 +475,14 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
                   )}
                 </div>
               )}
+              <a
+                href={`/m/order/${orderId}?phone=${encodeURIComponent(phone.replace(/[^\d+]/g, ""))}`}
+                className="text-xs text-accent underline"
+              >
+                📦 تتبّع طلبك / إضافة صنف
+              </a>
               <Button variant="ghost" size="sm" onClick={() => setOrderId(null)}>{t("customer.new_order")}</Button>
+
             </div>
           </Card>
         )}
