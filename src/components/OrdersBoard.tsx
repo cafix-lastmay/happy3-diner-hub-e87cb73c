@@ -25,7 +25,9 @@ import { toast } from "sonner";
 import { ClipboardList, Timer, BellRing } from "lucide-react";
 import { sendServiceCall } from "@/components/ServiceCallsListener";
 import { DeliveryPanel } from "@/components/delivery/DeliveryPanel";
+import { AdditionRequestsPanel } from "@/components/AdditionRequestsPanel";
 import { MENU_MODE_STYLES } from "@/lib/menu-mode";
+
 
 export type OrderStatus = "new" | "preparing" | "ready" | "served" | "paid" | "cancelled" | "awaiting_payment" | "paid_at_counter" | "delivered";
 export type OrderMode = "dine_in" | "take_away" | "delivery";
