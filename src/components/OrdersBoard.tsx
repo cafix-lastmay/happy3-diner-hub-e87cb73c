@@ -33,6 +33,7 @@ interface Order {
   id: string; cafeteria_ref_code: string; table_label: string; customer_name: string | null;
   notes: string | null; total: number; status: OrderStatus; created_at: string; tip_amount: number;
   table_id: string | null; mode: OrderMode;
+  payment_method?: string | null; payer_wallet_number?: string | null; payment_proof_url?: string | null;
 }
 interface OrderItem { id: string; order_id: string; item_id: string | null; name_snapshot: string; price_snapshot: number; qty: number; notes: string | null }
 
@@ -325,6 +326,13 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
                         ))}
                       </ul>
                       {o.notes && !isChef && <p className="mt-2 text-xs italic text-muted-foreground">📝 {o.notes}</p>}
+                      {!isChef && o.payment_method && (
+                        <PaymentInfoBlock
+                          method={o.payment_method}
+                          payerWallet={o.payer_wallet_number}
+                          proofPath={o.payment_proof_url}
+                        />
+                      )}
                       {!isChef && (
                         <div className="mt-3 flex justify-between items-center">
                           <div className="font-bold text-accent">{Number(o.total).toFixed(2)}</div>
