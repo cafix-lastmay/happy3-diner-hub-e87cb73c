@@ -67,6 +67,14 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   const [addresses, setAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddrId, setSelectedAddrId] = useState<string | "new" | null>(null);
 
+  // Payment
+  type PMethod = "cash_on_delivery" | "vodafone_cash" | "instapay";
+  const [paymentMethods, setPaymentMethods] = useState<{ method: PMethod; wallet_number: string | null }[]>([]);
+  const [paymentMethod, setPaymentMethod] = useState<PMethod | null>(null);
+  const [payerWallet, setPayerWallet] = useState("");
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [uploadingProof, setUploadingProof] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
