@@ -383,7 +383,9 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
                       {o.mode === "delivery" && (isWaiter || isAdminOrMgr) && !completedView && (
                         <DeliveryPanel orderId={o.id} cafeteriaRefCode={o.cafeteria_ref_code} />
                       )}
+                      {!isChef && !completedView && <AdditionRequestsPanel orderId={o.id} />}
                     </Card>
+
                   );
                 })}
               </div>
