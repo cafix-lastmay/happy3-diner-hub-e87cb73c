@@ -126,6 +126,25 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
     return () => sub.subscription.unsubscribe();
   }, [mode]);
 
+  // Phone-based local restore: when the customer types a phone number we know,
+  // pre-fill name/address/coords from localStorage (and from DB if reachable).
+  useEffect(() => {
+    const p = phone.replace(/[^\d+]/g, "");
+    if (p.length < 6) return;
+    try {
+      const raw = localStorage.getItem(`cx:${p}`);
+      if (raw) {
+        const j = JSON.parse(raw) as { name?: string; address?: string; lat?: number | null; lng?: number | null };
+        if (j.name && !name) setName(j.name);
+        if (j.address && !address) setAddress(j.address);
+        if (j.lat != null && lat == null) setLat(j.lat);
+        if (j.lng != null && lng == null) setLng(j.lng);
+      }
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phone]);
+
+
   // Load profile + saved addresses for delivery
   useEffect(() => {
     if (mode !== "delivery" || !session?.user) return;
