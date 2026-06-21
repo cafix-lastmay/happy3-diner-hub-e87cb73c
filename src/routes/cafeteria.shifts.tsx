@@ -5,6 +5,7 @@ import { LayoutDashboard, Wallet, History, BookOpen, QrCode, Users, ClipboardLis
 import { DashboardShell } from "@/components/DashboardShell";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { useRequireFullCafe } from "@/auth/useRequireFullCafe";
 import { useAuth } from "@/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { ShiftApprovalsPanel } from "@/components/ShiftApprovalsPanel";
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/cafeteria/shifts")({ component: CafeShift
 function CafeShifts() {
   const { t } = useI18n();
   const { ready } = useRequireRole("cafeteria_admin");
+  useRequireFullCafe();
   const { user } = useAuth();
   const [refCode, setRefCode] = useState<string | null>(null);
 
