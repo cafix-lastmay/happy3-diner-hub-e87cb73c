@@ -2275,6 +2275,7 @@ export type Database = {
         Args: { _customer_phone: string; _driver_id: string }
         Returns: boolean
       }
+      is_full_cafe_ref: { Args: { _ref_code: string }; Returns: boolean }
       list_available_drivers_for_cafeteria: {
         Args: { _customer_phone?: string }
         Returns: {
