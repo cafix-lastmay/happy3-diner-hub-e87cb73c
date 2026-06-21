@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
-  Coffee, Plus, Minus, ShoppingCart, ImageIcon, Check, Search, X, MapPin, User, Bike, Package, Locate, Star, StarOff, LogIn, MessageCircle
+  Coffee, Plus, Minus, ShoppingCart, ImageIcon, Check, Search, X, MapPin, User, Bike, Package, Locate, Star, StarOff, LogIn, MessageCircle, Wallet, Upload, Loader2
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -67,6 +67,14 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   const [addresses, setAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddrId, setSelectedAddrId] = useState<string | "new" | null>(null);
 
+  // Payment
+  type PMethod = "cash_on_delivery" | "vodafone_cash" | "instapay";
+  const [paymentMethods, setPaymentMethods] = useState<{ method: PMethod; wallet_number: string | null }[]>([]);
+  const [paymentMethod, setPaymentMethod] = useState<PMethod | null>(null);
+  const [payerWallet, setPayerWallet] = useState("");
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [uploadingProof, setUploadingProof] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -90,6 +98,17 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
     })();
     return () => { cancelled = true; };
   }, [token, mode]);
+
+  // Load enabled payment methods for this cafeteria
+  useEffect(() => {
+    if (!cafe?.ref_code) return;
+    (async () => {
+      const { data } = await (supabase as any).rpc("get_enabled_payment_methods", { _ref_code: cafe.ref_code });
+      const list = (data as { method: PMethod; wallet_number: string | null }[]) ?? [];
+      setPaymentMethods(list);
+      if (list.length === 1) setPaymentMethod(list[0].method);
+    })();
+  }, [cafe?.ref_code]);
 
   // Auth listener (only matters for delivery)
   useEffect(() => {
@@ -281,12 +300,39 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
     }
     const itemsArr = Object.values(cart).map((ln) => ({ item_id: ln.item_id, qty: ln.qty, size_id: ln.size_id }));
     if (itemsArr.length === 0) { toast.error(t("customer.empty_cart")); return; }
+
+    // Payment validation (only when the cafeteria has any methods configured)
+    if (paymentMethods.length > 0) {
+      if (!paymentMethod) { toast.error("اختر طريقة الدفع"); return; }
+      if (paymentMethod !== "cash_on_delivery" && !payerWallet.trim()) {
+        toast.error("أدخل رقم المحفظة التي حوّلت منها"); return;
+      }
+    }
+
     setSending(true);
+    let proofUrl: string | null = null;
     try {
+      // Upload proof if provided
+      if (proofFile && paymentMethod && paymentMethod !== "cash_on_delivery" && cafe) {
+        setUploadingProof(true);
+        const ext = proofFile.name.split(".").pop() || "jpg";
+        const path = `${cafe.ref_code}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("payment-proofs").upload(path, proofFile, { upsert: false });
+        setUploadingProof(false);
+        if (upErr) { toast.error("تعذّر رفع إثبات التحويل: " + upErr.message); setSending(false); return; }
+        proofUrl = path;
+      }
+
       const rpc = mode === "take_away" ? "place_order_takeaway" : "place_order_delivery";
-      const args: Record<string, unknown> = mode === "take_away"
+      const baseArgs: Record<string, unknown> = mode === "take_away"
         ? { _token: token, _customer_name: name, _notes: notes, _items: itemsArr }
         : { _token: token, _customer_name: name, _customer_address: address, _customer_lat: lat, _customer_lng: lng, _notes: notes, _items: itemsArr };
+      const args = {
+        ...baseArgs,
+        _payment_method: paymentMethod ?? null,
+        _payer_wallet_number: paymentMethod && paymentMethod !== "cash_on_delivery" ? payerWallet.trim() : null,
+        _payment_proof_url: proofUrl,
+      };
       const { data, error } = await supabase.rpc(rpc as never, args as never);
       if (error) {
         const msg = error.message?.includes("CAFETERIA_BLOCKED")
@@ -314,6 +360,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
       }));
       setLastSnapshot({ lines: snapLines, total, address, lat, lng, notes, name });
       setCart({}); setNotes(""); setCartOpen(false);
+      setPayerWallet(""); setProofFile(null);
       toast.success(t("customer.order_sent"));
     } finally {
       setSending(false);
@@ -594,8 +641,59 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
               </div>
             </div>
 
-            <Button onClick={submit} disabled={sending} className="w-full h-12 bg-accent text-accent-foreground hover:bg-accent/90 text-base font-bold">
-              {sending ? t("common.loading") : <><Check className="h-4 w-4 me-2" />{t("customer.send_order")}</>}
+            {/* Payment methods */}
+            {paymentMethods.length > 0 && (
+              <div className="mb-4 space-y-2 rounded-lg border p-3">
+                <div className="text-sm font-semibold flex items-center gap-1"><Wallet className="h-4 w-4" /> طريقة الدفع *</div>
+                <div className="space-y-1.5">
+                  {paymentMethods.map((pm) => {
+                    const label = pm.method === "cash_on_delivery" ? "الدفع عند الاستلام"
+                      : pm.method === "vodafone_cash" ? "فودافون كاش" : "إنستاباي";
+                    return (
+                      <button
+                        key={pm.method}
+                        type="button"
+                        onClick={() => setPaymentMethod(pm.method)}
+                        className={`w-full text-start p-2 rounded-md border text-sm ${paymentMethod === pm.method ? "border-accent bg-accent/5 font-semibold" : "border-border"}`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+                {paymentMethod && paymentMethod !== "cash_on_delivery" && (() => {
+                  const pm = paymentMethods.find((x) => x.method === paymentMethod);
+                  const wallet = pm?.wallet_number ?? "";
+                  return (
+                    <div className="space-y-2 pt-1">
+                      {wallet && (
+                        <div className="rounded-md border bg-muted/40 p-2 space-y-1">
+                          <div className="text-[11px] text-muted-foreground">حوّل إلى:</div>
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="font-mono text-sm font-bold" dir="ltr">{wallet}</div>
+                            <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(wallet).then(() => toast.success("تم النسخ"))}>
+                              نسخ
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      <div>
+                        <label className="text-xs font-medium block mb-1">رقم المحفظة الذي حوّلت منه *</label>
+                        <Input value={payerWallet} onChange={(e) => setPayerWallet(e.target.value)} placeholder="01XXXXXXXXX" dir="ltr" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium block mb-1">صورة إثبات التحويل (اختياري)</label>
+                        <Input type="file" accept="image/*" onChange={(e) => setProofFile(e.target.files?.[0] ?? null)} />
+                        {proofFile && <div className="text-[11px] text-muted-foreground mt-1 truncate">{proofFile.name}</div>}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+
+            <Button onClick={submit} disabled={sending || uploadingProof} className="w-full h-12 bg-accent text-accent-foreground hover:bg-accent/90 text-base font-bold">
+              {sending || uploadingProof ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{uploadingProof ? "جارٍ رفع الإثبات…" : t("common.loading")}</> : <><Check className="h-4 w-4 me-2" />{t("customer.send_order")}</>}
             </Button>
           </div>
         </div>

@@ -2,13 +2,14 @@
 // Tabs: Orders (live board) / Today availability (quick toggles) / Menu (link) / Settings (link).
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ClipboardList, Settings, BookOpen, ToggleLeft, ExternalLink, Package, Bike } from "lucide-react";
+import { ClipboardList, Settings, BookOpen, ToggleLeft, ExternalLink, Package, Bike, Wallet } from "lucide-react";
 import { DashboardShell } from "@/components/DashboardShell";
 import { OrdersBoard } from "@/components/OrdersBoard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
+import { PaymentMethodsPanel } from "@/components/seller/PaymentMethodsPanel";
 import { useRequireRole } from "@/auth/useRequireRole";
 import { useAuth } from "@/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/seller")({
 });
 
 interface Cafe {
+  id: string;
   ref_code: string;
   name: string;
   business_type: string;
@@ -53,7 +55,7 @@ function SellerDashboard() {
     if (!ready || !user) return;
     supabase
       .from("cafeterias")
-      .select("ref_code, name, business_type, takeaway_qr_token, delivery_qr_token, mode_takeaway, mode_delivery")
+      .select("id, ref_code, name, business_type, takeaway_qr_token, delivery_qr_token, mode_takeaway, mode_delivery")
       .eq("user_id", user.id)
       .maybeSingle()
       .then(({ data }) => setCafe((data as Cafe) ?? null));
@@ -126,9 +128,10 @@ function SellerDashboard() {
       </div>
 
       <Tabs defaultValue="orders" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="orders"><ClipboardList className="me-2 h-4 w-4" />{t("home_seller.tabs.orders")}</TabsTrigger>
           <TabsTrigger value="today"><ToggleLeft className="me-2 h-4 w-4" />{t("home_seller.tabs.today")}</TabsTrigger>
+          <TabsTrigger value="payment"><Wallet className="me-2 h-4 w-4" />الدفع</TabsTrigger>
           <TabsTrigger value="menu"><BookOpen className="me-2 h-4 w-4" />{t("home_seller.tabs.menu")}</TabsTrigger>
         </TabsList>
 
@@ -165,6 +168,10 @@ function SellerDashboard() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="payment" className="mt-6">
+          <PaymentMethodsPanel cafeteriaId={cafe.id} />
         </TabsContent>
 
         <TabsContent value="menu" className="mt-6">

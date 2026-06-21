@@ -83,6 +83,44 @@ export type Database = {
         }
         Relationships: []
       }
+      cafeteria_payment_methods: {
+        Row: {
+          cafeteria_id: string
+          created_at: string
+          id: string
+          is_enabled: boolean
+          method: Database["public"]["Enums"]["payment_method_type"]
+          updated_at: string
+          wallet_number: string | null
+        }
+        Insert: {
+          cafeteria_id: string
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          method: Database["public"]["Enums"]["payment_method_type"]
+          updated_at?: string
+          wallet_number?: string | null
+        }
+        Update: {
+          cafeteria_id?: string
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          method?: Database["public"]["Enums"]["payment_method_type"]
+          updated_at?: string
+          wallet_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cafeteria_payment_methods_cafeteria_id_fkey"
+            columns: ["cafeteria_id"]
+            isOneToOne: false
+            referencedRelation: "cafeterias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cafeterias: {
         Row: {
           address: string | null
@@ -1264,6 +1302,9 @@ export type Database = {
           id: string
           mode: Database["public"]["Enums"]["order_mode"]
           notes: string | null
+          payer_wallet_number: string | null
+          payment_method: string | null
+          payment_proof_url: string | null
           price_tier_id: string | null
           price_tier_name: string | null
           served_by: string | null
@@ -1283,6 +1324,9 @@ export type Database = {
           id?: string
           mode?: Database["public"]["Enums"]["order_mode"]
           notes?: string | null
+          payer_wallet_number?: string | null
+          payment_method?: string | null
+          payment_proof_url?: string | null
           price_tier_id?: string | null
           price_tier_name?: string | null
           served_by?: string | null
@@ -1302,6 +1346,9 @@ export type Database = {
           id?: string
           mode?: Database["public"]["Enums"]["order_mode"]
           notes?: string | null
+          payer_wallet_number?: string | null
+          payment_method?: string | null
+          payment_proof_url?: string | null
           price_tier_id?: string | null
           price_tier_name?: string | null
           served_by?: string | null
@@ -1958,6 +2005,7 @@ export type Database = {
         Returns: undefined
       }
       cafe_invite_driver: { Args: { _query: string }; Returns: string }
+      cafe_ref_for_id: { Args: { _cafe_id: string }; Returns: string }
       cafe_sales_by_tier_daily: {
         Args: { _days?: number }
         Returns: {
@@ -2094,6 +2142,13 @@ export type Database = {
         Returns: {
           cafe_rated: boolean
           driver_rated: boolean
+        }[]
+      }
+      get_enabled_payment_methods: {
+        Args: { _ref_code: string }
+        Returns: {
+          method: Database["public"]["Enums"]["payment_method_type"]
+          wallet_number: string
         }[]
       }
       get_menu_for_delivery: { Args: { _token: string }; Returns: Json }
@@ -2413,6 +2468,9 @@ export type Database = {
           _customer_name: string
           _items: Json
           _notes: string
+          _payer_wallet_number?: string
+          _payment_method?: string
+          _payment_proof_url?: string
           _token: string
         }
         Returns: string
@@ -2422,6 +2480,9 @@ export type Database = {
           _customer_name: string
           _items: Json
           _notes: string
+          _payer_wallet_number?: string
+          _payment_method?: string
+          _payment_proof_url?: string
           _token: string
         }
         Returns: string
@@ -2550,6 +2611,7 @@ export type Database = {
         | "paid"
         | "awaiting_payment"
         | "paid_at_counter"
+      payment_method_type: "cash_on_delivery" | "vodafone_cash" | "instapay"
       rating_target_kind: "driver" | "cafeteria" | "menu_item"
       recharge_status: "pending" | "approved" | "rejected"
       shift_status: "pending" | "active" | "closed" | "rejected"
@@ -2716,6 +2778,7 @@ export const Constants = {
         "awaiting_payment",
         "paid_at_counter",
       ],
+      payment_method_type: ["cash_on_delivery", "vodafone_cash", "instapay"],
       rating_target_kind: ["driver", "cafeteria", "menu_item"],
       recharge_status: ["pending", "approved", "rejected"],
       shift_status: ["pending", "active", "closed", "rejected"],

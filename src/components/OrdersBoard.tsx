@@ -33,6 +33,7 @@ interface Order {
   id: string; cafeteria_ref_code: string; table_label: string; customer_name: string | null;
   notes: string | null; total: number; status: OrderStatus; created_at: string; tip_amount: number;
   table_id: string | null; mode: OrderMode;
+  payment_method?: string | null; payer_wallet_number?: string | null; payment_proof_url?: string | null;
 }
 interface OrderItem { id: string; order_id: string; item_id: string | null; name_snapshot: string; price_snapshot: number; qty: number; notes: string | null }
 
@@ -325,6 +326,13 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
                         ))}
                       </ul>
                       {o.notes && !isChef && <p className="mt-2 text-xs italic text-muted-foreground">📝 {o.notes}</p>}
+                      {!isChef && o.payment_method && (
+                        <PaymentInfoBlock
+                          method={o.payment_method}
+                          payerWallet={o.payer_wallet_number}
+                          proofPath={o.payment_proof_url}
+                        />
+                      )}
                       {!isChef && (
                         <div className="mt-3 flex justify-between items-center">
                           <div className="font-bold text-accent">{Number(o.total).toFixed(2)}</div>
@@ -384,3 +392,36 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
     </div>
   );
 }
+
+function PaymentInfoBlock({ method, payerWallet, proofPath }: { method: string; payerWallet?: string | null; proofPath?: string | null }) {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const label = method === "cash_on_delivery" ? "الدفع عند الاستلام"
+    : method === "vodafone_cash" ? "فودافون كاش"
+    : method === "instapay" ? "إنستاباي" : method;
+
+  useEffect(() => {
+    if (!proofPath) return;
+    supabase.storage.from("payment-proofs").createSignedUrl(proofPath, 600).then(({ data }) => {
+      if (data?.signedUrl) setSignedUrl(data.signedUrl);
+    });
+  }, [proofPath]);
+
+  return (
+    <div className="mt-2 rounded-md border bg-muted/40 p-2 text-xs space-y-1">
+      <div><span className="text-muted-foreground">طريقة الدفع:</span> <span className="font-medium">{label}</span></div>
+      {payerWallet && <div><span className="text-muted-foreground">من محفظة:</span> <span className="font-mono" dir="ltr">{payerWallet}</span></div>}
+      {signedUrl && (
+        <>
+          <button type="button" onClick={() => setOpen(true)} className="text-accent underline">عرض إثبات التحويل</button>
+          {open && (
+            <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={() => setOpen(false)}>
+              <img src={signedUrl} alt="إثبات التحويل" className="max-h-[90vh] max-w-full rounded" />
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
