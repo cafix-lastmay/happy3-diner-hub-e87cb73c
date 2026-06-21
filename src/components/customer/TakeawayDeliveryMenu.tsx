@@ -47,6 +47,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   const [cart, setCart] = useState<Record<string, CartLine>>({});
   const [selectedSize, setSelectedSize] = useState<Record<string, string>>({});
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
@@ -61,7 +62,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   const [cartOpen, setCartOpen] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  // Delivery-only auth + saved addresses
+  // Delivery-only auth + saved addresses (kept for legacy logged-in customers)
   const [session, setSession] = useState<Session | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [addresses, setAddresses] = useState<SavedAddress[]>([]);
@@ -74,6 +75,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   const [payerWallet, setPayerWallet] = useState("");
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [uploadingProof, setUploadingProof] = useState(false);
+
 
   useEffect(() => {
     let cancelled = false;
