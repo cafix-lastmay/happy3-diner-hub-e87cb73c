@@ -72,6 +72,8 @@ import { Route as OwnerMarketersRefRouteImport } from './routes/owner.marketers_
 import { Route as OwnerCafeteriasRefRouteImport } from './routes/owner.cafeterias_.$ref'
 import { Route as MarketerChildrenRefRouteImport } from './routes/marketer.children_.$ref'
 import { Route as MTakeawayTokenRouteImport } from './routes/m.takeaway.$token'
+import { Route as MOrderIdRouteImport } from './routes/m.order.$id'
+import { Route as MMyOrdersRefRouteImport } from './routes/m.my-orders.$ref'
 import { Route as MDeliveryTokenRouteImport } from './routes/m.delivery.$token'
 
 const WaiterRoute = WaiterRouteImport.update({
@@ -390,6 +392,16 @@ const MTakeawayTokenRoute = MTakeawayTokenRouteImport.update({
   path: '/m/takeaway/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MOrderIdRoute = MOrderIdRouteImport.update({
+  id: '/m/order/$id',
+  path: '/m/order/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MMyOrdersRefRoute = MMyOrdersRefRouteImport.update({
+  id: '/m/my-orders/$ref',
+  path: '/m/my-orders/$ref',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MDeliveryTokenRoute = MDeliveryTokenRouteImport.update({
   id: '/m/delivery/$token',
   path: '/m/delivery/$token',
@@ -456,6 +468,8 @@ export interface FileRoutesByFullPath {
   '/marketer/': typeof MarketerIndexRoute
   '/owner/': typeof OwnerIndexRoute
   '/m/delivery/$token': typeof MDeliveryTokenRoute
+  '/m/my-orders/$ref': typeof MMyOrdersRefRoute
+  '/m/order/$id': typeof MOrderIdRoute
   '/m/takeaway/$token': typeof MTakeawayTokenRoute
   '/marketer/children/$ref': typeof MarketerChildrenRefRoute
   '/owner/cafeterias/$ref': typeof OwnerCafeteriasRefRoute
@@ -522,6 +536,8 @@ export interface FileRoutesByTo {
   '/marketer': typeof MarketerIndexRoute
   '/owner': typeof OwnerIndexRoute
   '/m/delivery/$token': typeof MDeliveryTokenRoute
+  '/m/my-orders/$ref': typeof MMyOrdersRefRoute
+  '/m/order/$id': typeof MOrderIdRoute
   '/m/takeaway/$token': typeof MTakeawayTokenRoute
   '/marketer/children/$ref': typeof MarketerChildrenRefRoute
   '/owner/cafeterias/$ref': typeof OwnerCafeteriasRefRoute
@@ -589,6 +605,8 @@ export interface FileRoutesById {
   '/marketer/': typeof MarketerIndexRoute
   '/owner/': typeof OwnerIndexRoute
   '/m/delivery/$token': typeof MDeliveryTokenRoute
+  '/m/my-orders/$ref': typeof MMyOrdersRefRoute
+  '/m/order/$id': typeof MOrderIdRoute
   '/m/takeaway/$token': typeof MTakeawayTokenRoute
   '/marketer/children_/$ref': typeof MarketerChildrenRefRoute
   '/owner/cafeterias_/$ref': typeof OwnerCafeteriasRefRoute
@@ -657,6 +675,8 @@ export interface FileRouteTypes {
     | '/marketer/'
     | '/owner/'
     | '/m/delivery/$token'
+    | '/m/my-orders/$ref'
+    | '/m/order/$id'
     | '/m/takeaway/$token'
     | '/marketer/children/$ref'
     | '/owner/cafeterias/$ref'
@@ -723,6 +743,8 @@ export interface FileRouteTypes {
     | '/marketer'
     | '/owner'
     | '/m/delivery/$token'
+    | '/m/my-orders/$ref'
+    | '/m/order/$id'
     | '/m/takeaway/$token'
     | '/marketer/children/$ref'
     | '/owner/cafeterias/$ref'
@@ -789,6 +811,8 @@ export interface FileRouteTypes {
     | '/marketer/'
     | '/owner/'
     | '/m/delivery/$token'
+    | '/m/my-orders/$ref'
+    | '/m/order/$id'
     | '/m/takeaway/$token'
     | '/marketer/children_/$ref'
     | '/owner/cafeterias_/$ref'
@@ -856,6 +880,8 @@ export interface RootRouteChildren {
   MarketerIndexRoute: typeof MarketerIndexRoute
   OwnerIndexRoute: typeof OwnerIndexRoute
   MDeliveryTokenRoute: typeof MDeliveryTokenRoute
+  MMyOrdersRefRoute: typeof MMyOrdersRefRoute
+  MOrderIdRoute: typeof MOrderIdRoute
   MTakeawayTokenRoute: typeof MTakeawayTokenRoute
   MarketerChildrenRefRoute: typeof MarketerChildrenRefRoute
   OwnerCafeteriasRefRoute: typeof OwnerCafeteriasRefRoute
@@ -1305,6 +1331,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MTakeawayTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/m/order/$id': {
+      id: '/m/order/$id'
+      path: '/m/order/$id'
+      fullPath: '/m/order/$id'
+      preLoaderRoute: typeof MOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/m/my-orders/$ref': {
+      id: '/m/my-orders/$ref'
+      path: '/m/my-orders/$ref'
+      fullPath: '/m/my-orders/$ref'
+      preLoaderRoute: typeof MMyOrdersRefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/m/delivery/$token': {
       id: '/m/delivery/$token'
       path: '/m/delivery/$token'
@@ -1387,6 +1427,8 @@ const rootRouteChildren: RootRouteChildren = {
   MarketerIndexRoute: MarketerIndexRoute,
   OwnerIndexRoute: OwnerIndexRoute,
   MDeliveryTokenRoute: MDeliveryTokenRoute,
+  MMyOrdersRefRoute: MMyOrdersRefRoute,
+  MOrderIdRoute: MOrderIdRoute,
   MTakeawayTokenRoute: MTakeawayTokenRoute,
   MarketerChildrenRefRoute: MarketerChildrenRefRoute,
   OwnerCafeteriasRefRoute: OwnerCafeteriasRefRoute,

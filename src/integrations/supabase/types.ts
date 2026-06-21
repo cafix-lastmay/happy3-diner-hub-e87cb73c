@@ -498,35 +498,41 @@ export type Database = {
         Row: {
           address: string
           created_at: string
+          customer_name: string | null
           id: string
           is_default: boolean
           label: string | null
           lat: number | null
           lng: number | null
+          phone_number: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           address: string
           created_at?: string
+          customer_name?: string | null
           id?: string
           is_default?: boolean
           label?: string | null
           lat?: number | null
           lng?: number | null
+          phone_number?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           address?: string
           created_at?: string
+          customer_name?: string | null
           id?: string
           is_default?: boolean
           label?: string | null
           lat?: number | null
           lng?: number | null
+          phone_number?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1235,6 +1241,76 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      order_addition_requests: {
+        Row: {
+          addition_status: Database["public"]["Enums"]["order_addition_status"]
+          cafeteria_ref_code: string
+          created_at: string
+          id: string
+          menu_item_id: string
+          notes: string | null
+          order_id: string
+          quantity: number
+          reject_reason: string | null
+          requested_phone: string | null
+          responded_at: string | null
+          responded_by: string | null
+          size_id: string | null
+        }
+        Insert: {
+          addition_status?: Database["public"]["Enums"]["order_addition_status"]
+          cafeteria_ref_code: string
+          created_at?: string
+          id?: string
+          menu_item_id: string
+          notes?: string | null
+          order_id: string
+          quantity: number
+          reject_reason?: string | null
+          requested_phone?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          size_id?: string | null
+        }
+        Update: {
+          addition_status?: Database["public"]["Enums"]["order_addition_status"]
+          cafeteria_ref_code?: string
+          created_at?: string
+          id?: string
+          menu_item_id?: string
+          notes?: string | null
+          order_id?: string
+          quantity?: number
+          reject_reason?: string | null
+          requested_phone?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          size_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_addition_requests_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "menu_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_addition_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_addition_requests_size_id_fkey"
+            columns: ["size_id"]
+            isOneToOne: false
+            referencedRelation: "menu_item_sizes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_items: {
         Row: {
@@ -2123,6 +2199,14 @@ export type Database = {
           revenue: number
         }[]
       }
+      get_customer_order: {
+        Args: { _order_id: string; _phone: string }
+        Returns: Json
+      }
+      get_customer_orders: {
+        Args: { _phone: string; _ref_code: string }
+        Returns: Json
+      }
       get_delivery_order_items: {
         Args: { _customer_phone: string; _order_id: string }
         Returns: {
@@ -2460,33 +2544,67 @@ export type Database = {
         }
         Returns: string
       }
-      place_order_delivery: {
-        Args: {
-          _customer_address: string
-          _customer_lat: number
-          _customer_lng: number
-          _customer_name: string
-          _items: Json
-          _notes: string
-          _payer_wallet_number?: string
-          _payment_method?: string
-          _payment_proof_url?: string
-          _token: string
-        }
-        Returns: string
-      }
-      place_order_takeaway: {
-        Args: {
-          _customer_name: string
-          _items: Json
-          _notes: string
-          _payer_wallet_number?: string
-          _payment_method?: string
-          _payment_proof_url?: string
-          _token: string
-        }
-        Returns: string
-      }
+      place_order_delivery:
+        | {
+            Args: {
+              _customer_address: string
+              _customer_lat: number
+              _customer_lng: number
+              _customer_name: string
+              _items: Json
+              _notes: string
+              _payer_wallet_number?: string
+              _payment_method?: string
+              _payment_proof_url?: string
+              _token: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _customer_address: string
+              _customer_lat: number
+              _customer_lng: number
+              _customer_name: string
+              _customer_phone?: string
+              _items: Json
+              _notes: string
+              _payer_wallet_number?: string
+              _payment_method?: string
+              _payment_proof_url?: string
+              _token: string
+            }
+            Returns: string
+          }
+      place_order_takeaway:
+        | {
+            Args: {
+              _customer_name: string
+              _items: Json
+              _notes: string
+              _payer_wallet_number?: string
+              _payment_method?: string
+              _payment_proof_url?: string
+              _token: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _customer_address?: string
+              _customer_lat?: number
+              _customer_lng?: number
+              _customer_name: string
+              _customer_phone?: string
+              _items: Json
+              _notes: string
+              _payer_wallet_number?: string
+              _payment_method?: string
+              _payment_proof_url?: string
+              _token: string
+            }
+            Returns: string
+          }
       place_takeaway_order: {
         Args: {
           _customer_name: string
@@ -2506,7 +2624,15 @@ export type Database = {
         Args: { _reason?: string; _shift_id: string }
         Returns: undefined
       }
+      request_order_addition: {
+        Args: { _items: Json; _order_id: string; _phone: string }
+        Returns: Json
+      }
       request_shift: { Args: never; Returns: string }
+      respond_order_addition: {
+        Args: { _approve: boolean; _reason?: string; _request_id: string }
+        Returns: Json
+      }
       respond_to_delivery: {
         Args: { _accept: boolean; _order_id: string; _reason?: string }
         Returns: undefined
@@ -2601,6 +2727,7 @@ export type Database = {
         | "on_the_way"
         | "delivered"
         | "cancelled"
+      order_addition_status: "pending" | "approved" | "rejected"
       order_mode: "dine_in" | "take_away" | "delivery"
       order_status:
         | "new"
@@ -2767,6 +2894,7 @@ export const Constants = {
         "delivered",
         "cancelled",
       ],
+      order_addition_status: ["pending", "approved", "rejected"],
       order_mode: ["dine_in", "take_away", "delivery"],
       order_status: [
         "new",

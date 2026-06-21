@@ -47,6 +47,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   const [cart, setCart] = useState<Record<string, CartLine>>({});
   const [selectedSize, setSelectedSize] = useState<Record<string, string>>({});
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
@@ -61,7 +62,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   const [cartOpen, setCartOpen] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  // Delivery-only auth + saved addresses
+  // Delivery-only auth + saved addresses (kept for legacy logged-in customers)
   const [session, setSession] = useState<Session | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [addresses, setAddresses] = useState<SavedAddress[]>([]);
@@ -74,6 +75,7 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   const [payerWallet, setPayerWallet] = useState("");
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [uploadingProof, setUploadingProof] = useState(false);
+
 
   useEffect(() => {
     let cancelled = false;
@@ -123,6 +125,25 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
     });
     return () => sub.subscription.unsubscribe();
   }, [mode]);
+
+  // Phone-based local restore: when the customer types a phone number we know,
+  // pre-fill name/address/coords from localStorage (and from DB if reachable).
+  useEffect(() => {
+    const p = phone.replace(/[^\d+]/g, "");
+    if (p.length < 6) return;
+    try {
+      const raw = localStorage.getItem(`cx:${p}`);
+      if (raw) {
+        const j = JSON.parse(raw) as { name?: string; address?: string; lat?: number | null; lng?: number | null };
+        if (j.name && !name) setName(j.name);
+        if (j.address && !address) setAddress(j.address);
+        if (j.lat != null && lat == null) setLat(j.lat);
+        if (j.lng != null && lng == null) setLng(j.lng);
+      }
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phone]);
+
 
   // Load profile + saved addresses for delivery
   useEffect(() => {
@@ -293,11 +314,13 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
 
   const submit = async () => {
     if (sending) return;
-    if (!name.trim()) { toast.error(t("customer.name_required")); return; }
+    const phoneClean = phone.replace(/[^\d+]/g, "");
+    if (phoneClean.length < 6) { toast.error("رقم هاتف غير صحيح"); return; }
+    const effName = name.trim() || `عميل ${phoneClean.slice(-4)}`;
     if (mode === "delivery") {
-      if (!session?.user) { toast.error(t("delivery.auth.required")); return; }
       if (!address.trim()) { toast.error(t("customer.address_required")); return; }
     }
+
     const itemsArr = Object.values(cart).map((ln) => ({ item_id: ln.item_id, qty: ln.qty, size_id: ln.size_id }));
     if (itemsArr.length === 0) { toast.error(t("customer.empty_cart")); return; }
 
@@ -312,7 +335,6 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
     setSending(true);
     let proofUrl: string | null = null;
     try {
-      // Upload proof if provided
       if (proofFile && paymentMethod && paymentMethod !== "cash_on_delivery" && cafe) {
         setUploadingProof(true);
         const ext = proofFile.name.split(".").pop() || "jpg";
@@ -325,8 +347,13 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
 
       const rpc = mode === "take_away" ? "place_order_takeaway" : "place_order_delivery";
       const baseArgs: Record<string, unknown> = mode === "take_away"
-        ? { _token: token, _customer_name: name, _notes: notes, _items: itemsArr }
-        : { _token: token, _customer_name: name, _customer_address: address, _customer_lat: lat, _customer_lng: lng, _notes: notes, _items: itemsArr };
+        ? { _token: token, _customer_name: effName, _notes: notes, _items: itemsArr,
+            _customer_phone: phoneClean, _customer_address: address || null,
+            _customer_lat: lat, _customer_lng: lng }
+        : { _token: token, _customer_name: effName, _customer_address: address,
+            _customer_lat: lat, _customer_lng: lng, _notes: notes, _items: itemsArr,
+            _customer_phone: phoneClean };
+
       const args = {
         ...baseArgs,
         _payment_method: paymentMethod ?? null,
@@ -341,17 +368,12 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
         toast.error(msg);
         return;
       }
-      // Save new delivery address for the logged-in customer
-      if (mode === "delivery" && session?.user && selectedAddrId === "new") {
-        const isFirst = addresses.length === 0;
-        await supabase.from("customer_addresses").insert({
-          user_id: session.user.id,
-          address,
-          lat,
-          lng,
-          is_default: isFirst,
-        });
-      }
+      // Save to localStorage keyed by phone for next visit
+      try {
+        localStorage.setItem(`cx:${phoneClean}`, JSON.stringify({ name: effName, address, lat, lng }));
+        localStorage.setItem("cx:last_phone", phoneClean);
+      } catch { /* ignore */ }
+
       setOrderId(data as string);
       const snapLines = Object.values(cart).map((ln) => ({
         name: ln.size_name ? `${ln.name} — ${ln.size_name}` : ln.name,
@@ -370,10 +392,6 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
   if (loading) return <div className="min-h-screen flex items-center justify-center">{t("common.loading")}</div>;
   if (invalid) return <div className="min-h-screen flex items-center justify-center text-muted-foreground p-4 text-center">{t("customer.invalid_qr")}</div>;
 
-  // Delivery auth gate
-  if (mode === "delivery" && authChecked && !session) {
-    return <DeliveryAuthGate />;
-  }
 
   const ModeIcon = mode === "take_away" ? Package : Bike;
   const modeLabel = mode === "take_away" ? t("mode.take_away") : t("mode.delivery");
@@ -457,7 +475,14 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
                   )}
                 </div>
               )}
+              <a
+                href={`/m/order/${orderId}?phone=${encodeURIComponent(phone.replace(/[^\d+]/g, ""))}`}
+                className="text-xs text-accent underline"
+              >
+                📦 تتبّع طلبك / إضافة صنف
+              </a>
               <Button variant="ghost" size="sm" onClick={() => setOrderId(null)}>{t("customer.new_order")}</Button>
+
             </div>
           </Card>
         )}
@@ -581,65 +606,55 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
               <div className="flex justify-between font-bold text-base pt-1 border-t border-border mt-1"><span>{t("customer.total")}</span><span className="text-accent">{total.toFixed(2)} {cafe?.currency_code}</span></div>
             </div>
 
-            {/* Customer info form */}
+            {/* Customer info form (phone-based, guest friendly) */}
             <div className="space-y-3 mb-4">
               <div>
-                <label className="text-xs font-medium flex items-center gap-1 mb-1"><User className="h-3 w-3" />{t("customer.your_name")} *</label>
+                <label className="text-xs font-medium flex items-center gap-1 mb-1">📱 رقم الهاتف *</label>
+                <Input
+                  type="tel"
+                  inputMode="tel"
+                  dir="ltr"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="01XXXXXXXXX"
+                />
+                <div className="text-[10px] text-muted-foreground mt-1">
+                  نحفظ بياناتك على جهازك ليتعرّف عليك الموقع تلقائياً المرّة القادمة.
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium flex items-center gap-1 mb-1"><User className="h-3 w-3" />{t("customer.your_name")}</label>
                 <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("customer.your_name")} />
               </div>
 
-              {mode === "delivery" && (
-                <>
-                  {addresses.length > 0 && (
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium">{t("delivery.addresses.saved")}</label>
-                      <div className="space-y-1.5">
-                        {addresses.map((a) => (
-                          <div key={a.id} className={`p-2 rounded-lg border ${selectedAddrId === a.id ? "border-accent bg-accent/5" : "border-border"}`}>
-                            <div className="flex items-start gap-2">
-                              <button type="button" onClick={() => pickAddress(a)} className="flex-1 text-start text-sm min-w-0">
-                                <div className="font-medium truncate flex items-center gap-1">
-                                  {a.address}
-                                  {a.is_default && <Badge variant="secondary" className="text-[9px] px-1 py-0">{t("delivery.addresses.default")}</Badge>}
-                                </div>
-                                {a.lat && a.lng && <div className="text-[10px] text-muted-foreground">📍 {a.lat.toFixed(4)}, {a.lng.toFixed(4)}</div>}
-                              </button>
-                              {!a.is_default && (
-                                <button type="button" onClick={() => setDefault(a.id)} title={t("delivery.addresses.set_default")} className="text-muted-foreground hover:text-accent">
-                                  <StarOff className="h-3.5 w-3.5" />
-                                </button>
-                              )}
-                              {a.is_default && <Star className="h-3.5 w-3.5 text-accent" />}
-                            </div>
-                          </div>
-                        ))}
-                        <Button type="button" variant="outline" size="sm" onClick={startNewAddress} className="w-full">
-                          <Plus className="h-3 w-3 me-1" />{t("delivery.addresses.new")}
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+              <div>
+                <label className="text-xs font-medium flex items-center gap-1 mb-1">
+                  <MapPin className="h-3 w-3" />العنوان {mode === "delivery" ? "*" : "(اختياري)"}
+                </label>
+                <Textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} placeholder={t("customer.address_placeholder")} />
+              </div>
 
-                  {(selectedAddrId === "new" || addresses.length === 0) && (
-                    <>
-                      <div>
-                        <label className="text-xs font-medium flex items-center gap-1 mb-1"><MapPin className="h-3 w-3" />{t("customer.your_address")} *</label>
-                        <Textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} placeholder={t("customer.address_placeholder")} />
-                      </div>
-                      <Button type="button" variant="outline" size="sm" onClick={useMyLocation} className="w-full">
-                        <Locate className="h-3 w-3 me-1" />
-                        {lat ? t("customer.geo_captured") : t("customer.use_my_location")}
-                      </Button>
-                    </>
-                  )}
-                </>
-              )}
+              <Button type="button" variant="outline" size="sm" onClick={useMyLocation} className="w-full">
+                <Locate className="h-3 w-3 me-1" />
+                {lat ? t("customer.geo_captured") : t("customer.use_my_location")}
+              </Button>
 
               <div>
                 <label className="text-xs font-medium mb-1 block">{t("customer.order_notes")}</label>
                 <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder={t("customer.notes_placeholder")} />
               </div>
+
+              {cafe?.ref_code && phone.replace(/[^\d+]/g, "").length >= 6 && (
+                <a
+                  href={`/m/my-orders/${cafe.ref_code}?phone=${encodeURIComponent(phone.replace(/[^\d+]/g, ""))}`}
+                  className="text-xs text-accent underline block text-center"
+                >
+                  📋 طلباتي السابقة من هذا الكافيه
+                </a>
+              )}
             </div>
+
 
             {/* Payment methods */}
             {paymentMethods.length > 0 && (
