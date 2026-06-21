@@ -99,6 +99,17 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
     return () => { cancelled = true; };
   }, [token, mode]);
 
+  // Load enabled payment methods for this cafeteria
+  useEffect(() => {
+    if (!cafe?.ref_code) return;
+    (async () => {
+      const { data } = await (supabase as any).rpc("get_enabled_payment_methods", { _ref_code: cafe.ref_code });
+      const list = (data as { method: PMethod; wallet_number: string | null }[]) ?? [];
+      setPaymentMethods(list);
+      if (list.length === 1) setPaymentMethod(list[0].method);
+    })();
+  }, [cafe?.ref_code]);
+
   // Auth listener (only matters for delivery)
   useEffect(() => {
     if (mode !== "delivery") { setAuthChecked(true); return; }
