@@ -597,65 +597,55 @@ export function TakeawayDeliveryMenu({ token, mode }: { token: string; mode: Mod
               <div className="flex justify-between font-bold text-base pt-1 border-t border-border mt-1"><span>{t("customer.total")}</span><span className="text-accent">{total.toFixed(2)} {cafe?.currency_code}</span></div>
             </div>
 
-            {/* Customer info form */}
+            {/* Customer info form (phone-based, guest friendly) */}
             <div className="space-y-3 mb-4">
               <div>
-                <label className="text-xs font-medium flex items-center gap-1 mb-1"><User className="h-3 w-3" />{t("customer.your_name")} *</label>
+                <label className="text-xs font-medium flex items-center gap-1 mb-1">📱 رقم الهاتف *</label>
+                <Input
+                  type="tel"
+                  inputMode="tel"
+                  dir="ltr"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="01XXXXXXXXX"
+                />
+                <div className="text-[10px] text-muted-foreground mt-1">
+                  نحفظ بياناتك على جهازك ليتعرّف عليك الموقع تلقائياً المرّة القادمة.
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium flex items-center gap-1 mb-1"><User className="h-3 w-3" />{t("customer.your_name")}</label>
                 <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("customer.your_name")} />
               </div>
 
-              {mode === "delivery" && (
-                <>
-                  {addresses.length > 0 && (
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium">{t("delivery.addresses.saved")}</label>
-                      <div className="space-y-1.5">
-                        {addresses.map((a) => (
-                          <div key={a.id} className={`p-2 rounded-lg border ${selectedAddrId === a.id ? "border-accent bg-accent/5" : "border-border"}`}>
-                            <div className="flex items-start gap-2">
-                              <button type="button" onClick={() => pickAddress(a)} className="flex-1 text-start text-sm min-w-0">
-                                <div className="font-medium truncate flex items-center gap-1">
-                                  {a.address}
-                                  {a.is_default && <Badge variant="secondary" className="text-[9px] px-1 py-0">{t("delivery.addresses.default")}</Badge>}
-                                </div>
-                                {a.lat && a.lng && <div className="text-[10px] text-muted-foreground">📍 {a.lat.toFixed(4)}, {a.lng.toFixed(4)}</div>}
-                              </button>
-                              {!a.is_default && (
-                                <button type="button" onClick={() => setDefault(a.id)} title={t("delivery.addresses.set_default")} className="text-muted-foreground hover:text-accent">
-                                  <StarOff className="h-3.5 w-3.5" />
-                                </button>
-                              )}
-                              {a.is_default && <Star className="h-3.5 w-3.5 text-accent" />}
-                            </div>
-                          </div>
-                        ))}
-                        <Button type="button" variant="outline" size="sm" onClick={startNewAddress} className="w-full">
-                          <Plus className="h-3 w-3 me-1" />{t("delivery.addresses.new")}
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+              <div>
+                <label className="text-xs font-medium flex items-center gap-1 mb-1">
+                  <MapPin className="h-3 w-3" />العنوان {mode === "delivery" ? "*" : "(اختياري)"}
+                </label>
+                <Textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} placeholder={t("customer.address_placeholder")} />
+              </div>
 
-                  {(selectedAddrId === "new" || addresses.length === 0) && (
-                    <>
-                      <div>
-                        <label className="text-xs font-medium flex items-center gap-1 mb-1"><MapPin className="h-3 w-3" />{t("customer.your_address")} *</label>
-                        <Textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} placeholder={t("customer.address_placeholder")} />
-                      </div>
-                      <Button type="button" variant="outline" size="sm" onClick={useMyLocation} className="w-full">
-                        <Locate className="h-3 w-3 me-1" />
-                        {lat ? t("customer.geo_captured") : t("customer.use_my_location")}
-                      </Button>
-                    </>
-                  )}
-                </>
-              )}
+              <Button type="button" variant="outline" size="sm" onClick={useMyLocation} className="w-full">
+                <Locate className="h-3 w-3 me-1" />
+                {lat ? t("customer.geo_captured") : t("customer.use_my_location")}
+              </Button>
 
               <div>
                 <label className="text-xs font-medium mb-1 block">{t("customer.order_notes")}</label>
                 <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder={t("customer.notes_placeholder")} />
               </div>
+
+              {cafe?.ref_code && phone.replace(/[^\d+]/g, "").length >= 6 && (
+                <a
+                  href={`/m/my-orders/${cafe.ref_code}?phone=${encodeURIComponent(phone.replace(/[^\d+]/g, ""))}`}
+                  className="text-xs text-accent underline block text-center"
+                >
+                  📋 طلباتي السابقة من هذا الكافيه
+                </a>
+              )}
             </div>
+
 
             {/* Payment methods */}
             {paymentMethods.length > 0 && (
