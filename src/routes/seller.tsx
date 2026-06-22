@@ -58,11 +58,6 @@ function SellerDashboard() {
       .maybeSingle()
       .then(({ data }) => {
         const resolvedCafe = (data as Cafe) ?? null;
-        console.info("[seller-route] loaded", {
-          user_id: user.id,
-          sessionPresent: true,
-          business_type: resolvedCafe?.business_type ?? null,
-        });
         if (resolvedCafe && resolvedCafe.business_type !== "home_seller") {
           navigate({ to: "/cafeteria/orders", replace: true });
           return;

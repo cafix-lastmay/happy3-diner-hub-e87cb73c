@@ -9,16 +9,8 @@ export async function getCafeteriaHomeForUser(userId: string): Promise<Cafeteria
     .eq("user_id", userId)
     .maybeSingle();
 
-  if (error) {
-    console.warn("[cafeteria-routing] failed to read business_type", { userId, error: error.message });
-  }
+  if (error) console.warn("[cafeteria-routing] failed to read business_type", error.message);
 
   const businessType = (data as { business_type?: string } | null)?.business_type;
-  console.info("[cafeteria-routing] resolved dashboard", {
-    userId,
-    sessionPresent: true,
-    business_type: businessType ?? null,
-  });
-
   return businessType === "home_seller" ? "/seller" : "/cafeteria/orders";
 }
