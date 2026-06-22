@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useI18n } from "@/i18n/I18nProvider";
 import { supabase } from "@/integrations/supabase/client";
+import { getCafeteriaHomeForUser } from "@/auth/cafeteriaRouting";
 import { toast } from "sonner";
 import { Coffee, ArrowLeft, ArrowRight } from "lucide-react";
 
@@ -43,7 +44,10 @@ function LoginPage() {
       toast.success(t("common.success"));
       if (allRoles.includes("owner")) navigate({ to: "/owner" });
       else if (allRoles.includes("marketer")) navigate({ to: "/marketer" });
-      else if (allRoles.includes("cafeteria_admin")) navigate({ to: "/cafeteria" });
+      else if (allRoles.includes("cafeteria_admin")) {
+        const dashboard = await getCafeteriaHomeForUser(data.user.id);
+        navigate({ to: dashboard });
+      }
       else if (allRoles.includes("manager")) navigate({ to: "/manager" });
       else if (allRoles.includes("waiter") || allRoles.includes("chef")) navigate({ to: "/staff/orders" });
       else if (allRoles.includes("driver")) navigate({ to: "/driver" });

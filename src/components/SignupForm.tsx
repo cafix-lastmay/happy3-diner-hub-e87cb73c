@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 import { extractEdgeError } from "@/lib/edge-error";
+import { getCafeteriaHomeForUser } from "@/auth/cafeteriaRouting";
 
 
 
@@ -84,7 +85,7 @@ export function SignupForm({ kind }: Props) {
     }
 
     // Sign in immediately
-    const { error: signinErr } = await supabase.auth.signInWithPassword({ email: form.email, password: form.password });
+    const { data: signinData, error: signinErr } = await supabase.auth.signInWithPassword({ email: form.email, password: form.password });
     setLoading(false);
     if (signinErr) {
       toast.error(signinErr.message);
@@ -92,7 +93,12 @@ export function SignupForm({ kind }: Props) {
       return;
     }
     toast.success(`${t("common.success")} — ${t("common.ref_code")}: ${(data as { ref_code: string }).ref_code}`);
-    navigate({ to: kind === "marketer" ? "/marketer" : "/cafeteria" });
+    if (kind === "cafeteria" && signinData.user) {
+      const dashboard = await getCafeteriaHomeForUser(signinData.user.id);
+      navigate({ to: dashboard });
+    } else {
+      navigate({ to: "/marketer" });
+    }
 
   };
 
