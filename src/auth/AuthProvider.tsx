@@ -54,7 +54,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }, 0);
     };
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, sess) => {
+      if (event === "INITIAL_SESSION") return;
       applySession(sess);
     });
 
