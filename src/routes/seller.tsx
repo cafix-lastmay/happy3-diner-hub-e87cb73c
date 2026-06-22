@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/seller")({
+  ssr: false,
   beforeLoad: async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw redirect({ to: "/login" });
@@ -58,7 +59,19 @@ function SellerDashboard() {
       .select("id, ref_code, name, business_type, takeaway_qr_token, delivery_qr_token, mode_takeaway, mode_delivery")
       .eq("user_id", user.id)
       .maybeSingle()
-      .then(({ data }) => setCafe((data as Cafe) ?? null));
+      .then(({ data }) => {
+        const resolvedCafe = (data as Cafe) ?? null;
+        console.info("[seller-route] loaded", {
+          user_id: user.id,
+          sessionPresent: true,
+          business_type: resolvedCafe?.business_type ?? null,
+        });
+        if (resolvedCafe && resolvedCafe.business_type !== "home_seller") {
+          window.location.replace("/cafeteria/orders");
+          return;
+        }
+        setCafe(resolvedCafe);
+      });
   }, [ready, user]);
 
   const loadItems = async (refCode: string) => {
