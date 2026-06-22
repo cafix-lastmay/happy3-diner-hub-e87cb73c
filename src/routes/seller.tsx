@@ -1,6 +1,6 @@
 // Simplified single-page dashboard for the "home seller" business type.
 // Tabs: Orders (live board) / Today availability (quick toggles) / Menu (link) / Settings (link).
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ClipboardList, Settings, BookOpen, ToggleLeft, ExternalLink, Package, Bike, Wallet } from "lucide-react";
 import { DashboardShell } from "@/components/DashboardShell";
@@ -17,22 +17,6 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/seller")({
   ssr: false,
-  beforeLoad: async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw redirect({ to: "/login" });
-    const { data } = await supabase
-      .from("cafeterias")
-      .select("business_type")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    const businessType = (data as { business_type?: string } | null)?.business_type ?? null;
-    console.info("[seller-route:beforeLoad] auth/business_type", {
-      user_id: user.id,
-      sessionPresent: true,
-      business_type: businessType,
-    });
-    if (businessType !== "home_seller") throw redirect({ to: "/cafeteria/orders" });
-  },
   component: SellerDashboard,
 });
 
@@ -58,6 +42,7 @@ interface MenuItem {
 
 function SellerDashboard() {
   const { t } = useI18n();
+  const navigate = useNavigate();
   const { ready } = useRequireRole("cafeteria_admin");
   const { user } = useAuth();
   const [cafe, setCafe] = useState<Cafe | null>(null);
@@ -79,12 +64,12 @@ function SellerDashboard() {
           business_type: resolvedCafe?.business_type ?? null,
         });
         if (resolvedCafe && resolvedCafe.business_type !== "home_seller") {
-          window.location.replace("/cafeteria/orders");
+          navigate({ to: "/cafeteria/orders", replace: true });
           return;
         }
         setCafe(resolvedCafe);
       });
-  }, [ready, user]);
+  }, [ready, user, navigate]);
 
   const loadItems = async (refCode: string) => {
     setLoadingItems(true);
