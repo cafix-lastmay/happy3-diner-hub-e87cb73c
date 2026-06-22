@@ -15,6 +15,7 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { useAuth } from "@/auth/AuthProvider";
 import { Coffee, LogIn, UserPlus, Store, Megaphone, ArrowRight, ArrowLeft } from "lucide-react";
 import { Footer } from "@/components/Footer";
+import { getCafeteriaHomeForUser } from "@/auth/cafeteriaRouting";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -32,7 +33,9 @@ function Landing() {
     if (loading || !session) return;
     if (roles.includes("owner")) navigate({ to: "/owner" });
     else if (roles.includes("marketer")) navigate({ to: "/marketer" });
-    else if (roles.includes("cafeteria_admin")) navigate({ to: "/cafeteria" });
+    else if (roles.includes("cafeteria_admin") && session.user) {
+      void getCafeteriaHomeForUser(session.user.id).then((dashboard) => navigate({ to: dashboard }));
+    }
     else if (roles.includes("manager")) navigate({ to: "/manager" });
     else if (roles.includes("waiter") || roles.includes("chef")) navigate({ to: "/staff/orders" });
   }, [loading, session, roles, navigate]);

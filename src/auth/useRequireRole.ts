@@ -21,11 +21,12 @@ import { useEffect, useRef } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAuth, type Role } from "@/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
+import { getCafeteriaHomeForUser } from "@/auth/cafeteriaRouting";
 
-function safeHomeForRoles(roles: Role[]): string {
+async function safeHomeForRoles(roles: Role[], userId: string | null): Promise<string> {
   if (roles.includes("owner")) return "/owner";
   if (roles.includes("marketer")) return "/marketer";
-  if (roles.includes("cafeteria_admin")) return "/cafeteria/orders";
+  if (roles.includes("cafeteria_admin") && userId) return getCafeteriaHomeForUser(userId);
   if (roles.includes("manager")) return "/manager";
   if (roles.includes("waiter") || roles.includes("chef")) return "/staff/orders";
   if (roles.includes("driver")) return "/driver";
@@ -33,7 +34,7 @@ function safeHomeForRoles(roles: Role[]): string {
 }
 
 export function useRequireRole(required: Role | Role[]) {
-  const { session, roles, loading } = useAuth();
+  const { session, user, roles, loading } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const requiredArr = Array.isArray(required) ? required : [required];
@@ -69,8 +70,8 @@ export function useRequireRole(required: Role | Role[]) {
       })
       .then(() => undefined, () => undefined);
 
-    navigate({ to: safeHomeForRoles(roles), replace: true });
-  }, [loading, session, roles, ok, navigate, pathname]);
+    void safeHomeForRoles(roles, user?.id ?? null).then((to) => navigate({ to, replace: true }));
+  }, [loading, session, user, roles, ok, navigate, pathname]);
 
   return { ready: !loading && !!session && ok };
 }

@@ -3,6 +3,7 @@
 // (stored in localStorage), which is not available during SSR.
 import { createFileRoute, redirect, isRedirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { getCafeteriaHomeForUser } from "@/auth/cafeteriaRouting";
 
 export const Route = createFileRoute("/cafeteria/")({
   ssr: false,
@@ -10,14 +11,7 @@ export const Route = createFileRoute("/cafeteria/")({
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data } = await supabase
-          .from("cafeterias")
-          .select("business_type")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        if ((data as { business_type?: string } | null)?.business_type === "home_seller") {
-          throw redirect({ to: "/seller" });
-        }
+        throw redirect({ to: await getCafeteriaHomeForUser(user.id) });
       }
     } catch (e) {
       if (isRedirect(e)) throw e;
