@@ -20,6 +20,18 @@ export const Route = createFileRoute("/seller")({
   beforeLoad: async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw redirect({ to: "/login" });
+    const { data } = await supabase
+      .from("cafeterias")
+      .select("business_type")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const businessType = (data as { business_type?: string } | null)?.business_type ?? null;
+    console.info("[seller-route:beforeLoad] auth/business_type", {
+      user_id: user.id,
+      sessionPresent: true,
+      business_type: businessType,
+    });
+    if (businessType !== "home_seller") throw redirect({ to: "/cafeteria/orders" });
   },
   component: SellerDashboard,
 });
