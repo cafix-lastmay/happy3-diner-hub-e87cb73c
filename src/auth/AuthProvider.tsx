@@ -34,21 +34,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const applySession = (sess: Session | null) => {
+    const applySession = (sess: Session | null, verifiedUser?: User | null) => {
       const seq = ++loadSeq.current;
+      const nextUser = sess?.user ?? verifiedUser ?? null;
       setSession(sess);
-      setUser(sess?.user ?? null);
+      setUser(nextUser);
       setRoles([]);
       setRefCode(null);
 
-      if (!sess?.user) {
+      if (!nextUser) {
         setLoading(false);
         return;
       }
 
       setLoading(true);
       setTimeout(() => {
-        loadRoleData(sess.user.id).finally(() => {
+        loadRoleData(nextUser.id).finally(() => {
           if (loadSeq.current === seq) setLoading(false);
         });
       }, 0);
@@ -59,8 +60,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       applySession(sess);
     });
 
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      applySession(s);
+    Promise.all([supabase.auth.getSession(), supabase.auth.getUser()]).then(([sessionRes, userRes]) => {
+      applySession(sessionRes.data.session, userRes.data.user);
     });
 
     return () => sub.subscription.unsubscribe();

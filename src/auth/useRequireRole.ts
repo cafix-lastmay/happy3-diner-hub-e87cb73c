@@ -34,7 +34,7 @@ async function safeHomeForRoles(roles: Role[], userId: string | null): Promise<s
 }
 
 export function useRequireRole(required: Role | Role[]) {
-  const { session, user, roles, loading } = useAuth();
+  const { user, roles, loading } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const requiredArr = Array.isArray(required) ? required : [required];
@@ -45,7 +45,7 @@ export function useRequireRole(required: Role | Role[]) {
     if (loading) return;
 
     // Not authenticated → login.
-    if (!session) {
+    if (!user) {
       navigate({ to: "/login" });
       return;
     }
@@ -71,7 +71,7 @@ export function useRequireRole(required: Role | Role[]) {
       .then(() => undefined, () => undefined);
 
     void safeHomeForRoles(roles, user?.id ?? null).then((to) => navigate({ to, replace: true }));
-  }, [loading, session, user, roles, ok, navigate, pathname]);
+  }, [loading, user, roles, ok, navigate, pathname]);
 
-  return { ready: !loading && !!session && ok };
+  return { ready: !loading && !!user && ok };
 }
