@@ -1,6 +1,6 @@
 // Simplified single-page dashboard for the "home seller" business type.
 // Tabs: Orders (live board) / Today availability (quick toggles) / Menu (link) / Settings (link).
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ClipboardList, Settings, BookOpen, ToggleLeft, ExternalLink, Package, Bike, Wallet } from "lucide-react";
 import { DashboardShell } from "@/components/DashboardShell";
@@ -16,10 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/seller")({
-  beforeLoad: async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw redirect({ to: "/login" });
-  },
+  ssr: false,
   component: SellerDashboard,
 });
 
@@ -45,6 +42,7 @@ interface MenuItem {
 
 function SellerDashboard() {
   const { t } = useI18n();
+  const navigate = useNavigate();
   const { ready } = useRequireRole("cafeteria_admin");
   const { user } = useAuth();
   const [cafe, setCafe] = useState<Cafe | null>(null);
@@ -58,8 +56,15 @@ function SellerDashboard() {
       .select("id, ref_code, name, business_type, takeaway_qr_token, delivery_qr_token, mode_takeaway, mode_delivery")
       .eq("user_id", user.id)
       .maybeSingle()
-      .then(({ data }) => setCafe((data as Cafe) ?? null));
-  }, [ready, user]);
+      .then(({ data }) => {
+        const resolvedCafe = (data as Cafe) ?? null;
+        if (resolvedCafe && resolvedCafe.business_type !== "home_seller") {
+          navigate({ to: "/cafeteria/orders", replace: true });
+          return;
+        }
+        setCafe(resolvedCafe);
+      });
+  }, [ready, user, navigate]);
 
   const loadItems = async (refCode: string) => {
     setLoadingItems(true);

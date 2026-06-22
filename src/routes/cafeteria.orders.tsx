@@ -6,6 +6,7 @@ import { OrdersBoard } from "@/components/OrdersBoard";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { useRequireFullCafe } from "@/auth/useRequireFullCafe";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/cafeteria/orders")({ component: CafeOrder
 function CafeOrders() {
   const { t } = useI18n();
   const { ready } = useRequireRole("cafeteria_admin");
+  useRequireFullCafe();
   const { user } = useAuth();
   const [refCode, setRefCode] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
