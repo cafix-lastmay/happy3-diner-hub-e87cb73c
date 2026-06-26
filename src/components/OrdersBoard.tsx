@@ -302,7 +302,7 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
                   const ModeIcon = modeStyle.icon;
                   return (
                     <Card key={o.id} className={`p-4 relative overflow-hidden ${modeStyle.card}`}>
-                      <div className={`absolute top-0 bottom-0 start-0 w-1.5 ${modeStyle.stripe}`} />
+                      <div className={`pointer-events-none absolute top-0 bottom-0 start-0 w-1.5 ${modeStyle.stripe}`} />
                       <div className="flex items-start justify-between mb-2 gap-2">
                         <div className="min-w-0">
                           <Badge className={`mb-1 text-[11px] font-bold ${modeStyle.badge}`}>
