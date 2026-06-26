@@ -54,14 +54,18 @@ export function AdditionRequestsPanel({ orderId }: { orderId: string }) {
   const respond = async (id: string, approve: boolean) => {
     if (busy) return;
     setBusy(id);
-    const { error } = await (supabase as any).rpc("respond_order_addition", {
+    console.log("[AdditionRequestsPanel] respond_order_addition", { id, approve });
+    const { data, error } = await (supabase as any).rpc("respond_order_addition", {
       _request_id: id,
       _approve: approve,
       _reason: approve ? null : "رفض من البائع",
     });
     setBusy(null);
-    if (error) { toast.error(error.message); return; }
+    console.log("[AdditionRequestsPanel] result", { data, error });
+    if (error) { toast.error(error.message || "تعذّر تنفيذ الإجراء"); return; }
     toast.success(approve ? "تمت الموافقة وأُضيف للطلب" : "تم الرفض");
+    // Don't rely only on realtime — refetch immediately for instant UI update.
+    load();
   };
 
   if (reqs.length === 0) return null;
