@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 import { ownerNavItems } from "@/components/owner/ownerNav";
 import { toast } from "sonner";
@@ -50,7 +51,7 @@ function OwnerRates() {
     load();
   };
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   return (
     <DashboardShell title={t("owner.dashboard.title")} navItems={ownerNavItems(t)}>
       <div className="flex items-center justify-between mb-6">

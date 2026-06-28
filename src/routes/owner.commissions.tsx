@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { PromoBanner } from "@/components/PromoBanner";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 import { ownerNavItems } from "@/components/owner/ownerNav";
 import { toast } from "sonner";
@@ -115,7 +116,7 @@ function OwnerGeneralSettings() {
     toast.success(t("common.success"));
   };
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = ownerNavItems(t);
   const labels: Record<number, string> = {
     1: "owner.rate.parent",

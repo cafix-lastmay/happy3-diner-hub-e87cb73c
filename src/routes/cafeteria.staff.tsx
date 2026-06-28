@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { useRequireFullCafe } from "@/auth/useRequireFullCafe";
 import { supabase } from "@/integrations/supabase/client";
 import { extractEdgeError } from "@/lib/edge-error";
@@ -89,7 +90,7 @@ function CafeStaff() {
     setResetTarget(null); setNewPassword("");
   };
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = [
     { to: "/cafeteria", label: t("common.dashboard"), icon: LayoutDashboard },
     { to: "/cafeteria/menu", label: t("cafeteria.nav.menu"), icon: BookOpen },

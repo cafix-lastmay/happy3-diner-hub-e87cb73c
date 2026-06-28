@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/marketer/children_/$ref")({ component: MarketerChildDetail });
@@ -44,7 +45,7 @@ function MarketerChildDetail() {
     })();
   }, [ready, ref]);
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   return (
     <DashboardShell title={t("marketer.dashboard.title")} navItems={[]}>
       <Link to="/marketer"><Button variant="ghost" size="sm" className="gap-2 mb-4"><ArrowLeft className="h-4 w-4" /> {t("common.back") || "رجوع"}</Button></Link>

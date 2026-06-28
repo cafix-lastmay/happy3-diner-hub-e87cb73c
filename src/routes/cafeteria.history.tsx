@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/cafeteria/history")({ component: () => <CafeHistory mode="admin" /> });
@@ -21,7 +22,7 @@ export function CafeHistory({ mode = "admin" }: { mode?: "admin" | "manager" }) 
     if (!ready) return;
     supabase.from("recharge_requests").select("*").order("created_at", { ascending: false }).then(({ data }) => setRows((data ?? []) as R[]));
   }, [ready]);
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = [
     { to: base, label: t("common.dashboard"), icon: LayoutDashboard },
     { to: `${base}/reports`, label: t("cafeteria.nav.reports"), icon: BarChart3 },

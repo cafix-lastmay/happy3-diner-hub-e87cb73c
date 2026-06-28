@@ -4,13 +4,14 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { CommissionCalculator } from "@/components/CommissionCalculator";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 
 export const Route = createFileRoute("/marketer/calculator")({ component: MarketerCalc });
 
 function MarketerCalc() {
   const { t } = useI18n();
   const { ready } = useRequireRole("marketer");
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = [
     { to: "/marketer", label: t("common.dashboard"), icon: LayoutDashboard },
     { to: "/marketer/calculator", label: t("calc.nav"), icon: Calculator },

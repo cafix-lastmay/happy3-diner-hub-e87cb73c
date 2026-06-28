@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/marketer/withdrawals")({ component: MarketerWithdrawals });
@@ -20,7 +21,7 @@ function MarketerWithdrawals() {
     if (!ready) return;
     supabase.from("withdrawal_requests").select("*").order("created_at", { ascending: false }).then(({ data }) => setRows((data ?? []) as W[]));
   }, [ready]);
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = [
     { to: "/marketer", label: t("common.dashboard"), icon: LayoutDashboard },
     { to: "/marketer/commissions", label: t("marketer.nav.commissions"), icon: Percent },

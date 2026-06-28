@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import { toast } from "sonner";
@@ -506,7 +507,7 @@ export function CafeMenu({ mode = "admin" }: { mode?: "admin" | "manager" }) {
     load(refCode!);
   };
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = mode === "manager" ? [
     { to: "/manager", label: t("orders.title"), icon: ClipboardList },
     { to: "/manager/menu", label: t("cafeteria.nav.menu"), icon: BookOpen },

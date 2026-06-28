@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 import { ownerNavItems } from "@/components/owner/ownerNav";
 import { exportCsv } from "@/lib/csv";
@@ -66,7 +67,7 @@ function OwnerCafeterias() {
     }));
   };
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = ownerNavItems(t);
 
   return (

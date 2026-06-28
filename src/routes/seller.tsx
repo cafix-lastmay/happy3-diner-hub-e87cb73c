@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
 import { PaymentMethodsPanel } from "@/components/seller/PaymentMethodsPanel";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { useAuth } from "@/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -92,7 +93,7 @@ function SellerDashboard() {
     }
   };
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
 
   const navItems = [
     { to: "/cafeteria/menu", label: t("home_seller.tabs.menu"), icon: BookOpen },

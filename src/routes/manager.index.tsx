@@ -8,6 +8,7 @@ import { ShiftStatus } from "@/components/ShiftStatus";
 import { Card } from "@/components/ui/card";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 
@@ -37,7 +38,7 @@ function ManagerDashboard() {
     return () => { supabase.removeChannel(ch); };
   }, [refCode]);
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = getManagerNavItems(t);
   return (
     <DashboardShell title={t("manager.dashboard.title")} navItems={navItems}>

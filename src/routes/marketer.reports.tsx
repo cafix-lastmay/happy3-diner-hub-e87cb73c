@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/marketer/reports")({ component: MarketerReports });
@@ -64,7 +65,7 @@ function MarketerReports() {
     URL.revokeObjectURL(url);
   };
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = [
     { to: "/marketer", label: t("common.dashboard"), icon: LayoutDashboard },
     { to: "/marketer", label: t("marketer.nav.network"), icon: Network },

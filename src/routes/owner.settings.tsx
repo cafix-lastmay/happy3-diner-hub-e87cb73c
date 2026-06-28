@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 import { ownerNavItems } from "@/components/owner/ownerNav";
 import { toast } from "sonner";
@@ -86,7 +87,7 @@ function OwnerSettings() {
     footer_banner_url: s.footer_banner_url,
   });
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   return (
     <DashboardShell title={t("owner.dashboard.title")} navItems={ownerNavItems(t)}>
       <h1 className="text-2xl font-bold mb-6">{t("owner.settings.title")}</h1>

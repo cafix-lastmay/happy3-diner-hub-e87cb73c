@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 import { ownerNavItems } from "@/components/owner/ownerNav";
 import { toast } from "sonner";
@@ -66,7 +67,7 @@ function OwnerCountriesPage() {
   };
   const delCurrency = async (code: string) => { if (!confirm(t("common.confirm_delete"))) return; await supabase.from("currencies").delete().eq("code", code); load(); };
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   return (
     <DashboardShell title={t("owner.dashboard.title")} navItems={ownerNavItems(t)}>
       <h1 className="text-2xl font-bold mb-6">{t("owner.countries.title")}</h1>
