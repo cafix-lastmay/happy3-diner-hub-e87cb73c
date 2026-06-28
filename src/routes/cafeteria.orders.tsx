@@ -6,6 +6,7 @@ import { OrdersBoard } from "@/components/OrdersBoard";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { useRequireFullCafe } from "@/auth/useRequireFullCafe";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
@@ -23,7 +24,7 @@ function CafeOrders() {
     if (!ready || !user) return;
     supabase.from("cafeterias").select("ref_code").eq("user_id", user.id).maybeSingle().then(({ data }) => { if (data) setRefCode(data.ref_code); });
   }, [ready, user]);
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = [
     { to: "/cafeteria", label: t("common.dashboard"), icon: LayoutDashboard },
     { to: "/cafeteria/menu", label: t("cafeteria.nav.menu"), icon: BookOpen },

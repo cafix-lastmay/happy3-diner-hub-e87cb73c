@@ -46,8 +46,8 @@ export function DashboardShell({ title, navItems, children, showTrialCard }: Pro
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="lg:grid lg:grid-cols-[260px_1fr]">
-        {/* Sidebar — desktop only */}
+      <div>
+        {/* Sidebar — desktop only (fixed; main offset via lg:ms-[260px]) */}
         <aside className="hidden lg:flex lg:fixed lg:inset-y-0 lg:w-[260px] bg-sidebar text-sidebar-foreground border-e border-sidebar-border lg:flex-col">
           <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">

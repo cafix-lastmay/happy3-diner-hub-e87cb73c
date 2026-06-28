@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -41,7 +42,7 @@ function OwnerWithdrawals() {
     load();
   };
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = [
     { to: "/owner", label: t("owner.nav.overview"), icon: LayoutDashboard },
     { to: "/owner/marketers", label: t("owner.nav.marketers"), icon: Users },

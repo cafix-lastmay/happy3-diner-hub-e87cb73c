@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 import { ownerNavItems } from "@/components/owner/ownerNav";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
@@ -51,7 +52,7 @@ function OwnerReports() {
     })();
   }, [ready, days]);
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
 
   return (
     <DashboardShell title={t("owner.dashboard.title")} navItems={ownerNavItems(t)}>

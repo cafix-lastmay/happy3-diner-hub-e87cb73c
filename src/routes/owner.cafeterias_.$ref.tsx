@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 import { ownerNavItems } from "@/components/owner/ownerNav";
 import { EditEntityDialog } from "@/components/owner/EditEntityDialog";
@@ -53,7 +54,7 @@ function OwnerCafeteriaDetail() {
 
   useEffect(() => { if (ready) load(); }, [ready, load]);
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   if (!c) return <DashboardShell title={t("owner.dashboard.title")} navItems={ownerNavItems(t)}><div className="p-6">{t("common.loading")}</div></DashboardShell>;
 
   return (

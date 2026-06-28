@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import { toast } from "sonner";
@@ -120,7 +121,7 @@ export function CafeRecharge({ mode = "admin" }: { mode?: "admin" | "manager" })
     }
   };
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = [
     { to: base, label: t("common.dashboard"), icon: LayoutDashboard },
     { to: `${base}/reports`, label: t("cafeteria.nav.reports"), icon: BarChart3 },

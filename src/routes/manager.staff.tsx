@@ -5,6 +5,7 @@ import { getManagerNavItems } from "@/components/manager/managerNav";
 import { DashboardShell } from "@/components/DashboardShell";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { useAuth } from "@/auth/AuthProvider";
 import { ShiftApprovalsPanel } from "@/components/ShiftApprovalsPanel";
 import { StaffActivePanel } from "@/components/StaffActivePanel";
@@ -27,7 +28,7 @@ function ManagerStaff() {
   const reloadKey = useCallback(() => Date.now(), []);
   void reloadKey;
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = getManagerNavItems(t);
   return (
     <DashboardShell title={t("manager.dashboard.title")} navItems={navItems}>

@@ -5,6 +5,7 @@ import { getManagerNavItems } from "@/components/manager/managerNav";
 import { DashboardShell } from "@/components/DashboardShell";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { useAuth } from "@/auth/AuthProvider";
 import { ShiftReports } from "@/components/ShiftReports";
 import { SalesByTierReport } from "@/components/SalesByTierReport";
@@ -24,7 +25,7 @@ function ManagerReports() {
       .then(({ data }) => { if (data) setRefCode(data.cafeteria_ref_code); });
   }, [ready, user]);
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = getManagerNavItems(t);
   return (
     <DashboardShell title={t("manager.dashboard.title")} navItems={navItems}>

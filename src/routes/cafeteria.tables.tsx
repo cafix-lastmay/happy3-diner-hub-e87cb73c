@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/dialog";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { useRequireFullCafe } from "@/auth/useRequireFullCafe";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
@@ -213,7 +214,7 @@ export function CafeTables({ mode = "admin" }: { mode?: "admin" | "manager" }) {
     return rows.filter((r) => r.section_id === filterSectionId);
   }, [rows, filterSectionId]);
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = mode === "manager" ? [
     { to: "/manager", label: t("orders.title"), icon: ClipboardList },
     { to: "/manager/menu", label: t("cafeteria.nav.menu"), icon: BookOpen },

@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { useAuth } from "@/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -116,7 +117,7 @@ export function CafePricing({ mode = "admin" }: { mode?: "admin" | "manager" }) 
     setSections((p) => p.map((s) => s.id === sectionId ? { ...s, price_tier_id: tierId } : s));
   };
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = mode === "manager" ? [
     { to: "/manager", label: t("orders.title"), icon: ClipboardList },
     { to: "/manager/menu", label: t("cafeteria.nav.menu"), icon: BookOpen },

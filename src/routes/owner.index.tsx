@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useRequireRole } from "@/auth/useRequireRole";
+import { Redirecting } from "@/auth/Redirecting";
 import { supabase } from "@/integrations/supabase/client";
 import { ownerNavItems } from "@/components/owner/ownerNav";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
@@ -47,7 +48,7 @@ function OwnerOverview() {
     })();
   }, [ready]);
 
-  if (!ready) return null;
+  if (!ready) return <Redirecting />;
   const navItems = ownerNavItems(t);
 
   const fmt = (n: number | undefined) => `$${Number(n ?? 0).toFixed(2)}`;
