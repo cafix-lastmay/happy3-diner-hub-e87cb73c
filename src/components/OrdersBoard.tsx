@@ -145,7 +145,8 @@ export function OrdersBoard({ cafeteriaRefCode, allowedStatuses, scopeRole, requ
 
   const setStatus = async (id: string, status: Exclude<OrderStatus, "delivered">) => {
     if (requireActiveShift && !hasActiveShift) { toast.error(t("shift.required_to_act")); return; }
-    if (busyId) return;
+    // Only block re-entry on the SAME order; allow clicks on other cards.
+    if (busyId === id) return;
     setBusyId(id);
     try {
       const { error } = await supabase.rpc("set_order_status", { _order_id: id, _new_status: status });
