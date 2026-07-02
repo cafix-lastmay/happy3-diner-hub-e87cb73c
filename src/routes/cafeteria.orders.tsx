@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { LayoutDashboard, Wallet, History, BookOpen, QrCode, Users, ClipboardList, BarChart3 } from "lucide-react";
 import { DashboardShell } from "@/components/DashboardShell";
+import { DailyPointsCapCard } from "@/components/cafeteria/DailyPointsCapCard";
 import { OrdersBoard } from "@/components/OrdersBoard";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -38,6 +39,7 @@ function CafeOrders() {
   return (
     <DashboardShell title={t("cafeteria.dashboard.title")} navItems={navItems} showTrialCard>
       <h1 className="text-2xl font-bold mb-4">{t("orders.title")}</h1>
+      {refCode && <DailyPointsCapCard refCode={refCode} />}
       <div className="mb-6 flex gap-2">
         <Button size="sm" variant={activeTab === "active" ? "default" : "outline"} onClick={() => setActiveTab("active")}>{t("orders.filter.active")}</Button>
         <Button size="sm" variant={activeTab === "completed" ? "default" : "outline"} onClick={() => setActiveTab("completed")}>{t("orders.filter.completed")}</Button>
