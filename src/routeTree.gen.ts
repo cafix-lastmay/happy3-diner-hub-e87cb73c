@@ -37,6 +37,7 @@ import { Route as OwnerSettingsRouteImport } from './routes/owner.settings'
 import { Route as OwnerReportsRouteImport } from './routes/owner.reports'
 import { Route as OwnerRechargesRouteImport } from './routes/owner.recharges'
 import { Route as OwnerRecharge_instructionsRouteImport } from './routes/owner.recharge_instructions'
+import { Route as OwnerPoints_capsRouteImport } from './routes/owner.points_caps'
 import { Route as OwnerMarketersRouteImport } from './routes/owner.marketers'
 import { Route as OwnerGrace_periodsRouteImport } from './routes/owner.grace_periods'
 import { Route as OwnerExchange_ratesRouteImport } from './routes/owner.exchange_rates'
@@ -217,6 +218,11 @@ const OwnerRecharge_instructionsRoute =
     path: '/owner/recharge_instructions',
     getParentRoute: () => rootRouteImport,
   } as any)
+const OwnerPoints_capsRoute = OwnerPoints_capsRouteImport.update({
+  id: '/owner/points_caps',
+  path: '/owner/points_caps',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OwnerMarketersRoute = OwnerMarketersRouteImport.update({
   id: '/owner/marketers',
   path: '/owner/marketers',
@@ -447,6 +453,7 @@ export interface FileRoutesByFullPath {
   '/owner/exchange_rates': typeof OwnerExchange_ratesRoute
   '/owner/grace_periods': typeof OwnerGrace_periodsRoute
   '/owner/marketers': typeof OwnerMarketersRoute
+  '/owner/points_caps': typeof OwnerPoints_capsRoute
   '/owner/recharge_instructions': typeof OwnerRecharge_instructionsRoute
   '/owner/recharges': typeof OwnerRechargesRouteWithChildren
   '/owner/reports': typeof OwnerReportsRoute
@@ -515,6 +522,7 @@ export interface FileRoutesByTo {
   '/owner/exchange_rates': typeof OwnerExchange_ratesRoute
   '/owner/grace_periods': typeof OwnerGrace_periodsRoute
   '/owner/marketers': typeof OwnerMarketersRoute
+  '/owner/points_caps': typeof OwnerPoints_capsRoute
   '/owner/recharge_instructions': typeof OwnerRecharge_instructionsRoute
   '/owner/recharges': typeof OwnerRechargesRouteWithChildren
   '/owner/reports': typeof OwnerReportsRoute
@@ -584,6 +592,7 @@ export interface FileRoutesById {
   '/owner/exchange_rates': typeof OwnerExchange_ratesRoute
   '/owner/grace_periods': typeof OwnerGrace_periodsRoute
   '/owner/marketers': typeof OwnerMarketersRoute
+  '/owner/points_caps': typeof OwnerPoints_capsRoute
   '/owner/recharge_instructions': typeof OwnerRecharge_instructionsRoute
   '/owner/recharges': typeof OwnerRechargesRouteWithChildren
   '/owner/reports': typeof OwnerReportsRoute
@@ -654,6 +663,7 @@ export interface FileRouteTypes {
     | '/owner/exchange_rates'
     | '/owner/grace_periods'
     | '/owner/marketers'
+    | '/owner/points_caps'
     | '/owner/recharge_instructions'
     | '/owner/recharges'
     | '/owner/reports'
@@ -722,6 +732,7 @@ export interface FileRouteTypes {
     | '/owner/exchange_rates'
     | '/owner/grace_periods'
     | '/owner/marketers'
+    | '/owner/points_caps'
     | '/owner/recharge_instructions'
     | '/owner/recharges'
     | '/owner/reports'
@@ -790,6 +801,7 @@ export interface FileRouteTypes {
     | '/owner/exchange_rates'
     | '/owner/grace_periods'
     | '/owner/marketers'
+    | '/owner/points_caps'
     | '/owner/recharge_instructions'
     | '/owner/recharges'
     | '/owner/reports'
@@ -859,6 +871,7 @@ export interface RootRouteChildren {
   OwnerExchange_ratesRoute: typeof OwnerExchange_ratesRoute
   OwnerGrace_periodsRoute: typeof OwnerGrace_periodsRoute
   OwnerMarketersRoute: typeof OwnerMarketersRoute
+  OwnerPoints_capsRoute: typeof OwnerPoints_capsRoute
   OwnerRecharge_instructionsRoute: typeof OwnerRecharge_instructionsRoute
   OwnerRechargesRoute: typeof OwnerRechargesRouteWithChildren
   OwnerReportsRoute: typeof OwnerReportsRoute
@@ -1084,6 +1097,13 @@ declare module '@tanstack/react-router' {
       path: '/owner/recharge_instructions'
       fullPath: '/owner/recharge_instructions'
       preLoaderRoute: typeof OwnerRecharge_instructionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/points_caps': {
+      id: '/owner/points_caps'
+      path: '/owner/points_caps'
+      fullPath: '/owner/points_caps'
+      preLoaderRoute: typeof OwnerPoints_capsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/owner/marketers': {
@@ -1406,6 +1426,7 @@ const rootRouteChildren: RootRouteChildren = {
   OwnerExchange_ratesRoute: OwnerExchange_ratesRoute,
   OwnerGrace_periodsRoute: OwnerGrace_periodsRoute,
   OwnerMarketersRoute: OwnerMarketersRoute,
+  OwnerPoints_capsRoute: OwnerPoints_capsRoute,
   OwnerRecharge_instructionsRoute: OwnerRecharge_instructionsRoute,
   OwnerRechargesRoute: OwnerRechargesRouteWithChildren,
   OwnerReportsRoute: OwnerReportsRoute,

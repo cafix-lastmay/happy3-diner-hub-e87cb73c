@@ -73,9 +73,9 @@ function OwnerCaps() {
     if (scope === "country" && !countryCode) { toast.error("اختر دولة"); return; }
     setBusy(true);
     const { error } = await supabase.rpc("owner_upsert_daily_cap", {
-      _cafeteria_id: scope === "cafeteria" ? cafeId : null,
-      _country_code: scope === "country" ? countryCode : null,
-      _daily_cap: capNum,
+      _cafeteria_id: (scope === "cafeteria" ? cafeId : null) as unknown as string,
+      _country_code: (scope === "country" ? countryCode : null) as unknown as string,
+      _daily_cap: capNum as unknown as number,
       _is_active: true,
     });
     setBusy(false);
