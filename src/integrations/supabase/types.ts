@@ -59,6 +59,80 @@ export type Database = {
         }
         Relationships: []
       }
+      cafeteria_daily_points_cap: {
+        Row: {
+          cafeteria_id: string | null
+          country_code: string | null
+          created_at: string
+          daily_cap: number | null
+          id: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          cafeteria_id?: string | null
+          country_code?: string | null
+          created_at?: string
+          daily_cap?: number | null
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          cafeteria_id?: string | null
+          country_code?: string | null
+          created_at?: string
+          daily_cap?: number | null
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cafeteria_daily_points_cap_cafeteria_id_fkey"
+            columns: ["cafeteria_id"]
+            isOneToOne: false
+            referencedRelation: "cafeterias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cafeteria_daily_points_cap_country_code_fkey"
+            columns: ["country_code"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      cafeteria_daily_points_usage: {
+        Row: {
+          cafeteria_id: string
+          points_consumed: number
+          updated_at: string
+          usage_date: string
+        }
+        Insert: {
+          cafeteria_id: string
+          points_consumed?: number
+          updated_at?: string
+          usage_date?: string
+        }
+        Update: {
+          cafeteria_id?: string
+          points_consumed?: number
+          updated_at?: string
+          usage_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cafeteria_daily_points_usage_cafeteria_id_fkey"
+            columns: ["cafeteria_id"]
+            isOneToOne: false
+            referencedRelation: "cafeterias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cafeteria_payment_info: {
         Row: {
           bank_details: string | null
@@ -2228,6 +2302,13 @@ export type Database = {
           driver_rated: boolean
         }[]
       }
+      get_effective_daily_cap: {
+        Args: { _ref_code: string }
+        Returns: {
+          cap: number
+          scope: string
+        }[]
+      }
       get_enabled_payment_methods: {
         Args: { _ref_code: string }
         Returns: {
@@ -2279,6 +2360,10 @@ export type Database = {
         }[]
       }
       get_my_cafeteria_ref_code: { Args: never; Returns: string }
+      get_my_daily_points_cap_status: {
+        Args: { _ref_code: string }
+        Returns: Json
+      }
       get_my_driver_id: { Args: never; Returns: string }
       get_my_driver_wallet: {
         Args: never
@@ -2451,6 +2536,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      owner_delete_daily_cap: { Args: { _id: string }; Returns: undefined }
       owner_get_stats: { Args: never; Returns: Json }
       owner_grace_cafeterias: {
         Args: never
@@ -2461,6 +2547,21 @@ export type Database = {
           points_balance: number
           ref_code: string
           seconds_remaining: number
+        }[]
+      }
+      owner_list_daily_caps: {
+        Args: never
+        Returns: {
+          cafeteria_id: string
+          cafeteria_name: string
+          cafeteria_ref_code: string
+          country_code: string
+          country_name: string
+          daily_cap: number
+          id: string
+          is_active: boolean
+          scope: string
+          updated_at: string
         }[]
       }
       owner_recharges_timeseries: {
@@ -2520,6 +2621,15 @@ export type Database = {
           ref_code: string
           total_commission: number
         }[]
+      }
+      owner_upsert_daily_cap: {
+        Args: {
+          _cafeteria_id: string
+          _country_code: string
+          _daily_cap: number
+          _is_active?: boolean
+        }
+        Returns: string
       }
       place_delivery_order: {
         Args: {
