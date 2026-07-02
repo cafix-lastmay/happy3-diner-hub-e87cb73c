@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, Coffee, Wallet, Percent, Banknote, BarChart3, Settings, DollarSign, Clock, Globe, FileText, Calculator } from "lucide-react";
+import { LayoutDashboard, Users, Coffee, Wallet, Percent, Banknote, BarChart3, Settings, DollarSign, Clock, Globe, FileText, Calculator, Gauge } from "lucide-react";
 
 export const ownerNavItems = (t: (k: string) => string) => [
   { to: "/owner", label: t("owner.nav.overview"), icon: LayoutDashboard },
