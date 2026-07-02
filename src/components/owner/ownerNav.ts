@@ -10,6 +10,7 @@ export const ownerNavItems = (t: (k: string) => string) => [
   { to: "/owner/withdrawals", label: t("owner.nav.withdrawals"), icon: Banknote },
   { to: "/owner/exchange_rates", label: t("owner.nav.exchange_rates"), icon: DollarSign },
   { to: "/owner/grace_periods", label: t("owner.nav.grace_periods"), icon: Clock },
+  { to: "/owner/points_caps", label: "حدود النقاط اليومية", icon: Gauge },
   { to: "/owner/countries", label: t("owner.nav.countries"), icon: Globe },
   { to: "/owner/recharge_instructions", label: t("owner.nav.recharge_instructions"), icon: FileText },
   { to: "/owner/reports", label: t("owner.nav.reports"), icon: BarChart3 },
