@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { LayoutDashboard, Wallet, History, BookOpen, QrCode, Users, ClipboardList, BarChart3 } from "lucide-react";
 import { DashboardShell } from "@/components/DashboardShell";
+import { DailyPointsCapCard } from "@/components/cafeteria/DailyPointsCapCard";
 import { OrdersBoard } from "@/components/OrdersBoard";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
