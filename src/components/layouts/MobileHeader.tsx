@@ -66,6 +66,7 @@ export function MobileHeader({ title }: Props) {
       )}
 
       <div className="flex items-center gap-0">
+        <ViewModeSwitcher />
         <ThemeToggle />
         <NotificationsBell />
         <LanguageSwitcher />
