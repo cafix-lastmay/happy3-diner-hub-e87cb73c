@@ -356,11 +356,11 @@ function CustomerMenu() {
 
         {/* Service call buttons */}
         <div className="grid grid-cols-2 gap-2 mb-5">
-          <Button variant="outline" onClick={() => callStaff("waiter")} className="h-11 border-accent/40 hover:bg-accent/10">
-            <BellRing className="h-4 w-4 me-1" /> {t("customer.call_waiter")}
+          <Button variant="outline" onClick={() => callStaff("waiter")} disabled={!!activeCalls["waiter"]} className="h-11 border-accent/40 hover:bg-accent/10">
+            <BellRing className="h-4 w-4 me-1" /> {activeCalls["waiter"] ? t("customer.call_pending") : t("customer.call_waiter")}
           </Button>
-          <Button variant="outline" onClick={() => callStaff("cleaner")} className="h-11 border-accent/40 hover:bg-accent/10">
-            <Sparkles className="h-4 w-4 me-1" /> {t("customer.call_cleaner")}
+          <Button variant="outline" onClick={() => callStaff("cleaner")} disabled={!!activeCalls["cleaner"]} className="h-11 border-accent/40 hover:bg-accent/10">
+            <Sparkles className="h-4 w-4 me-1" /> {activeCalls["cleaner"] ? t("customer.call_pending") : t("customer.call_cleaner")}
           </Button>
         </div>
 
