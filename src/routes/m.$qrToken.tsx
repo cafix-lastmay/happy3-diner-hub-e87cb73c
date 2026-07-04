@@ -13,7 +13,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useI18n } from "@/i18n/I18nProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { sendServiceCall } from "@/components/ServiceCallsListener";
+// sendServiceCall is only used for internal role→role toast calls now.
 import { PromoBanner } from "@/components/PromoBanner";
 import { MenuTypeBanner } from "@/components/customer/MenuTypeBanner";
 
@@ -218,13 +218,32 @@ function CustomerMenu() {
     try { localStorage.removeItem(ORDER_STORAGE_PREFIX + qrToken); } catch { /* ignore */ }
   };
 
+  const [activeCalls, setActiveCalls] = useState<Record<string, string>>({});
+  const refreshActiveCalls = async () => {
+    const { data } = await supabase.rpc("get_active_calls_for_qr", { _qr_token: qrToken });
+    const map: Record<string, string> = {};
+    (data as { id: string; kind: string }[] | null)?.forEach((r) => { map[r.kind] = r.id; });
+    setActiveCalls(map);
+  };
+  useEffect(() => {
+    if (!qrToken || invalid || loading) return;
+    refreshActiveCalls();
+    const id = setInterval(refreshActiveCalls, 8000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qrToken, invalid, loading]);
+
   const callStaff = async (kind: "waiter" | "cleaner") => {
     if (!cafe?.ref_code) return;
+    if (activeCalls[kind]) { toast.info(t("customer.call_pending")); return; }
     try {
-      await sendServiceCall(cafe.ref_code, { kind, table_label: tbl?.label ?? null, from: t("calls.from.customer") });
+      const { data, error } = await supabase.rpc("create_table_call", { _qr_token: qrToken, _kind: kind });
+      if (error) throw error;
+      setActiveCalls((m) => ({ ...m, [kind]: data as string }));
       toast.success(t("customer.call_sent"));
     } catch (e) {
       console.error("call failed", e);
+      toast.error(t("customer.call_failed"));
     }
   };
 
