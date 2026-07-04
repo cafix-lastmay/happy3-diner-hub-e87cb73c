@@ -15,6 +15,9 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { TrialBalanceCard } from "@/components/cafeteria/TrialBalanceCard";
 import { CafeteriaGraceBanner, CafeteriaBlockGate } from "@/components/cafeteria/CafeteriaGracePanel";
 import { GlobalServiceCallsBanner } from "@/components/GlobalServiceCallsBanner";
+import { TableCallsBanner } from "@/components/TableCallsBanner";
+import { ViewModeSwitcher } from "@/components/ViewModeSwitcher";
+import { useViewMode, viewModeContainerClass } from "@/components/ViewModeContext";
 import { Footer } from "@/components/Footer";
 
 import { BottomNav, BOTTOM_NAV_ROLES } from "@/components/layouts/BottomNav";
