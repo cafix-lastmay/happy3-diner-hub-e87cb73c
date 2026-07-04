@@ -463,6 +463,8 @@ export const ar = {
   "customer.call_waiter": "نداء النادل",
   "customer.call_cleaner": "طلب تنظيف",
   "customer.call_sent": "تم إرسال طلبك",
+  "customer.call_pending": "طلبك قيد المعالجة",
+  "customer.call_failed": "تعذّر إرسال الطلب",
 
   "calls.incoming": "نداءات خدمة جديدة",
   "calls.kind.waiter": "طلب نادل",
@@ -471,6 +473,12 @@ export const ar = {
   "calls.from.customer": "زبون",
   "calls.call_manager": "نداء المدير",
   "calls.call_waiter": "نداء نادل",
+  "calls.done": "تم",
+
+  "view_mode.title": "طريقة العرض",
+  "view_mode.mobile": "موبايل",
+  "view_mode.tablet": "تابلت",
+  "view_mode.laptop": "لابتوب",
 
   "menu.header_image": "صورة رأس القائمة",
   "menu.footer_image": "صورة ذيل القائمة",

@@ -451,6 +451,8 @@ export const en = {
   "customer.call_waiter": "Call waiter",
   "customer.call_cleaner": "Call cleaner",
   "customer.call_sent": "Your call has been sent",
+  "customer.call_pending": "Your call is being handled",
+  "customer.call_failed": "Failed to send your call",
 
   "calls.incoming": "Incoming service calls",
   "calls.kind.waiter": "Waiter requested",
@@ -459,6 +461,12 @@ export const en = {
   "calls.from.customer": "Customer",
   "calls.call_manager": "Call manager",
   "calls.call_waiter": "Call waiter",
+  "calls.done": "Done",
+
+  "view_mode.title": "View mode",
+  "view_mode.mobile": "Mobile",
+  "view_mode.tablet": "Tablet",
+  "view_mode.laptop": "Laptop",
 
   "menu.header_image": "Menu header image",
   "menu.footer_image": "Menu footer image",

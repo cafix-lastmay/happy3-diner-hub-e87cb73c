@@ -15,6 +15,9 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { TrialBalanceCard } from "@/components/cafeteria/TrialBalanceCard";
 import { CafeteriaGraceBanner, CafeteriaBlockGate } from "@/components/cafeteria/CafeteriaGracePanel";
 import { GlobalServiceCallsBanner } from "@/components/GlobalServiceCallsBanner";
+import { TableCallsBanner } from "@/components/TableCallsBanner";
+import { ViewModeSwitcher } from "@/components/ViewModeSwitcher";
+import { useViewMode, viewModeContainerClass } from "@/components/ViewModeContext";
 import { Footer } from "@/components/Footer";
 
 import { BottomNav, BOTTOM_NAV_ROLES } from "@/components/layouts/BottomNav";
@@ -37,6 +40,8 @@ export function DashboardShell({ title, navItems, children, showTrialCard }: Pro
   const primaryRole = roles[0] ?? null;
   const hasBottomNav = !!primaryRole && BOTTOM_NAV_ROLES.has(primaryRole);
   const [tabletNavOpen, setTabletNavOpen] = useState(false);
+  const { mode } = useViewMode();
+  const containerClass = viewModeContainerClass(mode);
   usePushNotifications();
 
   const onLogout = async () => {
@@ -121,6 +126,7 @@ export function DashboardShell({ title, navItems, children, showTrialCard }: Pro
               </SheetContent>
             </Sheet>
             <div className="flex items-center gap-2">
+              <ViewModeSwitcher />
               <ThemeToggle />
               <NotificationsBell />
               <LanguageSwitcher />
@@ -132,6 +138,7 @@ export function DashboardShell({ title, navItems, children, showTrialCard }: Pro
 
           {/* Desktop top bar (hidden on mobile to free vertical space) */}
           <header className="hidden lg:flex sticky top-0 z-30 h-16 items-center justify-end gap-2 border-b border-border bg-background/80 backdrop-blur px-4">
+            <ViewModeSwitcher />
             <ThemeToggle />
             <NotificationsBell />
             <LanguageSwitcher />
@@ -140,8 +147,9 @@ export function DashboardShell({ title, navItems, children, showTrialCard }: Pro
               <span className="hidden sm:inline">{t("common.logout")}</span>
             </Button>
           </header>
+          <TableCallsBanner />
           <GlobalServiceCallsBanner />
-          <main className="flex-1 p-4 md:p-6 lg:p-8 pb-[calc(70px+env(safe-area-inset-bottom))] md:pb-6 lg:pb-8">
+          <main className={`flex-1 p-4 md:p-6 lg:p-8 pb-[calc(70px+env(safe-area-inset-bottom))] md:pb-6 lg:pb-8 w-full ${containerClass}`}>
             {showTrialCard && <TrialBalanceCard />}
             {showTrialCard && <CafeteriaGraceBanner />}
             {showTrialCard ? <CafeteriaBlockGate>{children}</CafeteriaBlockGate> : children}

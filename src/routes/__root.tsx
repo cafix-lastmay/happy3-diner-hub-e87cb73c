@@ -3,6 +3,7 @@ import { I18nProvider } from "@/i18n/I18nProvider";
 import { AuthProvider } from "@/auth/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ViewModeProvider } from "@/components/ViewModeContext";
 
 import appCss from "../styles.css?url";
 
@@ -83,10 +84,12 @@ function RootComponent() {
   return (
     <I18nProvider>
       <AuthProvider>
-        <ErrorBoundary>
-          <Outlet />
-        </ErrorBoundary>
-        <Toaster richColors position="top-center" closeButton />
+        <ViewModeProvider>
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
+          <Toaster richColors position="top-center" closeButton />
+        </ViewModeProvider>
       </AuthProvider>
     </I18nProvider>
   );

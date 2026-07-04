@@ -1995,6 +1995,56 @@ export type Database = {
           },
         ]
       }
+      table_call_requests: {
+        Row: {
+          cafeteria_ref_code: string
+          created_at: string
+          from_role: string | null
+          id: string
+          kind: string
+          resolved_at: string | null
+          resolved_by: string | null
+          section_id: string | null
+          status: string
+          table_id: string | null
+          table_label: string | null
+        }
+        Insert: {
+          cafeteria_ref_code: string
+          created_at?: string
+          from_role?: string | null
+          id?: string
+          kind: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          section_id?: string | null
+          status?: string
+          table_id?: string | null
+          table_label?: string | null
+        }
+        Update: {
+          cafeteria_ref_code?: string
+          created_at?: string
+          from_role?: string | null
+          id?: string
+          kind?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          section_id?: string | null
+          status?: string
+          table_id?: string | null
+          table_label?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "table_call_requests_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       table_sections: {
         Row: {
           cafeteria_ref_code: string
@@ -2194,6 +2244,10 @@ export type Database = {
         }
         Returns: string
       }
+      create_table_call: {
+        Args: { _kind: string; _qr_token: string }
+        Returns: string
+      }
       decide_driver_join_request: {
         Args: { _approve: boolean; _link_id: string }
         Returns: undefined
@@ -2209,6 +2263,13 @@ export type Database = {
       generate_ref_code: {
         Args: { _entity_type: string; _parent_ref_code: string }
         Returns: string
+      }
+      get_active_calls_for_qr: {
+        Args: { _qr_token: string }
+        Returns: {
+          id: string
+          kind: string
+        }[]
       }
       get_cafe_driver_settlements: {
         Args: never
@@ -2500,6 +2561,29 @@ export type Database = {
         Returns: boolean
       }
       is_full_cafe_ref: { Args: { _ref_code: string }; Returns: boolean }
+      is_table_call_active: { Args: { _id: string }; Returns: boolean }
+      list_active_table_calls: {
+        Args: never
+        Returns: {
+          cafeteria_ref_code: string
+          created_at: string
+          from_role: string | null
+          id: string
+          kind: string
+          resolved_at: string | null
+          resolved_by: string | null
+          section_id: string | null
+          status: string
+          table_id: string | null
+          table_label: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "table_call_requests"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       list_available_drivers_for_cafeteria: {
         Args: { _customer_phone?: string }
         Returns: {
@@ -2739,6 +2823,7 @@ export type Database = {
         Returns: Json
       }
       request_shift: { Args: never; Returns: string }
+      resolve_table_call: { Args: { _id: string }; Returns: undefined }
       respond_order_addition: {
         Args: { _approve: boolean; _reason?: string; _request_id: string }
         Returns: Json
