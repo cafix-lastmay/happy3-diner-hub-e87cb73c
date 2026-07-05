@@ -1,7 +1,7 @@
 // Shared dashboard shell with sidebar nav (desktop) + floating draggable menu (mobile).
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Coffee, LogOut, Menu } from "lucide-react";
+import { Coffee, LogOut, Menu, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -17,6 +17,7 @@ import { CafeteriaGraceBanner, CafeteriaBlockGate } from "@/components/cafeteria
 import { GlobalServiceCallsBanner } from "@/components/GlobalServiceCallsBanner";
 import { TableCallsBanner } from "@/components/TableCallsBanner";
 import { ViewModeSwitcher } from "@/components/ViewModeSwitcher";
+import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { useViewMode, viewModeContainerClass } from "@/components/ViewModeContext";
 import { Footer } from "@/components/Footer";
 
@@ -126,6 +127,7 @@ export function DashboardShell({ title, navItems, children, showTrialCard }: Pro
               </SheetContent>
             </Sheet>
             <div className="flex items-center gap-2">
+              <FeedbackDialog trigger={<Button variant="ghost" size="icon" aria-label="feedback"><MessageCircle className="h-5 w-5" /></Button>} />
               <ViewModeSwitcher />
               <ThemeToggle />
               <NotificationsBell />
@@ -138,6 +140,7 @@ export function DashboardShell({ title, navItems, children, showTrialCard }: Pro
 
           {/* Desktop top bar (hidden on mobile to free vertical space) */}
           <header className="hidden lg:flex sticky top-0 z-30 h-16 items-center justify-end gap-2 border-b border-border bg-background/80 backdrop-blur px-4">
+            <FeedbackDialog />
             <ViewModeSwitcher />
             <ThemeToggle />
             <NotificationsBell />

@@ -40,6 +40,7 @@ import { Route as OwnerRecharge_instructionsRouteImport } from './routes/owner.r
 import { Route as OwnerPoints_capsRouteImport } from './routes/owner.points_caps'
 import { Route as OwnerMarketersRouteImport } from './routes/owner.marketers'
 import { Route as OwnerGrace_periodsRouteImport } from './routes/owner.grace_periods'
+import { Route as OwnerFeedbackRouteImport } from './routes/owner.feedback'
 import { Route as OwnerExchange_ratesRouteImport } from './routes/owner.exchange_rates'
 import { Route as OwnerCountriesRouteImport } from './routes/owner.countries'
 import { Route as OwnerCommissionsRouteImport } from './routes/owner.commissions'
@@ -231,6 +232,11 @@ const OwnerMarketersRoute = OwnerMarketersRouteImport.update({
 const OwnerGrace_periodsRoute = OwnerGrace_periodsRouteImport.update({
   id: '/owner/grace_periods',
   path: '/owner/grace_periods',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerFeedbackRoute = OwnerFeedbackRouteImport.update({
+  id: '/owner/feedback',
+  path: '/owner/feedback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OwnerExchange_ratesRoute = OwnerExchange_ratesRouteImport.update({
@@ -451,6 +457,7 @@ export interface FileRoutesByFullPath {
   '/owner/commissions': typeof OwnerCommissionsRoute
   '/owner/countries': typeof OwnerCountriesRoute
   '/owner/exchange_rates': typeof OwnerExchange_ratesRoute
+  '/owner/feedback': typeof OwnerFeedbackRoute
   '/owner/grace_periods': typeof OwnerGrace_periodsRoute
   '/owner/marketers': typeof OwnerMarketersRoute
   '/owner/points_caps': typeof OwnerPoints_capsRoute
@@ -520,6 +527,7 @@ export interface FileRoutesByTo {
   '/owner/commissions': typeof OwnerCommissionsRoute
   '/owner/countries': typeof OwnerCountriesRoute
   '/owner/exchange_rates': typeof OwnerExchange_ratesRoute
+  '/owner/feedback': typeof OwnerFeedbackRoute
   '/owner/grace_periods': typeof OwnerGrace_periodsRoute
   '/owner/marketers': typeof OwnerMarketersRoute
   '/owner/points_caps': typeof OwnerPoints_capsRoute
@@ -590,6 +598,7 @@ export interface FileRoutesById {
   '/owner/commissions': typeof OwnerCommissionsRoute
   '/owner/countries': typeof OwnerCountriesRoute
   '/owner/exchange_rates': typeof OwnerExchange_ratesRoute
+  '/owner/feedback': typeof OwnerFeedbackRoute
   '/owner/grace_periods': typeof OwnerGrace_periodsRoute
   '/owner/marketers': typeof OwnerMarketersRoute
   '/owner/points_caps': typeof OwnerPoints_capsRoute
@@ -661,6 +670,7 @@ export interface FileRouteTypes {
     | '/owner/commissions'
     | '/owner/countries'
     | '/owner/exchange_rates'
+    | '/owner/feedback'
     | '/owner/grace_periods'
     | '/owner/marketers'
     | '/owner/points_caps'
@@ -730,6 +740,7 @@ export interface FileRouteTypes {
     | '/owner/commissions'
     | '/owner/countries'
     | '/owner/exchange_rates'
+    | '/owner/feedback'
     | '/owner/grace_periods'
     | '/owner/marketers'
     | '/owner/points_caps'
@@ -799,6 +810,7 @@ export interface FileRouteTypes {
     | '/owner/commissions'
     | '/owner/countries'
     | '/owner/exchange_rates'
+    | '/owner/feedback'
     | '/owner/grace_periods'
     | '/owner/marketers'
     | '/owner/points_caps'
@@ -869,6 +881,7 @@ export interface RootRouteChildren {
   OwnerCommissionsRoute: typeof OwnerCommissionsRoute
   OwnerCountriesRoute: typeof OwnerCountriesRoute
   OwnerExchange_ratesRoute: typeof OwnerExchange_ratesRoute
+  OwnerFeedbackRoute: typeof OwnerFeedbackRoute
   OwnerGrace_periodsRoute: typeof OwnerGrace_periodsRoute
   OwnerMarketersRoute: typeof OwnerMarketersRoute
   OwnerPoints_capsRoute: typeof OwnerPoints_capsRoute
@@ -1118,6 +1131,13 @@ declare module '@tanstack/react-router' {
       path: '/owner/grace_periods'
       fullPath: '/owner/grace_periods'
       preLoaderRoute: typeof OwnerGrace_periodsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/feedback': {
+      id: '/owner/feedback'
+      path: '/owner/feedback'
+      fullPath: '/owner/feedback'
+      preLoaderRoute: typeof OwnerFeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/owner/exchange_rates': {
@@ -1424,6 +1444,7 @@ const rootRouteChildren: RootRouteChildren = {
   OwnerCommissionsRoute: OwnerCommissionsRoute,
   OwnerCountriesRoute: OwnerCountriesRoute,
   OwnerExchange_ratesRoute: OwnerExchange_ratesRoute,
+  OwnerFeedbackRoute: OwnerFeedbackRoute,
   OwnerGrace_periodsRoute: OwnerGrace_periodsRoute,
   OwnerMarketersRoute: OwnerMarketersRoute,
   OwnerPoints_capsRoute: OwnerPoints_capsRoute,

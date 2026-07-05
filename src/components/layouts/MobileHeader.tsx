@@ -1,11 +1,12 @@
 // Mobile-only top header bar (<768px): back, home, notifications, language, logout.
 import { useRouter, useRouterState, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Home, LogOut } from "lucide-react";
+import { ArrowRight, Home, LogOut, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationsBell } from "@/components/NotificationsBell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ViewModeSwitcher } from "@/components/ViewModeSwitcher";
+import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { useAuth, type Role } from "@/auth/AuthProvider";
 
 const HOME_FOR_ROLE: Partial<Record<Role, string>> = {
@@ -66,6 +67,7 @@ export function MobileHeader({ title }: Props) {
       )}
 
       <div className="flex items-center gap-0">
+        <FeedbackDialog trigger={<Button variant="ghost" size="icon" aria-label="شكاوى واقتراحات"><MessageCircle className="h-5 w-5" /></Button>} />
         <ViewModeSwitcher />
         <ThemeToggle />
         <NotificationsBell />

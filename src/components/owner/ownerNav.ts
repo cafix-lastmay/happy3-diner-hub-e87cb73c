@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, Coffee, Wallet, Percent, Banknote, BarChart3, Settings, DollarSign, Clock, Globe, FileText, Calculator, Gauge } from "lucide-react";
+import { LayoutDashboard, Users, Coffee, Wallet, Percent, Banknote, BarChart3, Settings, DollarSign, Clock, Globe, FileText, Calculator, Gauge, MessageCircle } from "lucide-react";
 
 export const ownerNavItems = (t: (k: string) => string) => [
   { to: "/owner", label: t("owner.nav.overview"), icon: LayoutDashboard },
@@ -14,5 +14,6 @@ export const ownerNavItems = (t: (k: string) => string) => [
   { to: "/owner/countries", label: t("owner.nav.countries"), icon: Globe },
   { to: "/owner/recharge_instructions", label: t("owner.nav.recharge_instructions"), icon: FileText },
   { to: "/owner/reports", label: t("owner.nav.reports"), icon: BarChart3 },
+  { to: "/owner/feedback", label: "الشكاوى والاقتراحات", icon: MessageCircle },
   { to: "/owner/settings", label: t("owner.nav.settings"), icon: Settings },
 ];

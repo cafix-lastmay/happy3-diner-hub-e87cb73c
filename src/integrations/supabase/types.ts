@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_feedback: {
+        Row: {
+          cafeteria_id: string | null
+          category: Database["public"]["Enums"]["feedback_category"]
+          created_at: string
+          id: string
+          message: string
+          owner_notes: string | null
+          status: Database["public"]["Enums"]["feedback_status"]
+          subject: string
+          submitter_contact: string | null
+          submitter_name: string | null
+          submitter_role: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          cafeteria_id?: string | null
+          category: Database["public"]["Enums"]["feedback_category"]
+          created_at?: string
+          id?: string
+          message: string
+          owner_notes?: string | null
+          status?: Database["public"]["Enums"]["feedback_status"]
+          subject: string
+          submitter_contact?: string | null
+          submitter_name?: string | null
+          submitter_role?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          cafeteria_id?: string | null
+          category?: Database["public"]["Enums"]["feedback_category"]
+          created_at?: string
+          id?: string
+          message?: string
+          owner_notes?: string | null
+          status?: Database["public"]["Enums"]["feedback_status"]
+          subject?: string
+          submitter_contact?: string | null
+          submitter_name?: string | null
+          submitter_role?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_feedback_cafeteria_id_fkey"
+            columns: ["cafeteria_id"]
+            isOneToOne: false
+            referencedRelation: "cafeterias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_settings: {
         Row: {
           commission_eligibility_months: number
@@ -2922,6 +2978,12 @@ export type Database = {
         | "on_the_way"
         | "delivered"
         | "cancelled"
+      feedback_category:
+        | "complaint"
+        | "suggestion"
+        | "operational_issue"
+        | "operational_error"
+      feedback_status: "new" | "in_review" | "resolved" | "closed"
       order_addition_status: "pending" | "approved" | "rejected"
       order_mode: "dine_in" | "take_away" | "delivery"
       order_status:
@@ -3089,6 +3151,13 @@ export const Constants = {
         "delivered",
         "cancelled",
       ],
+      feedback_category: [
+        "complaint",
+        "suggestion",
+        "operational_issue",
+        "operational_error",
+      ],
+      feedback_status: ["new", "in_review", "resolved", "closed"],
       order_addition_status: ["pending", "approved", "rejected"],
       order_mode: ["dine_in", "take_away", "delivery"],
       order_status: [
