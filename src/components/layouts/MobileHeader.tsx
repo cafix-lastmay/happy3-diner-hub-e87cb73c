@@ -7,7 +7,6 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ViewModeSwitcher } from "@/components/ViewModeSwitcher";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
-import { Button as _ButtonAlias } from "@/components/ui/button";
 import { useAuth, type Role } from "@/auth/AuthProvider";
 
 const HOME_FOR_ROLE: Partial<Record<Role, string>> = {
