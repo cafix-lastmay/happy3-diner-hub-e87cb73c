@@ -1,6 +1,6 @@
 // Mobile-only top header bar (<768px): back, home, notifications, language, logout.
 import { useRouter, useRouterState, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Home, LogOut } from "lucide-react";
+import { ArrowRight, Home, LogOut, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationsBell } from "@/components/NotificationsBell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
