@@ -1,6 +1,6 @@
 // Persistent view-mode preference for staff/manager/owner dashboards.
-// Choices: "mobile" (single column, ~448px), "tablet" (~768px), "laptop" (full width).
-// Stored in localStorage per-device. Default: "mobile".
+// Applies as `data-view-mode` on <html> so global CSS in styles.css can
+// force real layout changes (column counts, font sizes, sidebar visibility).
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 export type ViewMode = "mobile" | "tablet" | "laptop";
@@ -14,18 +14,26 @@ interface Ctx {
 
 const ViewModeCtx = createContext<Ctx>({ mode: "mobile", setMode: () => {} });
 
+function applyAttr(mode: ViewMode) {
+  if (typeof document === "undefined") return;
+  document.documentElement.setAttribute("data-view-mode", mode);
+}
+
 export function ViewModeProvider({ children }: { children: ReactNode }) {
   const [mode, setModeState] = useState<ViewMode>("mobile");
 
   useEffect(() => {
     try {
       const v = localStorage.getItem(STORAGE_KEY);
-      if (v === "mobile" || v === "tablet" || v === "laptop") setModeState(v);
-    } catch { /* ignore */ }
+      const initial: ViewMode = (v === "mobile" || v === "tablet" || v === "laptop") ? v : "mobile";
+      setModeState(initial);
+      applyAttr(initial);
+    } catch { applyAttr("mobile"); }
   }, []);
 
   const setMode = (m: ViewMode) => {
     setModeState(m);
+    applyAttr(m);
     try { localStorage.setItem(STORAGE_KEY, m); } catch { /* ignore */ }
   };
 
@@ -34,8 +42,8 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
 
 export function useViewMode() { return useContext(ViewModeCtx); }
 
-export function viewModeContainerClass(mode: ViewMode) {
-  if (mode === "mobile") return "max-w-md mx-auto";
-  if (mode === "tablet") return "max-w-3xl mx-auto";
-  return ""; // laptop: full width
+// Kept for backwards-compat with DashboardShell import; real layout work now
+// happens via the global CSS rules keyed on html[data-view-mode].
+export function viewModeContainerClass(_mode: ViewMode) {
+  return "";
 }
