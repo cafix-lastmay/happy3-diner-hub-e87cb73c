@@ -261,7 +261,12 @@ function CustomerMenu() {
           <div className="w-full h-full bg-gradient-to-br from-accent/30 via-accent/10 to-primary/20" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/30 to-transparent" />
-        <div className="absolute top-3 end-3">
+        <div className="absolute top-3 end-3 flex items-center gap-2">
+          <FeedbackDialog defaultRole="customer" trigger={
+            <Button variant="secondary" size="icon" aria-label="شكاوى واقتراحات" className="h-8 w-8">
+              <MessageSquarePlus className="h-4 w-4" />
+            </Button>
+          } />
           <LanguageSwitcher />
         </div>
         <div className="absolute bottom-3 inset-x-0 px-4">
