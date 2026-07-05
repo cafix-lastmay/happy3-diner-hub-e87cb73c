@@ -127,6 +127,7 @@ export function DashboardShell({ title, navItems, children, showTrialCard }: Pro
               </SheetContent>
             </Sheet>
             <div className="flex items-center gap-2">
+              <FeedbackDialog trigger={<Button variant="ghost" size="icon" aria-label="feedback"><MessageCircle className="h-5 w-5" /></Button>} />
               <ViewModeSwitcher />
               <ThemeToggle />
               <NotificationsBell />
@@ -139,6 +140,7 @@ export function DashboardShell({ title, navItems, children, showTrialCard }: Pro
 
           {/* Desktop top bar (hidden on mobile to free vertical space) */}
           <header className="hidden lg:flex sticky top-0 z-30 h-16 items-center justify-end gap-2 border-b border-border bg-background/80 backdrop-blur px-4">
+            <FeedbackDialog />
             <ViewModeSwitcher />
             <ThemeToggle />
             <NotificationsBell />
