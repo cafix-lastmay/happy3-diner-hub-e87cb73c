@@ -17,6 +17,7 @@ import { CafeteriaGraceBanner, CafeteriaBlockGate } from "@/components/cafeteria
 import { GlobalServiceCallsBanner } from "@/components/GlobalServiceCallsBanner";
 import { TableCallsBanner } from "@/components/TableCallsBanner";
 import { ViewModeSwitcher } from "@/components/ViewModeSwitcher";
+import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { useViewMode, viewModeContainerClass } from "@/components/ViewModeContext";
 import { Footer } from "@/components/Footer";
 
