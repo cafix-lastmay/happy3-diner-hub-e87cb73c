@@ -182,3 +182,76 @@
     font-family: "Cairo", system-ui, sans-serif;
   }
 }
+
+/* ============================================================
+ * View-mode overrides — driven by <html data-view-mode="...">
+ * Set from src/components/ViewModeContext.tsx. These rules make
+ * the mode switch produce a real, visible change on ANY viewport
+ * (not only when the browser is actually resized).
+ * ============================================================ */
+
+/* ---------- MOBILE ---------- */
+html[data-view-mode="mobile"] main {
+  max-width: 28rem;
+  margin-inline: auto;
+}
+/* Collapse any multi-column grid down to a single column */
+html[data-view-mode="mobile"] main [class*="grid-cols-"] {
+  grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+/* Hide the desktop sidebar so mobile mode really feels mobile */
+html[data-view-mode="mobile"] aside.lg\:flex {
+  display: none !important;
+}
+html[data-view-mode="mobile"] .lg\:ms-\[260px\] {
+  margin-inline-start: 0 !important;
+}
+
+/* ---------- TABLET ---------- */
+html[data-view-mode="tablet"] main {
+  max-width: 56rem;
+  margin-inline: auto;
+  font-size: 1.0625rem;
+}
+/* Force 2-column layout for any grid that had more than 1 col */
+html[data-view-mode="tablet"] main [class*="grid-cols-"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+/* But keep intentionally single-col grids single */
+html[data-view-mode="tablet"] main .grid-cols-1:not([class*="sm:grid-cols-"]):not([class*="md:grid-cols-"]):not([class*="lg:grid-cols-"]) {
+  grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+html[data-view-mode="tablet"] aside.lg\:flex {
+  display: none !important;
+}
+html[data-view-mode="tablet"] .lg\:ms-\[260px\] {
+  margin-inline-start: 0 !important;
+}
+
+/* ---------- LAPTOP ---------- */
+html[data-view-mode="laptop"] main {
+  max-width: none;
+}
+/* Force 3-column layout wherever a multi-col grid exists */
+html[data-view-mode="laptop"] main [class*="md:grid-cols-"],
+html[data-view-mode="laptop"] main [class*="lg:grid-cols-"],
+html[data-view-mode="laptop"] main [class*="sm:grid-cols-"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+/* Always show sidebar in laptop mode, regardless of viewport width */
+html[data-view-mode="laptop"] aside.lg\:flex {
+  display: flex !important;
+  position: fixed !important;
+  inset-block: 0 !important;
+  width: 260px !important;
+  flex-direction: column !important;
+}
+html[data-view-mode="laptop"] .lg\:ms-\[260px\] {
+  margin-inline-start: 260px !important;
+}
+/* Hide the mobile floating menu + bottom nav when acting as laptop */
+html[data-view-mode="laptop"] [data-floating-nav],
+html[data-view-mode="laptop"] [data-bottom-nav] {
+  display: none !important;
+}
+
