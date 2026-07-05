@@ -1,7 +1,7 @@
 // Shared dashboard shell with sidebar nav (desktop) + floating draggable menu (mobile).
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Coffee, LogOut, Menu } from "lucide-react";
+import { Coffee, LogOut, Menu, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
