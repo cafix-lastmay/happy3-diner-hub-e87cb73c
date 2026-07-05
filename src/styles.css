@@ -255,3 +255,9 @@ html[data-view-mode="laptop"] [data-bottom-nav] {
   display: none !important;
 }
 
+/* Waiter tables grid: always 2 columns compact, regardless of view mode */
+html[data-view-mode] main [data-tables-grid] {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  max-width: 20rem !important;
+}
+
