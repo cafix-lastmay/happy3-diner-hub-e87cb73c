@@ -67,6 +67,7 @@ export function MobileHeader({ title }: Props) {
       )}
 
       <div className="flex items-center gap-0">
+        <FeedbackDialog trigger={<Button variant="ghost" size="icon" aria-label="شكاوى واقتراحات"><MessageCircle className="h-5 w-5" /></Button>} />
         <ViewModeSwitcher />
         <ThemeToggle />
         <NotificationsBell />
