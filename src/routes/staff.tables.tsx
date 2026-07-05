@@ -60,7 +60,7 @@ function StaffTables() {
       {tables.length === 0 ? (
         <EmptyState icon={<QrCode className="h-6 w-6" />} title={t("staff.tables.empty")} />
       ) : (
-        <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="grid gap-2 grid-cols-2 max-w-xs">
           {tables.map((tb) => (
             <button
               key={tb.id}
@@ -68,14 +68,14 @@ function StaffTables() {
               className="text-left"
             >
               <Card
-                className={`p-6 flex flex-col items-center justify-center aspect-square transition-transform hover:scale-105 ${
+                className={`p-2 flex flex-col items-center justify-center aspect-square transition-transform hover:scale-105 ${
                   tb.is_occupied
                     ? "bg-orange-500/15 border-orange-500/60 text-orange-700 dark:text-orange-300"
                     : "bg-emerald-500/15 border-emerald-500/60 text-emerald-700 dark:text-emerald-300"
                 }`}
               >
-                <div className="text-4xl font-extrabold">{tb.label}</div>
-                <div className="mt-2 text-xs font-semibold uppercase tracking-wide">
+                <div className="text-base font-extrabold leading-none">{tb.label}</div>
+                <div className="mt-1 text-[9px] font-semibold uppercase tracking-wide">
                   {tb.is_occupied ? t("staff.tables.occupied") : t("staff.tables.available")}
                 </div>
               </Card>
