@@ -60,7 +60,7 @@ function StaffTables() {
       {tables.length === 0 ? (
         <EmptyState icon={<QrCode className="h-6 w-6" />} title={t("staff.tables.empty")} />
       ) : (
-        <div className="grid gap-2 grid-cols-2 max-w-xs">
+        <div data-tables-grid className="grid gap-2 grid-cols-2 max-w-xs">
           {tables.map((tb) => (
             <button
               key={tb.id}
