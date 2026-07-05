@@ -16,6 +16,7 @@ import { toast } from "sonner";
 // sendServiceCall is only used for internal role→role toast calls now.
 import { PromoBanner } from "@/components/PromoBanner";
 import { MenuTypeBanner } from "@/components/customer/MenuTypeBanner";
+import { FeedbackDialog } from "@/components/FeedbackDialog";
 
 export const Route = createFileRoute("/m/$qrToken")({ component: CustomerMenu });
 
