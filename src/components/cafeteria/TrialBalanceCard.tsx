@@ -93,23 +93,37 @@ export function TrialBalanceCard() {
             </div>
           </div>
         )}
-        <div className={`p-4 sm:p-5 flex flex-col justify-center ${!showTrial ? "sm:col-span-2" : ""}`}>
-          <div className="text-[11px] sm:text-xs uppercase tracking-wider text-white/70">
-            {t("cafeteria.points_balance")}
-          </div>
-          <div
-            className="mt-1 font-mono font-bold leading-none"
-            style={{
-              color: "hsl(120 100% 55%)",
-              textShadow: "0 0 8px hsl(120 100% 55% / 0.6)",
-              fontSize: "clamp(2.2rem, 9vw, 3.5rem)",
-            }}
-          >
-            {points.toFixed(2)}
-            <span className="ms-2 text-base sm:text-xl text-white/80 font-sans font-normal">
-              {row?.currency_code ?? ""}
-            </span>
-          </div>
+        <div className={`p-4 sm:p-5 flex flex-col justify-center gap-2 ${!showTrial ? "sm:col-span-2" : ""}`}>
+          {freePoints > 0 ? (
+            <>
+              <div>
+                <div className="text-[11px] sm:text-xs uppercase tracking-wider text-white/70">🎁 نقاط مجانية</div>
+                <div className="mt-0.5 font-mono font-bold leading-none"
+                  style={{ color: "hsl(45 100% 60%)", textShadow: "0 0 8px hsl(45 100% 60% / 0.6)", fontSize: "clamp(1.4rem, 6vw, 2.2rem)" }}>
+                  {freePoints}
+                </div>
+              </div>
+              <div>
+                <div className="text-[11px] sm:text-xs uppercase tracking-wider text-white/70">💰 نقاط مشتراة</div>
+                <div className="mt-0.5 font-mono font-bold leading-none"
+                  style={{ color: "hsl(120 100% 55%)", textShadow: "0 0 8px hsl(120 100% 55% / 0.6)", fontSize: "clamp(1.4rem, 6vw, 2.2rem)" }}>
+                  {points.toFixed(2)}
+                  <span className="ms-2 text-sm text-white/80 font-sans font-normal">{row?.currency_code ?? ""}</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-[11px] sm:text-xs uppercase tracking-wider text-white/70">
+                {t("cafeteria.points_balance")}
+              </div>
+              <div className="mt-1 font-mono font-bold leading-none"
+                style={{ color: "hsl(120 100% 55%)", textShadow: "0 0 8px hsl(120 100% 55% / 0.6)", fontSize: "clamp(2.2rem, 9vw, 3.5rem)" }}>
+                {points.toFixed(2)}
+                <span className="ms-2 text-base sm:text-xl text-white/80 font-sans font-normal">{row?.currency_code ?? ""}</span>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
