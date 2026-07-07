@@ -62,6 +62,15 @@ export function AdjustBalanceDialog({ refCode, kind, trigger, onDone }: Props) {
           <DialogTitle>{kind === "cafeteria_points" ? t("owner.actions.recharge_points") : t("owner.actions.adjust_balance")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
+          {ownerNote && (
+            <div className="rounded-md border border-amber-500/60 bg-amber-500/10 p-3 text-sm flex gap-2">
+              <StickyNote className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <div className="font-semibold text-amber-700 mb-1">ملاحظة المالك الخاصة</div>
+                <div className="whitespace-pre-wrap">{ownerNote}</div>
+              </div>
+            </div>
+          )}
           {kind === "marketer" && (
             <div className="space-y-2">
               <Label>{t("owner.balance.kind")}</Label>
