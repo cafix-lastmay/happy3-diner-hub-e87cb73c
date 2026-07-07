@@ -7,6 +7,7 @@ import { useAuth } from "@/auth/AuthProvider";
 import { useI18n } from "@/i18n/I18nProvider";
 
 interface Row {
+  id: string;
   ref_code: string;
   points_balance: number;
   currency_code: string | null;
