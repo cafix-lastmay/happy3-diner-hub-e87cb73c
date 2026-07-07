@@ -18,6 +18,7 @@ export function TrialBalanceCard() {
   const { t } = useI18n();
   const { user, refCode } = useAuth();
   const [row, setRow] = useState<Row | null>(null);
+  const [freePoints, setFreePoints] = useState<number>(0);
   const [graceUntil, setGraceUntil] = useState<string | null>(null);
   const [hasCustomGrace, setHasCustomGrace] = useState(false);
 
