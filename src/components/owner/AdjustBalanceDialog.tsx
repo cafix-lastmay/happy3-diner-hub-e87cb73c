@@ -1,5 +1,6 @@
 // Owner-only dialog: adjust marketer or cafeteria balance with delta + reason.
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { StickyNote } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
