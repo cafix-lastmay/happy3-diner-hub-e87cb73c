@@ -15,6 +15,8 @@ import { EditEntityDialog } from "@/components/owner/EditEntityDialog";
 import { AdjustBalanceDialog } from "@/components/owner/AdjustBalanceDialog";
 import { ResetPasswordDialog } from "@/components/owner/ResetPasswordDialog";
 import { SuspendCafeteriaDialog } from "@/components/owner/SuspendCafeteriaDialog";
+import { FreePointsGrantsPanel } from "@/components/owner/FreePointsGrantsPanel";
+import { OwnerNotePanel } from "@/components/owner/OwnerNotePanel";
 
 export const Route = createFileRoute("/owner/cafeterias_/$ref")({ component: OwnerCafeteriaDetail });
 
@@ -25,6 +27,7 @@ interface C {
   points_balance: number; is_active: boolean; user_id: string | null; created_at: string;
   free_trial_until: string | null;
   is_suspended: boolean; suspension_reason: string | null;
+  owner_note: string | null;
 }
 
 function OwnerCafeteriaDetail() {
@@ -96,6 +99,10 @@ function OwnerCafeteriaDetail() {
         <Card className="p-4"><div className="text-xs text-muted-foreground">{t("owner.detail.tables")}</div><div className="text-2xl font-bold mt-1">{tablesCount}</div></Card>
         <Card className="p-4"><div className="text-xs text-muted-foreground">{t("common.status")}</div><div className="mt-2"><Badge variant={c.is_active ? "default" : "secondary"}>{c.is_active ? "Active" : "Inactive"}</Badge></div></Card>
       </div>
+
+      <OwnerNotePanel refCode={c.ref_code} initial={c.owner_note} />
+      <FreePointsGrantsPanel cafeteriaId={c.id} />
+
 
       <Card className="p-6 mb-6">
         <h2 className="text-lg font-semibold mb-3">Info</h2>

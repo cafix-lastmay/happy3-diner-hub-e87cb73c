@@ -189,6 +189,82 @@ export type Database = {
           },
         ]
       }
+      cafeteria_free_points_balance: {
+        Row: {
+          cafeteria_id: string
+          free_points: number
+          last_grant_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          cafeteria_id: string
+          free_points?: number
+          last_grant_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cafeteria_id?: string
+          free_points?: number
+          last_grant_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cafeteria_free_points_balance_cafeteria_id_fkey"
+            columns: ["cafeteria_id"]
+            isOneToOne: true
+            referencedRelation: "cafeterias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cafeteria_free_points_grants: {
+        Row: {
+          cafeteria_id: string
+          created_at: string
+          duration_months: number
+          end_date: string
+          id: string
+          is_active: boolean
+          monthly_points: number
+          note: string | null
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          cafeteria_id: string
+          created_at?: string
+          duration_months: number
+          end_date: string
+          id?: string
+          is_active?: boolean
+          monthly_points: number
+          note?: string | null
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          cafeteria_id?: string
+          created_at?: string
+          duration_months?: number
+          end_date?: string
+          id?: string
+          is_active?: boolean
+          monthly_points?: number
+          note?: string | null
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cafeteria_free_points_grants_cafeteria_id_fkey"
+            columns: ["cafeteria_id"]
+            isOneToOne: false
+            referencedRelation: "cafeterias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cafeteria_payment_info: {
         Row: {
           bank_details: string | null
@@ -287,6 +363,7 @@ export type Database = {
           mode_takeaway: boolean
           name: string
           opening_hours: Json
+          owner_note: string | null
           parent_ref_code: string
           phone: string | null
           points_balance: number
@@ -342,6 +419,7 @@ export type Database = {
           mode_takeaway?: boolean
           name: string
           opening_hours?: Json
+          owner_note?: string | null
           parent_ref_code: string
           phone?: string | null
           points_balance?: number
@@ -397,6 +475,7 @@ export type Database = {
           mode_takeaway?: boolean
           name?: string
           opening_hours?: Json
+          owner_note?: string | null
           parent_ref_code?: string
           phone?: string | null
           points_balance?: number
@@ -2661,6 +2740,7 @@ export type Database = {
         Args: { _attempted_roles?: string[]; _path: string }
         Returns: undefined
       }
+      monthly_free_points_grant: { Args: never; Returns: Json }
       order_has_chef_items: { Args: { _order_id: string }; Returns: boolean }
       order_requires_chef: { Args: { _order_id: string }; Returns: boolean }
       owner_adjust_cafeteria_points: {
@@ -2676,6 +2756,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      owner_cancel_free_points_grant: {
+        Args: { _grant_id: string }
+        Returns: undefined
+      }
       owner_delete_daily_cap: { Args: { _id: string }; Returns: undefined }
       owner_get_stats: { Args: never; Returns: Json }
       owner_grace_cafeterias: {
@@ -2688,6 +2772,16 @@ export type Database = {
           ref_code: string
           seconds_remaining: number
         }[]
+      }
+      owner_grant_free_points: {
+        Args: {
+          _cafeteria_id: string
+          _duration_months: number
+          _monthly_points: number
+          _note?: string
+          _start_date: string
+        }
+        Returns: string
       }
       owner_list_daily_caps: {
         Args: never

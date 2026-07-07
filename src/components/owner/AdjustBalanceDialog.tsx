@@ -1,5 +1,6 @@
 // Owner-only dialog: adjust marketer or cafeteria balance with delta + reason.
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { StickyNote } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,13 @@ export function AdjustBalanceDialog({ refCode, kind, trigger, onDone }: Props) {
   const [reason, setReason] = useState("");
   const [marketerKind, setMarketerKind] = useState<"available" | "frozen">("available");
   const [busy, setBusy] = useState(false);
+  const [ownerNote, setOwnerNote] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open || kind !== "cafeteria_points") { setOwnerNote(null); return; }
+    supabase.from("cafeterias").select("owner_note").eq("ref_code", refCode).maybeSingle()
+      .then(({ data }) => setOwnerNote((data as { owner_note: string | null } | null)?.owner_note ?? null));
+  }, [open, kind, refCode]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +62,15 @@ export function AdjustBalanceDialog({ refCode, kind, trigger, onDone }: Props) {
           <DialogTitle>{kind === "cafeteria_points" ? t("owner.actions.recharge_points") : t("owner.actions.adjust_balance")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
+          {ownerNote && (
+            <div className="rounded-md border border-amber-500/60 bg-amber-500/10 p-3 text-sm flex gap-2">
+              <StickyNote className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <div className="font-semibold text-amber-700 mb-1">ملاحظة المالك الخاصة</div>
+                <div className="whitespace-pre-wrap">{ownerNote}</div>
+              </div>
+            </div>
+          )}
           {kind === "marketer" && (
             <div className="space-y-2">
               <Label>{t("owner.balance.kind")}</Label>
