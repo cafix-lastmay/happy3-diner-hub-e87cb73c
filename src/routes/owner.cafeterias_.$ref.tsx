@@ -15,6 +15,8 @@ import { EditEntityDialog } from "@/components/owner/EditEntityDialog";
 import { AdjustBalanceDialog } from "@/components/owner/AdjustBalanceDialog";
 import { ResetPasswordDialog } from "@/components/owner/ResetPasswordDialog";
 import { SuspendCafeteriaDialog } from "@/components/owner/SuspendCafeteriaDialog";
+import { FreePointsGrantsPanel } from "@/components/owner/FreePointsGrantsPanel";
+import { OwnerNotePanel } from "@/components/owner/OwnerNotePanel";
 
 export const Route = createFileRoute("/owner/cafeterias_/$ref")({ component: OwnerCafeteriaDetail });
 
