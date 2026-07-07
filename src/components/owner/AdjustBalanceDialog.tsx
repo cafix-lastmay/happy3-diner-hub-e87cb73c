@@ -25,6 +25,13 @@ export function AdjustBalanceDialog({ refCode, kind, trigger, onDone }: Props) {
   const [reason, setReason] = useState("");
   const [marketerKind, setMarketerKind] = useState<"available" | "frozen">("available");
   const [busy, setBusy] = useState(false);
+  const [ownerNote, setOwnerNote] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open || kind !== "cafeteria_points") { setOwnerNote(null); return; }
+    supabase.from("cafeterias").select("owner_note").eq("ref_code", refCode).maybeSingle()
+      .then(({ data }) => setOwnerNote((data as { owner_note: string | null } | null)?.owner_note ?? null));
+  }, [open, kind, refCode]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
