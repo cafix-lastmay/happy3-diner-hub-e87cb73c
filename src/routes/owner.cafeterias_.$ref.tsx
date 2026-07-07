@@ -27,6 +27,7 @@ interface C {
   points_balance: number; is_active: boolean; user_id: string | null; created_at: string;
   free_trial_until: string | null;
   is_suspended: boolean; suspension_reason: string | null;
+  owner_note: string | null;
 }
 
 function OwnerCafeteriaDetail() {
