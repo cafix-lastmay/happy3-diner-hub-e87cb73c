@@ -100,6 +100,10 @@ function OwnerCafeteriaDetail() {
         <Card className="p-4"><div className="text-xs text-muted-foreground">{t("common.status")}</div><div className="mt-2"><Badge variant={c.is_active ? "default" : "secondary"}>{c.is_active ? "Active" : "Inactive"}</Badge></div></Card>
       </div>
 
+      <OwnerNotePanel refCode={c.ref_code} initial={c.owner_note} />
+      <FreePointsGrantsPanel cafeteriaId={c.id} />
+
+
       <Card className="p-6 mb-6">
         <h2 className="text-lg font-semibold mb-3">Info</h2>
         <dl className="grid gap-2 text-sm sm:grid-cols-2">
