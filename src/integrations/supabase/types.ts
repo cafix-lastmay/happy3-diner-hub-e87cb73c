@@ -2357,6 +2357,10 @@ export type Database = {
         Args: { _order_id: string; _reason?: string }
         Returns: undefined
       }
+      catchup_free_points_balances: {
+        Args: { _cafeteria_id?: string }
+        Returns: undefined
+      }
       check_and_record_signup_attempt: {
         Args: { _ip: string; _kind: string }
         Returns: undefined
@@ -2578,6 +2582,7 @@ export type Database = {
           short_code: string
         }[]
       }
+      get_my_free_points: { Args: never; Returns: number }
       get_my_manager_cafeteria_ref: { Args: never; Returns: string }
       get_my_marketer_cafeterias: {
         Args: never
