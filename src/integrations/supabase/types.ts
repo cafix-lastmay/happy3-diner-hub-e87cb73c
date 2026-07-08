@@ -2758,7 +2758,7 @@ export type Database = {
       }
       owner_cancel_free_points_grant: {
         Args: { _grant_id: string }
-        Returns: undefined
+        Returns: Json
       }
       owner_delete_daily_cap: { Args: { _id: string }; Returns: undefined }
       owner_get_stats: { Args: never; Returns: Json }
