@@ -32,11 +32,11 @@ export function TrialBalanceCard() {
         .then(async ({ data }) => {
           if (!data) return;
           setRow(data as Row);
-          const [{ data: gp }, { data: fb }] = await Promise.all([
+          const [{ data: gp }, { data: fp }] = await Promise.all([
             supabase.from("custom_grace_periods").select("start_date,days").eq("cafeteria_ref_code", data.ref_code),
-            supabase.from("cafeteria_free_points_balance" as never).select("free_points").eq("cafeteria_id", (data as { id: string }).id).maybeSingle(),
+            supabase.rpc("get_my_free_points" as never),
           ]);
-          setFreePoints(Number((fb as { free_points?: number } | null)?.free_points ?? 0));
+          setFreePoints(Number((fp as number | null) ?? 0));
           const ends = (gp ?? []).map((g) => new Date(new Date(g.start_date).getTime() + g.days * 86400000));
           setHasCustomGrace(ends.length > 0);
           const latest = ends.sort((a, b) => b.getTime() - a.getTime())[0];
