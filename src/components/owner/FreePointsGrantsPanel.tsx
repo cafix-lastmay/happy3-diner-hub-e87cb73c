@@ -93,13 +93,16 @@ export function FreePointsGrantsPanel({ cafeteriaId }: { cafeteriaId: string }) 
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 15000);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .rpc("owner_cancel_free_points_grant" as never, { _grant_id: id } as never)
         .abortSignal(controller.signal);
       if (error) throw error;
+      if ((data as { ok?: boolean; reason?: string } | null)?.ok === false) {
+        throw new Error("لم يتم العثور على المنحة");
+      }
       toast.success("تم الإلغاء");
       setCancelTarget(null);
-      await load();
+      void load();
     } catch (err) {
       toast.error((err as Error).name === "AbortError" ? "انتهت مهلة إلغاء المنحة، حاول مرة أخرى." : (err as Error).message || "تعذر إلغاء المنحة");
     } finally {
