@@ -90,15 +90,20 @@ export function FreePointsGrantsPanel({ cafeteriaId }: { cafeteriaId: string }) 
 
   const cancel = async (id: string) => {
     setCancelBusy(true);
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
     try {
-      const { error } = await supabase.rpc("owner_cancel_free_points_grant" as never, { _grant_id: id } as never);
+      const { error } = await supabase
+        .rpc("owner_cancel_free_points_grant" as never, { _grant_id: id } as never)
+        .abortSignal(controller.signal);
       if (error) throw error;
       toast.success("تم الإلغاء");
       setCancelTarget(null);
       await load();
     } catch (err) {
-      toast.error((err as Error).message || "تعذر إلغاء المنحة");
+      toast.error((err as Error).name === "AbortError" ? "انتهت مهلة إلغاء المنحة، حاول مرة أخرى." : (err as Error).message || "تعذر إلغاء المنحة");
     } finally {
+      window.clearTimeout(timeoutId);
       setCancelBusy(false);
     }
   };
