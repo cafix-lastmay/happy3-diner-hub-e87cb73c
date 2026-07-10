@@ -8,6 +8,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -42,6 +52,8 @@ export function FreePointsGrantsPanel({ cafeteriaId }: { cafeteriaId: string }) 
   const [startDate, setStartDate] = useState(firstOfNextMonth());
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
+  const [cancelTarget, setCancelTarget] = useState<Grant | null>(null);
+  const [cancelBusy, setCancelBusy] = useState(false);
 
   const load = useCallback(async () => {
     const [{ data: g }, { data: b }] = await Promise.all([
@@ -77,11 +89,18 @@ export function FreePointsGrantsPanel({ cafeteriaId }: { cafeteriaId: string }) 
   };
 
   const cancel = async (id: string) => {
-    if (!confirm("إلغاء هذه المنحة؟")) return;
-    const { error } = await supabase.rpc("owner_cancel_free_points_grant" as never, { _grant_id: id } as never);
-    if (error) { toast.error(error.message); return; }
-    toast.success("تم الإلغاء");
-    load();
+    setCancelBusy(true);
+    try {
+      const { error } = await supabase.rpc("owner_cancel_free_points_grant" as never, { _grant_id: id } as never);
+      if (error) throw error;
+      toast.success("تم الإلغاء");
+      setCancelTarget(null);
+      await load();
+    } catch (err) {
+      toast.error((err as Error).message || "تعذر إلغاء المنحة");
+    } finally {
+      setCancelBusy(false);
+    }
   };
 
   return (
@@ -161,8 +180,8 @@ export function FreePointsGrantsPanel({ cafeteriaId }: { cafeteriaId: string }) 
                   </td>
                   <td className="p-2">
                     {g.is_active && (
-                      <Button size="sm" variant="outline" className="gap-1" onClick={() => cancel(g.id)}>
-                        <Ban className="h-3 w-3" /> إلغاء
+                      <Button size="sm" variant="outline" className="gap-1" disabled={cancelBusy} onClick={() => setCancelTarget(g)}>
+                        <Ban className="h-3 w-3" /> {cancelBusy && cancelTarget?.id === g.id ? "جارٍ الإلغاء..." : "إلغاء"}
                       </Button>
                     )}
                   </td>
@@ -172,6 +191,29 @@ export function FreePointsGrantsPanel({ cafeteriaId }: { cafeteriaId: string }) 
           </table>
         </div>
       )}
+
+      <AlertDialog open={!!cancelTarget} onOpenChange={(next) => !cancelBusy && !next && setCancelTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>إلغاء المنحة المجانية؟</AlertDialogTitle>
+            <AlertDialogDescription>
+              سيتم إيقاف هذه المنحة فوراً، وإذا لم توجد منحة نشطة أخرى لهذا الكافيه سيتم تصفير الرصيد المجاني الحالي.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={cancelBusy}>تراجع</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={cancelBusy || !cancelTarget}
+              onClick={(e) => {
+                e.preventDefault();
+                if (cancelTarget) void cancel(cancelTarget.id);
+              }}
+            >
+              {cancelBusy ? "جارٍ الإلغاء..." : "تأكيد الإلغاء"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
