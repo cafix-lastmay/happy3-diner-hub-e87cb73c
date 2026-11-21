@@ -137,7 +137,7 @@ function MarketerDashboard() {
                 <td className="p-3">{c.name}</td>
                 <td className="p-3 capitalize">{c.type}</td>
                 <td className="p-3 text-end">
-                  <Link to="/marketer/children_/$ref" params={{ ref: c.ref_code }}>
+                  <Link to="/marketer/children/$ref" params={{ ref: c.ref_code }}>
                     <Button variant="ghost" size="sm" className="gap-1"><ChevronLeft className="h-4 w-4 rtl:rotate-180" />{t("common.details") || "تفاصيل"}</Button>
                   </Link>
                 </td>
