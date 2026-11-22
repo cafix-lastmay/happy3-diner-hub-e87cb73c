@@ -26,12 +26,18 @@ function MarketerChildDetail() {
   useEffect(() => {
     if (!ready) return;
     (async () => {
-      const [{ data: m }, { data: c }] = await Promise.all([
+      const [{ data: m }, { data: c }, { data: descendants }, { data: cafeterias }] = await Promise.all([
         supabase.from("marketers").select("name,is_active,created_at").eq("ref_code", ref).maybeSingle(),
         supabase.from("cafeterias").select("name,is_active,created_at").eq("ref_code", ref).maybeSingle(),
+        supabase.rpc("get_my_marketer_descendants"),
+        supabase.rpc("get_my_marketer_cafeterias"),
       ]);
-      if (m) setInfo({ name: m.name, type: "marketer", is_active: m.is_active, created_at: m.created_at });
-      else if (c) setInfo({ name: c.name, type: "cafeteria", is_active: c.is_active, created_at: c.created_at });
+      const marketer = (descendants ?? []).find((child) => child.ref_code === ref);
+      const cafeteria = (cafeterias ?? []).find((child) => child.ref_code === ref);
+      if (m) setInfo({ name: m.name || marketer?.name || "", type: "marketer", is_active: m.is_active, created_at: m.created_at });
+      else if (c) setInfo({ name: c.name || cafeteria?.name || "", type: "cafeteria", is_active: c.is_active, created_at: c.created_at });
+      else if (marketer) setInfo({ name: marketer.name, type: "marketer" });
+      else if (cafeteria) setInfo({ name: cafeteria.name, type: "cafeteria" });
 
       const { data } = await supabase.from("commission_transactions")
         .select("id,amount_usd,status,created_at,level_distance")
