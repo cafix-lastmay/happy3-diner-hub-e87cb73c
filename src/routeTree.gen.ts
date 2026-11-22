@@ -9,103 +9,78 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WaiterRouteImport } from './routes/waiter'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as SellerRouteImport } from './routes/seller'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as NotificationsRouteImport } from './routes/notifications'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as ChefRouteImport } from './routes/chef'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as OwnerIndexRouteImport } from './routes/owner.index'
-import { Route as MarketerIndexRouteImport } from './routes/marketer.index'
-import { Route as ManagerIndexRouteImport } from './routes/manager.index'
-import { Route as DriverIndexRouteImport } from './routes/driver.index'
+import { Route as ChefRouteImport } from './routes/chef'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as SellerRouteImport } from './routes/seller'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as WaiterRouteImport } from './routes/waiter'
 import { Route as CafeteriaIndexRouteImport } from './routes/cafeteria.index'
-import { Route as TQrTokenRouteImport } from './routes/t.$qrToken'
-import { Route as StaffTablesRouteImport } from './routes/staff.tables'
-import { Route as StaffOrdersRouteImport } from './routes/staff.orders'
-import { Route as StaffHistoryRouteImport } from './routes/staff.history'
-import { Route as SignupMarketerRouteImport } from './routes/signup.marketer'
-import { Route as SignupDriverRouteImport } from './routes/signup.driver'
-import { Route as SignupCafeteriaRouteImport } from './routes/signup.cafeteria'
-import { Route as SettingsNotificationsRouteImport } from './routes/settings.notifications'
-import { Route as SettingsAccountRouteImport } from './routes/settings.account'
-import { Route as PickupCafeRefRouteImport } from './routes/pickup.$cafeRef'
-import { Route as OwnerWithdrawalsRouteImport } from './routes/owner.withdrawals'
-import { Route as OwnerSettingsRouteImport } from './routes/owner.settings'
-import { Route as OwnerReportsRouteImport } from './routes/owner.reports'
-import { Route as OwnerRechargesRouteImport } from './routes/owner.recharges'
-import { Route as OwnerRecharge_instructionsRouteImport } from './routes/owner.recharge_instructions'
-import { Route as OwnerPoints_capsRouteImport } from './routes/owner.points_caps'
-import { Route as OwnerMarketersRouteImport } from './routes/owner.marketers'
-import { Route as OwnerGrace_periodsRouteImport } from './routes/owner.grace_periods'
-import { Route as OwnerFeedbackRouteImport } from './routes/owner.feedback'
-import { Route as OwnerExchange_ratesRouteImport } from './routes/owner.exchange_rates'
-import { Route as OwnerCountriesRouteImport } from './routes/owner.countries'
-import { Route as OwnerCommissionsRouteImport } from './routes/owner.commissions'
-import { Route as OwnerCalculatorRouteImport } from './routes/owner.calculator'
-import { Route as OwnerCafeteriasRouteImport } from './routes/owner.cafeterias'
-import { Route as MarketerWithdrawalsRouteImport } from './routes/marketer.withdrawals'
-import { Route as MarketerReportsRouteImport } from './routes/marketer.reports'
-import { Route as MarketerCommissionsRouteImport } from './routes/marketer.commissions'
-import { Route as MarketerCalculatorRouteImport } from './routes/marketer.calculator'
-import { Route as ManagerTablesRouteImport } from './routes/manager.tables'
-import { Route as ManagerStaffRouteImport } from './routes/manager.staff'
-import { Route as ManagerSettingsRouteImport } from './routes/manager.settings'
-import { Route as ManagerReportsRouteImport } from './routes/manager.reports'
-import { Route as ManagerRechargeRouteImport } from './routes/manager.recharge'
-import { Route as ManagerPricingRouteImport } from './routes/manager.pricing'
-import { Route as ManagerMenuRouteImport } from './routes/manager.menu'
-import { Route as ManagerHistoryRouteImport } from './routes/manager.history'
-import { Route as MQrTokenRouteImport } from './routes/m.$qrToken'
-import { Route as CafeteriaTablesRouteImport } from './routes/cafeteria.tables'
-import { Route as CafeteriaStaffRouteImport } from './routes/cafeteria.staff'
-import { Route as CafeteriaShiftsRouteImport } from './routes/cafeteria.shifts'
-import { Route as CafeteriaSettingsRouteImport } from './routes/cafeteria.settings'
-import { Route as CafeteriaReportsRouteImport } from './routes/cafeteria.reports'
-import { Route as CafeteriaRechargeRouteImport } from './routes/cafeteria.recharge'
-import { Route as CafeteriaPricingRouteImport } from './routes/cafeteria.pricing'
-import { Route as CafeteriaOrdersRouteImport } from './routes/cafeteria.orders'
-import { Route as CafeteriaMenuRouteImport } from './routes/cafeteria.menu'
 import { Route as CafeteriaHistoryRouteImport } from './routes/cafeteria.history'
-import { Route as OwnerRechargesIdRouteImport } from './routes/owner.recharges.$id'
-import { Route as OwnerMarketersRefRouteImport } from './routes/owner.marketers_.$ref'
-import { Route as OwnerCafeteriasRefRouteImport } from './routes/owner.cafeterias_.$ref'
-import { Route as MarketerChildrenRefRouteImport } from './routes/marketer.children_.$ref'
-import { Route as MTakeawayTokenRouteImport } from './routes/m.takeaway.$token'
-import { Route as MOrderIdRouteImport } from './routes/m.order.$id'
-import { Route as MMyOrdersRefRouteImport } from './routes/m.my-orders.$ref'
+import { Route as CafeteriaMenuRouteImport } from './routes/cafeteria.menu'
+import { Route as CafeteriaOrdersRouteImport } from './routes/cafeteria.orders'
+import { Route as CafeteriaPricingRouteImport } from './routes/cafeteria.pricing'
+import { Route as CafeteriaRechargeRouteImport } from './routes/cafeteria.recharge'
+import { Route as CafeteriaReportsRouteImport } from './routes/cafeteria.reports'
+import { Route as CafeteriaSettingsRouteImport } from './routes/cafeteria.settings'
+import { Route as CafeteriaShiftsRouteImport } from './routes/cafeteria.shifts'
+import { Route as CafeteriaStaffRouteImport } from './routes/cafeteria.staff'
+import { Route as CafeteriaTablesRouteImport } from './routes/cafeteria.tables'
+import { Route as DriverIndexRouteImport } from './routes/driver.index'
+import { Route as MQrTokenRouteImport } from './routes/m.$qrToken'
+import { Route as ManagerIndexRouteImport } from './routes/manager.index'
+import { Route as ManagerHistoryRouteImport } from './routes/manager.history'
+import { Route as ManagerMenuRouteImport } from './routes/manager.menu'
+import { Route as ManagerPricingRouteImport } from './routes/manager.pricing'
+import { Route as ManagerRechargeRouteImport } from './routes/manager.recharge'
+import { Route as ManagerReportsRouteImport } from './routes/manager.reports'
+import { Route as ManagerSettingsRouteImport } from './routes/manager.settings'
+import { Route as ManagerStaffRouteImport } from './routes/manager.staff'
+import { Route as ManagerTablesRouteImport } from './routes/manager.tables'
+import { Route as MarketerIndexRouteImport } from './routes/marketer.index'
+import { Route as MarketerCalculatorRouteImport } from './routes/marketer.calculator'
+import { Route as MarketerCommissionsRouteImport } from './routes/marketer.commissions'
+import { Route as MarketerReportsRouteImport } from './routes/marketer.reports'
+import { Route as MarketerWithdrawalsRouteImport } from './routes/marketer.withdrawals'
+import { Route as OwnerIndexRouteImport } from './routes/owner.index'
+import { Route as OwnerCafeteriasRouteImport } from './routes/owner.cafeterias'
+import { Route as OwnerCalculatorRouteImport } from './routes/owner.calculator'
+import { Route as OwnerCommissionsRouteImport } from './routes/owner.commissions'
+import { Route as OwnerCountriesRouteImport } from './routes/owner.countries'
+import { Route as OwnerExchange_ratesRouteImport } from './routes/owner.exchange_rates'
+import { Route as OwnerFeedbackRouteImport } from './routes/owner.feedback'
+import { Route as OwnerGrace_periodsRouteImport } from './routes/owner.grace_periods'
+import { Route as OwnerMarketersRouteImport } from './routes/owner.marketers'
+import { Route as OwnerPoints_capsRouteImport } from './routes/owner.points_caps'
+import { Route as OwnerRecharge_instructionsRouteImport } from './routes/owner.recharge_instructions'
+import { Route as OwnerRechargesRouteImport } from './routes/owner.recharges'
+import { Route as OwnerReportsRouteImport } from './routes/owner.reports'
+import { Route as OwnerSettingsRouteImport } from './routes/owner.settings'
+import { Route as OwnerWithdrawalsRouteImport } from './routes/owner.withdrawals'
+import { Route as PickupCafeRefRouteImport } from './routes/pickup.$cafeRef'
+import { Route as SettingsAccountRouteImport } from './routes/settings.account'
+import { Route as SettingsNotificationsRouteImport } from './routes/settings.notifications'
+import { Route as SignupCafeteriaRouteImport } from './routes/signup.cafeteria'
+import { Route as SignupDriverRouteImport } from './routes/signup.driver'
+import { Route as SignupMarketerRouteImport } from './routes/signup.marketer'
+import { Route as StaffHistoryRouteImport } from './routes/staff.history'
+import { Route as StaffOrdersRouteImport } from './routes/staff.orders'
+import { Route as StaffTablesRouteImport } from './routes/staff.tables'
+import { Route as TQrTokenRouteImport } from './routes/t.$qrToken'
 import { Route as MDeliveryTokenRouteImport } from './routes/m.delivery.$token'
+import { Route as MMyOrdersRefRouteImport } from './routes/m.my-orders.$ref'
+import { Route as MOrderIdRouteImport } from './routes/m.order.$id'
+import { Route as MTakeawayTokenRouteImport } from './routes/m.takeaway.$token'
+import { Route as MarketerChildrenRefRouteImport } from './routes/marketer.children_.$ref'
+import { Route as OwnerCafeteriasRefRouteImport } from './routes/owner.cafeterias_.$ref'
+import { Route as OwnerMarketersRefRouteImport } from './routes/owner.marketers_.$ref'
+import { Route as OwnerRechargesIdRouteImport } from './routes/owner.recharges.$id'
 
-const WaiterRoute = WaiterRouteImport.update({
-  id: '/waiter',
-  path: '/waiter',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerRoute = SellerRouteImport.update({
-  id: '/seller',
-  path: '/seller',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NotificationsRoute = NotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChefRoute = ChefRouteImport.update({
@@ -113,29 +88,34 @@ const ChefRoute = ChefRouteImport.update({
   path: '/chef',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OwnerIndexRoute = OwnerIndexRouteImport.update({
-  id: '/owner/',
-  path: '/owner/',
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MarketerIndexRoute = MarketerIndexRouteImport.update({
-  id: '/marketer/',
-  path: '/marketer/',
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ManagerIndexRoute = ManagerIndexRouteImport.update({
-  id: '/manager/',
-  path: '/manager/',
+const SellerRoute = SellerRouteImport.update({
+  id: '/seller',
+  path: '/seller',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DriverIndexRoute = DriverIndexRouteImport.update({
-  id: '/driver/',
-  path: '/driver/',
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WaiterRoute = WaiterRouteImport.update({
+  id: '/waiter',
+  path: '/waiter',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CafeteriaIndexRoute = CafeteriaIndexRouteImport.update({
@@ -143,74 +123,184 @@ const CafeteriaIndexRoute = CafeteriaIndexRouteImport.update({
   path: '/cafeteria/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TQrTokenRoute = TQrTokenRouteImport.update({
-  id: '/t/$qrToken',
-  path: '/t/$qrToken',
+const CafeteriaHistoryRoute = CafeteriaHistoryRouteImport.update({
+  id: '/cafeteria/history',
+  path: '/cafeteria/history',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StaffTablesRoute = StaffTablesRouteImport.update({
-  id: '/staff/tables',
-  path: '/staff/tables',
+const CafeteriaMenuRoute = CafeteriaMenuRouteImport.update({
+  id: '/cafeteria/menu',
+  path: '/cafeteria/menu',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StaffOrdersRoute = StaffOrdersRouteImport.update({
-  id: '/staff/orders',
-  path: '/staff/orders',
+const CafeteriaOrdersRoute = CafeteriaOrdersRouteImport.update({
+  id: '/cafeteria/orders',
+  path: '/cafeteria/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StaffHistoryRoute = StaffHistoryRouteImport.update({
-  id: '/staff/history',
-  path: '/staff/history',
+const CafeteriaPricingRoute = CafeteriaPricingRouteImport.update({
+  id: '/cafeteria/pricing',
+  path: '/cafeteria/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SignupMarketerRoute = SignupMarketerRouteImport.update({
-  id: '/signup/marketer',
-  path: '/signup/marketer',
+const CafeteriaRechargeRoute = CafeteriaRechargeRouteImport.update({
+  id: '/cafeteria/recharge',
+  path: '/cafeteria/recharge',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SignupDriverRoute = SignupDriverRouteImport.update({
-  id: '/signup/driver',
-  path: '/signup/driver',
+const CafeteriaReportsRoute = CafeteriaReportsRouteImport.update({
+  id: '/cafeteria/reports',
+  path: '/cafeteria/reports',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SignupCafeteriaRoute = SignupCafeteriaRouteImport.update({
-  id: '/signup/cafeteria',
-  path: '/signup/cafeteria',
+const CafeteriaSettingsRoute = CafeteriaSettingsRouteImport.update({
+  id: '/cafeteria/settings',
+  path: '/cafeteria/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
-  id: '/settings/notifications',
-  path: '/settings/notifications',
+const CafeteriaShiftsRoute = CafeteriaShiftsRouteImport.update({
+  id: '/cafeteria/shifts',
+  path: '/cafeteria/shifts',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsAccountRoute = SettingsAccountRouteImport.update({
-  id: '/settings/account',
-  path: '/settings/account',
+const CafeteriaStaffRoute = CafeteriaStaffRouteImport.update({
+  id: '/cafeteria/staff',
+  path: '/cafeteria/staff',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PickupCafeRefRoute = PickupCafeRefRouteImport.update({
-  id: '/pickup/$cafeRef',
-  path: '/pickup/$cafeRef',
+const CafeteriaTablesRoute = CafeteriaTablesRouteImport.update({
+  id: '/cafeteria/tables',
+  path: '/cafeteria/tables',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OwnerWithdrawalsRoute = OwnerWithdrawalsRouteImport.update({
-  id: '/owner/withdrawals',
-  path: '/owner/withdrawals',
+const DriverIndexRoute = DriverIndexRouteImport.update({
+  id: '/driver/',
+  path: '/driver/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OwnerSettingsRoute = OwnerSettingsRouteImport.update({
-  id: '/owner/settings',
-  path: '/owner/settings',
+const MQrTokenRoute = MQrTokenRouteImport.update({
+  id: '/m/$qrToken',
+  path: '/m/$qrToken',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OwnerReportsRoute = OwnerReportsRouteImport.update({
-  id: '/owner/reports',
-  path: '/owner/reports',
+const ManagerIndexRoute = ManagerIndexRouteImport.update({
+  id: '/manager/',
+  path: '/manager/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OwnerRechargesRoute = OwnerRechargesRouteImport.update({
-  id: '/owner/recharges',
-  path: '/owner/recharges',
+const ManagerHistoryRoute = ManagerHistoryRouteImport.update({
+  id: '/manager/history',
+  path: '/manager/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerMenuRoute = ManagerMenuRouteImport.update({
+  id: '/manager/menu',
+  path: '/manager/menu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerPricingRoute = ManagerPricingRouteImport.update({
+  id: '/manager/pricing',
+  path: '/manager/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerRechargeRoute = ManagerRechargeRouteImport.update({
+  id: '/manager/recharge',
+  path: '/manager/recharge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerReportsRoute = ManagerReportsRouteImport.update({
+  id: '/manager/reports',
+  path: '/manager/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerSettingsRoute = ManagerSettingsRouteImport.update({
+  id: '/manager/settings',
+  path: '/manager/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerStaffRoute = ManagerStaffRouteImport.update({
+  id: '/manager/staff',
+  path: '/manager/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerTablesRoute = ManagerTablesRouteImport.update({
+  id: '/manager/tables',
+  path: '/manager/tables',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketerIndexRoute = MarketerIndexRouteImport.update({
+  id: '/marketer/',
+  path: '/marketer/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketerCalculatorRoute = MarketerCalculatorRouteImport.update({
+  id: '/marketer/calculator',
+  path: '/marketer/calculator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketerCommissionsRoute = MarketerCommissionsRouteImport.update({
+  id: '/marketer/commissions',
+  path: '/marketer/commissions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketerReportsRoute = MarketerReportsRouteImport.update({
+  id: '/marketer/reports',
+  path: '/marketer/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketerWithdrawalsRoute = MarketerWithdrawalsRouteImport.update({
+  id: '/marketer/withdrawals',
+  path: '/marketer/withdrawals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerIndexRoute = OwnerIndexRouteImport.update({
+  id: '/owner/',
+  path: '/owner/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerCafeteriasRoute = OwnerCafeteriasRouteImport.update({
+  id: '/owner/cafeterias',
+  path: '/owner/cafeterias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerCalculatorRoute = OwnerCalculatorRouteImport.update({
+  id: '/owner/calculator',
+  path: '/owner/calculator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerCommissionsRoute = OwnerCommissionsRouteImport.update({
+  id: '/owner/commissions',
+  path: '/owner/commissions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerCountriesRoute = OwnerCountriesRouteImport.update({
+  id: '/owner/countries',
+  path: '/owner/countries',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerExchange_ratesRoute = OwnerExchange_ratesRouteImport.update({
+  id: '/owner/exchange_rates',
+  path: '/owner/exchange_rates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerFeedbackRoute = OwnerFeedbackRouteImport.update({
+  id: '/owner/feedback',
+  path: '/owner/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerGrace_periodsRoute = OwnerGrace_periodsRouteImport.update({
+  id: '/owner/grace_periods',
+  path: '/owner/grace_periods',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerMarketersRoute = OwnerMarketersRouteImport.update({
+  id: '/owner/marketers',
+  path: '/owner/marketers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerPoints_capsRoute = OwnerPoints_capsRouteImport.update({
+  id: '/owner/points_caps',
+  path: '/owner/points_caps',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OwnerRecharge_instructionsRoute =
@@ -219,194 +309,79 @@ const OwnerRecharge_instructionsRoute =
     path: '/owner/recharge_instructions',
     getParentRoute: () => rootRouteImport,
   } as any)
-const OwnerPoints_capsRoute = OwnerPoints_capsRouteImport.update({
-  id: '/owner/points_caps',
-  path: '/owner/points_caps',
+const OwnerRechargesRoute = OwnerRechargesRouteImport.update({
+  id: '/owner/recharges',
+  path: '/owner/recharges',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OwnerMarketersRoute = OwnerMarketersRouteImport.update({
-  id: '/owner/marketers',
-  path: '/owner/marketers',
+const OwnerReportsRoute = OwnerReportsRouteImport.update({
+  id: '/owner/reports',
+  path: '/owner/reports',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OwnerGrace_periodsRoute = OwnerGrace_periodsRouteImport.update({
-  id: '/owner/grace_periods',
-  path: '/owner/grace_periods',
+const OwnerSettingsRoute = OwnerSettingsRouteImport.update({
+  id: '/owner/settings',
+  path: '/owner/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OwnerFeedbackRoute = OwnerFeedbackRouteImport.update({
-  id: '/owner/feedback',
-  path: '/owner/feedback',
+const OwnerWithdrawalsRoute = OwnerWithdrawalsRouteImport.update({
+  id: '/owner/withdrawals',
+  path: '/owner/withdrawals',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OwnerExchange_ratesRoute = OwnerExchange_ratesRouteImport.update({
-  id: '/owner/exchange_rates',
-  path: '/owner/exchange_rates',
+const PickupCafeRefRoute = PickupCafeRefRouteImport.update({
+  id: '/pickup/$cafeRef',
+  path: '/pickup/$cafeRef',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OwnerCountriesRoute = OwnerCountriesRouteImport.update({
-  id: '/owner/countries',
-  path: '/owner/countries',
+const SettingsAccountRoute = SettingsAccountRouteImport.update({
+  id: '/settings/account',
+  path: '/settings/account',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OwnerCommissionsRoute = OwnerCommissionsRouteImport.update({
-  id: '/owner/commissions',
-  path: '/owner/commissions',
+const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
+  id: '/settings/notifications',
+  path: '/settings/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OwnerCalculatorRoute = OwnerCalculatorRouteImport.update({
-  id: '/owner/calculator',
-  path: '/owner/calculator',
+const SignupCafeteriaRoute = SignupCafeteriaRouteImport.update({
+  id: '/signup/cafeteria',
+  path: '/signup/cafeteria',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OwnerCafeteriasRoute = OwnerCafeteriasRouteImport.update({
-  id: '/owner/cafeterias',
-  path: '/owner/cafeterias',
+const SignupDriverRoute = SignupDriverRouteImport.update({
+  id: '/signup/driver',
+  path: '/signup/driver',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MarketerWithdrawalsRoute = MarketerWithdrawalsRouteImport.update({
-  id: '/marketer/withdrawals',
-  path: '/marketer/withdrawals',
+const SignupMarketerRoute = SignupMarketerRouteImport.update({
+  id: '/signup/marketer',
+  path: '/signup/marketer',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MarketerReportsRoute = MarketerReportsRouteImport.update({
-  id: '/marketer/reports',
-  path: '/marketer/reports',
+const StaffHistoryRoute = StaffHistoryRouteImport.update({
+  id: '/staff/history',
+  path: '/staff/history',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MarketerCommissionsRoute = MarketerCommissionsRouteImport.update({
-  id: '/marketer/commissions',
-  path: '/marketer/commissions',
+const StaffOrdersRoute = StaffOrdersRouteImport.update({
+  id: '/staff/orders',
+  path: '/staff/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MarketerCalculatorRoute = MarketerCalculatorRouteImport.update({
-  id: '/marketer/calculator',
-  path: '/marketer/calculator',
+const StaffTablesRoute = StaffTablesRouteImport.update({
+  id: '/staff/tables',
+  path: '/staff/tables',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ManagerTablesRoute = ManagerTablesRouteImport.update({
-  id: '/manager/tables',
-  path: '/manager/tables',
+const TQrTokenRoute = TQrTokenRouteImport.update({
+  id: '/t/$qrToken',
+  path: '/t/$qrToken',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ManagerStaffRoute = ManagerStaffRouteImport.update({
-  id: '/manager/staff',
-  path: '/manager/staff',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ManagerSettingsRoute = ManagerSettingsRouteImport.update({
-  id: '/manager/settings',
-  path: '/manager/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ManagerReportsRoute = ManagerReportsRouteImport.update({
-  id: '/manager/reports',
-  path: '/manager/reports',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ManagerRechargeRoute = ManagerRechargeRouteImport.update({
-  id: '/manager/recharge',
-  path: '/manager/recharge',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ManagerPricingRoute = ManagerPricingRouteImport.update({
-  id: '/manager/pricing',
-  path: '/manager/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ManagerMenuRoute = ManagerMenuRouteImport.update({
-  id: '/manager/menu',
-  path: '/manager/menu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ManagerHistoryRoute = ManagerHistoryRouteImport.update({
-  id: '/manager/history',
-  path: '/manager/history',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MQrTokenRoute = MQrTokenRouteImport.update({
-  id: '/m/$qrToken',
-  path: '/m/$qrToken',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CafeteriaTablesRoute = CafeteriaTablesRouteImport.update({
-  id: '/cafeteria/tables',
-  path: '/cafeteria/tables',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CafeteriaStaffRoute = CafeteriaStaffRouteImport.update({
-  id: '/cafeteria/staff',
-  path: '/cafeteria/staff',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CafeteriaShiftsRoute = CafeteriaShiftsRouteImport.update({
-  id: '/cafeteria/shifts',
-  path: '/cafeteria/shifts',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CafeteriaSettingsRoute = CafeteriaSettingsRouteImport.update({
-  id: '/cafeteria/settings',
-  path: '/cafeteria/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CafeteriaReportsRoute = CafeteriaReportsRouteImport.update({
-  id: '/cafeteria/reports',
-  path: '/cafeteria/reports',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CafeteriaRechargeRoute = CafeteriaRechargeRouteImport.update({
-  id: '/cafeteria/recharge',
-  path: '/cafeteria/recharge',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CafeteriaPricingRoute = CafeteriaPricingRouteImport.update({
-  id: '/cafeteria/pricing',
-  path: '/cafeteria/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CafeteriaOrdersRoute = CafeteriaOrdersRouteImport.update({
-  id: '/cafeteria/orders',
-  path: '/cafeteria/orders',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CafeteriaMenuRoute = CafeteriaMenuRouteImport.update({
-  id: '/cafeteria/menu',
-  path: '/cafeteria/menu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CafeteriaHistoryRoute = CafeteriaHistoryRouteImport.update({
-  id: '/cafeteria/history',
-  path: '/cafeteria/history',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OwnerRechargesIdRoute = OwnerRechargesIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => OwnerRechargesRoute,
-} as any)
-const OwnerMarketersRefRoute = OwnerMarketersRefRouteImport.update({
-  id: '/owner/marketers_/$ref',
-  path: '/owner/marketers/$ref',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OwnerCafeteriasRefRoute = OwnerCafeteriasRefRouteImport.update({
-  id: '/owner/cafeterias_/$ref',
-  path: '/owner/cafeterias/$ref',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketerChildrenRefRoute = MarketerChildrenRefRouteImport.update({
-  id: '/marketer/children_/$ref',
-  path: '/marketer/children/$ref',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MTakeawayTokenRoute = MTakeawayTokenRouteImport.update({
-  id: '/m/takeaway/$token',
-  path: '/m/takeaway/$token',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MOrderIdRoute = MOrderIdRouteImport.update({
-  id: '/m/order/$id',
-  path: '/m/order/$id',
+const MDeliveryTokenRoute = MDeliveryTokenRouteImport.update({
+  id: '/m/delivery/$token',
+  path: '/m/delivery/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MMyOrdersRefRoute = MMyOrdersRefRouteImport.update({
@@ -414,10 +389,35 @@ const MMyOrdersRefRoute = MMyOrdersRefRouteImport.update({
   path: '/m/my-orders/$ref',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MDeliveryTokenRoute = MDeliveryTokenRouteImport.update({
-  id: '/m/delivery/$token',
-  path: '/m/delivery/$token',
+const MOrderIdRoute = MOrderIdRouteImport.update({
+  id: '/m/order/$id',
+  path: '/m/order/$id',
   getParentRoute: () => rootRouteImport,
+} as any)
+const MTakeawayTokenRoute = MTakeawayTokenRouteImport.update({
+  id: '/m/takeaway/$token',
+  path: '/m/takeaway/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketerChildrenRefRoute = MarketerChildrenRefRouteImport.update({
+  id: '/marketer/children_/$ref',
+  path: '/marketer/children/$ref',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerCafeteriasRefRoute = OwnerCafeteriasRefRouteImport.update({
+  id: '/owner/cafeterias_/$ref',
+  path: '/owner/cafeterias/$ref',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerMarketersRefRoute = OwnerMarketersRefRouteImport.update({
+  id: '/owner/marketers_/$ref',
+  path: '/owner/marketers/$ref',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerRechargesIdRoute = OwnerRechargesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => OwnerRechargesRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -916,46 +916,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/waiter': {
-      id: '/waiter'
-      path: '/waiter'
-      fullPath: '/waiter'
-      preLoaderRoute: typeof WaiterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller': {
-      id: '/seller'
-      path: '/seller'
-      fullPath: '/seller'
-      preLoaderRoute: typeof SellerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/notifications': {
-      id: '/notifications'
-      path: '/notifications'
-      fullPath: '/notifications'
-      preLoaderRoute: typeof NotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chef': {
@@ -965,39 +930,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChefRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/owner/': {
-      id: '/owner/'
-      path: '/owner'
-      fullPath: '/owner/'
-      preLoaderRoute: typeof OwnerIndexRouteImport
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/marketer/': {
-      id: '/marketer/'
-      path: '/marketer'
-      fullPath: '/marketer/'
-      preLoaderRoute: typeof MarketerIndexRouteImport
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/manager/': {
-      id: '/manager/'
-      path: '/manager'
-      fullPath: '/manager/'
-      preLoaderRoute: typeof ManagerIndexRouteImport
+    '/seller': {
+      id: '/seller'
+      path: '/seller'
+      fullPath: '/seller'
+      preLoaderRoute: typeof SellerRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/driver/': {
-      id: '/driver/'
-      path: '/driver'
-      fullPath: '/driver/'
-      preLoaderRoute: typeof DriverIndexRouteImport
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/waiter': {
+      id: '/waiter'
+      path: '/waiter'
+      fullPath: '/waiter'
+      preLoaderRoute: typeof WaiterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cafeteria/': {
@@ -1007,319 +979,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CafeteriaIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/t/$qrToken': {
-      id: '/t/$qrToken'
-      path: '/t/$qrToken'
-      fullPath: '/t/$qrToken'
-      preLoaderRoute: typeof TQrTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/staff/tables': {
-      id: '/staff/tables'
-      path: '/staff/tables'
-      fullPath: '/staff/tables'
-      preLoaderRoute: typeof StaffTablesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/staff/orders': {
-      id: '/staff/orders'
-      path: '/staff/orders'
-      fullPath: '/staff/orders'
-      preLoaderRoute: typeof StaffOrdersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/staff/history': {
-      id: '/staff/history'
-      path: '/staff/history'
-      fullPath: '/staff/history'
-      preLoaderRoute: typeof StaffHistoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signup/marketer': {
-      id: '/signup/marketer'
-      path: '/signup/marketer'
-      fullPath: '/signup/marketer'
-      preLoaderRoute: typeof SignupMarketerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signup/driver': {
-      id: '/signup/driver'
-      path: '/signup/driver'
-      fullPath: '/signup/driver'
-      preLoaderRoute: typeof SignupDriverRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signup/cafeteria': {
-      id: '/signup/cafeteria'
-      path: '/signup/cafeteria'
-      fullPath: '/signup/cafeteria'
-      preLoaderRoute: typeof SignupCafeteriaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/notifications': {
-      id: '/settings/notifications'
-      path: '/settings/notifications'
-      fullPath: '/settings/notifications'
-      preLoaderRoute: typeof SettingsNotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/account': {
-      id: '/settings/account'
-      path: '/settings/account'
-      fullPath: '/settings/account'
-      preLoaderRoute: typeof SettingsAccountRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pickup/$cafeRef': {
-      id: '/pickup/$cafeRef'
-      path: '/pickup/$cafeRef'
-      fullPath: '/pickup/$cafeRef'
-      preLoaderRoute: typeof PickupCafeRefRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/owner/withdrawals': {
-      id: '/owner/withdrawals'
-      path: '/owner/withdrawals'
-      fullPath: '/owner/withdrawals'
-      preLoaderRoute: typeof OwnerWithdrawalsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/owner/settings': {
-      id: '/owner/settings'
-      path: '/owner/settings'
-      fullPath: '/owner/settings'
-      preLoaderRoute: typeof OwnerSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/owner/reports': {
-      id: '/owner/reports'
-      path: '/owner/reports'
-      fullPath: '/owner/reports'
-      preLoaderRoute: typeof OwnerReportsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/owner/recharges': {
-      id: '/owner/recharges'
-      path: '/owner/recharges'
-      fullPath: '/owner/recharges'
-      preLoaderRoute: typeof OwnerRechargesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/owner/recharge_instructions': {
-      id: '/owner/recharge_instructions'
-      path: '/owner/recharge_instructions'
-      fullPath: '/owner/recharge_instructions'
-      preLoaderRoute: typeof OwnerRecharge_instructionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/owner/points_caps': {
-      id: '/owner/points_caps'
-      path: '/owner/points_caps'
-      fullPath: '/owner/points_caps'
-      preLoaderRoute: typeof OwnerPoints_capsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/owner/marketers': {
-      id: '/owner/marketers'
-      path: '/owner/marketers'
-      fullPath: '/owner/marketers'
-      preLoaderRoute: typeof OwnerMarketersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/owner/grace_periods': {
-      id: '/owner/grace_periods'
-      path: '/owner/grace_periods'
-      fullPath: '/owner/grace_periods'
-      preLoaderRoute: typeof OwnerGrace_periodsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/owner/feedback': {
-      id: '/owner/feedback'
-      path: '/owner/feedback'
-      fullPath: '/owner/feedback'
-      preLoaderRoute: typeof OwnerFeedbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/owner/exchange_rates': {
-      id: '/owner/exchange_rates'
-      path: '/owner/exchange_rates'
-      fullPath: '/owner/exchange_rates'
-      preLoaderRoute: typeof OwnerExchange_ratesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/owner/countries': {
-      id: '/owner/countries'
-      path: '/owner/countries'
-      fullPath: '/owner/countries'
-      preLoaderRoute: typeof OwnerCountriesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/owner/commissions': {
-      id: '/owner/commissions'
-      path: '/owner/commissions'
-      fullPath: '/owner/commissions'
-      preLoaderRoute: typeof OwnerCommissionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/owner/calculator': {
-      id: '/owner/calculator'
-      path: '/owner/calculator'
-      fullPath: '/owner/calculator'
-      preLoaderRoute: typeof OwnerCalculatorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/owner/cafeterias': {
-      id: '/owner/cafeterias'
-      path: '/owner/cafeterias'
-      fullPath: '/owner/cafeterias'
-      preLoaderRoute: typeof OwnerCafeteriasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marketer/withdrawals': {
-      id: '/marketer/withdrawals'
-      path: '/marketer/withdrawals'
-      fullPath: '/marketer/withdrawals'
-      preLoaderRoute: typeof MarketerWithdrawalsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marketer/reports': {
-      id: '/marketer/reports'
-      path: '/marketer/reports'
-      fullPath: '/marketer/reports'
-      preLoaderRoute: typeof MarketerReportsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marketer/commissions': {
-      id: '/marketer/commissions'
-      path: '/marketer/commissions'
-      fullPath: '/marketer/commissions'
-      preLoaderRoute: typeof MarketerCommissionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marketer/calculator': {
-      id: '/marketer/calculator'
-      path: '/marketer/calculator'
-      fullPath: '/marketer/calculator'
-      preLoaderRoute: typeof MarketerCalculatorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manager/tables': {
-      id: '/manager/tables'
-      path: '/manager/tables'
-      fullPath: '/manager/tables'
-      preLoaderRoute: typeof ManagerTablesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manager/staff': {
-      id: '/manager/staff'
-      path: '/manager/staff'
-      fullPath: '/manager/staff'
-      preLoaderRoute: typeof ManagerStaffRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manager/settings': {
-      id: '/manager/settings'
-      path: '/manager/settings'
-      fullPath: '/manager/settings'
-      preLoaderRoute: typeof ManagerSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manager/reports': {
-      id: '/manager/reports'
-      path: '/manager/reports'
-      fullPath: '/manager/reports'
-      preLoaderRoute: typeof ManagerReportsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manager/recharge': {
-      id: '/manager/recharge'
-      path: '/manager/recharge'
-      fullPath: '/manager/recharge'
-      preLoaderRoute: typeof ManagerRechargeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manager/pricing': {
-      id: '/manager/pricing'
-      path: '/manager/pricing'
-      fullPath: '/manager/pricing'
-      preLoaderRoute: typeof ManagerPricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manager/menu': {
-      id: '/manager/menu'
-      path: '/manager/menu'
-      fullPath: '/manager/menu'
-      preLoaderRoute: typeof ManagerMenuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manager/history': {
-      id: '/manager/history'
-      path: '/manager/history'
-      fullPath: '/manager/history'
-      preLoaderRoute: typeof ManagerHistoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/m/$qrToken': {
-      id: '/m/$qrToken'
-      path: '/m/$qrToken'
-      fullPath: '/m/$qrToken'
-      preLoaderRoute: typeof MQrTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cafeteria/tables': {
-      id: '/cafeteria/tables'
-      path: '/cafeteria/tables'
-      fullPath: '/cafeteria/tables'
-      preLoaderRoute: typeof CafeteriaTablesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cafeteria/staff': {
-      id: '/cafeteria/staff'
-      path: '/cafeteria/staff'
-      fullPath: '/cafeteria/staff'
-      preLoaderRoute: typeof CafeteriaStaffRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cafeteria/shifts': {
-      id: '/cafeteria/shifts'
-      path: '/cafeteria/shifts'
-      fullPath: '/cafeteria/shifts'
-      preLoaderRoute: typeof CafeteriaShiftsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cafeteria/settings': {
-      id: '/cafeteria/settings'
-      path: '/cafeteria/settings'
-      fullPath: '/cafeteria/settings'
-      preLoaderRoute: typeof CafeteriaSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cafeteria/reports': {
-      id: '/cafeteria/reports'
-      path: '/cafeteria/reports'
-      fullPath: '/cafeteria/reports'
-      preLoaderRoute: typeof CafeteriaReportsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cafeteria/recharge': {
-      id: '/cafeteria/recharge'
-      path: '/cafeteria/recharge'
-      fullPath: '/cafeteria/recharge'
-      preLoaderRoute: typeof CafeteriaRechargeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cafeteria/pricing': {
-      id: '/cafeteria/pricing'
-      path: '/cafeteria/pricing'
-      fullPath: '/cafeteria/pricing'
-      preLoaderRoute: typeof CafeteriaPricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cafeteria/orders': {
-      id: '/cafeteria/orders'
-      path: '/cafeteria/orders'
-      fullPath: '/cafeteria/orders'
-      preLoaderRoute: typeof CafeteriaOrdersRouteImport
+    '/cafeteria/history': {
+      id: '/cafeteria/history'
+      path: '/cafeteria/history'
+      fullPath: '/cafeteria/history'
+      preLoaderRoute: typeof CafeteriaHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cafeteria/menu': {
@@ -1329,53 +993,354 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CafeteriaMenuRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/cafeteria/history': {
-      id: '/cafeteria/history'
-      path: '/cafeteria/history'
-      fullPath: '/cafeteria/history'
-      preLoaderRoute: typeof CafeteriaHistoryRouteImport
+    '/cafeteria/orders': {
+      id: '/cafeteria/orders'
+      path: '/cafeteria/orders'
+      fullPath: '/cafeteria/orders'
+      preLoaderRoute: typeof CafeteriaOrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/owner/recharges/$id': {
-      id: '/owner/recharges/$id'
-      path: '/$id'
-      fullPath: '/owner/recharges/$id'
-      preLoaderRoute: typeof OwnerRechargesIdRouteImport
-      parentRoute: typeof OwnerRechargesRoute
-    }
-    '/owner/marketers_/$ref': {
-      id: '/owner/marketers_/$ref'
-      path: '/owner/marketers/$ref'
-      fullPath: '/owner/marketers/$ref'
-      preLoaderRoute: typeof OwnerMarketersRefRouteImport
+    '/cafeteria/pricing': {
+      id: '/cafeteria/pricing'
+      path: '/cafeteria/pricing'
+      fullPath: '/cafeteria/pricing'
+      preLoaderRoute: typeof CafeteriaPricingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/owner/cafeterias_/$ref': {
-      id: '/owner/cafeterias_/$ref'
-      path: '/owner/cafeterias/$ref'
-      fullPath: '/owner/cafeterias/$ref'
-      preLoaderRoute: typeof OwnerCafeteriasRefRouteImport
+    '/cafeteria/recharge': {
+      id: '/cafeteria/recharge'
+      path: '/cafeteria/recharge'
+      fullPath: '/cafeteria/recharge'
+      preLoaderRoute: typeof CafeteriaRechargeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/marketer/children_/$ref': {
-      id: '/marketer/children_/$ref'
-      path: '/marketer/children/$ref'
-      fullPath: '/marketer/children/$ref'
-      preLoaderRoute: typeof MarketerChildrenRefRouteImport
+    '/cafeteria/reports': {
+      id: '/cafeteria/reports'
+      path: '/cafeteria/reports'
+      fullPath: '/cafeteria/reports'
+      preLoaderRoute: typeof CafeteriaReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/m/takeaway/$token': {
-      id: '/m/takeaway/$token'
-      path: '/m/takeaway/$token'
-      fullPath: '/m/takeaway/$token'
-      preLoaderRoute: typeof MTakeawayTokenRouteImport
+    '/cafeteria/settings': {
+      id: '/cafeteria/settings'
+      path: '/cafeteria/settings'
+      fullPath: '/cafeteria/settings'
+      preLoaderRoute: typeof CafeteriaSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/m/order/$id': {
-      id: '/m/order/$id'
-      path: '/m/order/$id'
-      fullPath: '/m/order/$id'
-      preLoaderRoute: typeof MOrderIdRouteImport
+    '/cafeteria/shifts': {
+      id: '/cafeteria/shifts'
+      path: '/cafeteria/shifts'
+      fullPath: '/cafeteria/shifts'
+      preLoaderRoute: typeof CafeteriaShiftsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cafeteria/staff': {
+      id: '/cafeteria/staff'
+      path: '/cafeteria/staff'
+      fullPath: '/cafeteria/staff'
+      preLoaderRoute: typeof CafeteriaStaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cafeteria/tables': {
+      id: '/cafeteria/tables'
+      path: '/cafeteria/tables'
+      fullPath: '/cafeteria/tables'
+      preLoaderRoute: typeof CafeteriaTablesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/driver/': {
+      id: '/driver/'
+      path: '/driver'
+      fullPath: '/driver/'
+      preLoaderRoute: typeof DriverIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/m/$qrToken': {
+      id: '/m/$qrToken'
+      path: '/m/$qrToken'
+      fullPath: '/m/$qrToken'
+      preLoaderRoute: typeof MQrTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/': {
+      id: '/manager/'
+      path: '/manager'
+      fullPath: '/manager/'
+      preLoaderRoute: typeof ManagerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/history': {
+      id: '/manager/history'
+      path: '/manager/history'
+      fullPath: '/manager/history'
+      preLoaderRoute: typeof ManagerHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/menu': {
+      id: '/manager/menu'
+      path: '/manager/menu'
+      fullPath: '/manager/menu'
+      preLoaderRoute: typeof ManagerMenuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/pricing': {
+      id: '/manager/pricing'
+      path: '/manager/pricing'
+      fullPath: '/manager/pricing'
+      preLoaderRoute: typeof ManagerPricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/recharge': {
+      id: '/manager/recharge'
+      path: '/manager/recharge'
+      fullPath: '/manager/recharge'
+      preLoaderRoute: typeof ManagerRechargeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/reports': {
+      id: '/manager/reports'
+      path: '/manager/reports'
+      fullPath: '/manager/reports'
+      preLoaderRoute: typeof ManagerReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/settings': {
+      id: '/manager/settings'
+      path: '/manager/settings'
+      fullPath: '/manager/settings'
+      preLoaderRoute: typeof ManagerSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/staff': {
+      id: '/manager/staff'
+      path: '/manager/staff'
+      fullPath: '/manager/staff'
+      preLoaderRoute: typeof ManagerStaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/tables': {
+      id: '/manager/tables'
+      path: '/manager/tables'
+      fullPath: '/manager/tables'
+      preLoaderRoute: typeof ManagerTablesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketer/': {
+      id: '/marketer/'
+      path: '/marketer'
+      fullPath: '/marketer/'
+      preLoaderRoute: typeof MarketerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketer/calculator': {
+      id: '/marketer/calculator'
+      path: '/marketer/calculator'
+      fullPath: '/marketer/calculator'
+      preLoaderRoute: typeof MarketerCalculatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketer/commissions': {
+      id: '/marketer/commissions'
+      path: '/marketer/commissions'
+      fullPath: '/marketer/commissions'
+      preLoaderRoute: typeof MarketerCommissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketer/reports': {
+      id: '/marketer/reports'
+      path: '/marketer/reports'
+      fullPath: '/marketer/reports'
+      preLoaderRoute: typeof MarketerReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketer/withdrawals': {
+      id: '/marketer/withdrawals'
+      path: '/marketer/withdrawals'
+      fullPath: '/marketer/withdrawals'
+      preLoaderRoute: typeof MarketerWithdrawalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/': {
+      id: '/owner/'
+      path: '/owner'
+      fullPath: '/owner/'
+      preLoaderRoute: typeof OwnerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/cafeterias': {
+      id: '/owner/cafeterias'
+      path: '/owner/cafeterias'
+      fullPath: '/owner/cafeterias'
+      preLoaderRoute: typeof OwnerCafeteriasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/calculator': {
+      id: '/owner/calculator'
+      path: '/owner/calculator'
+      fullPath: '/owner/calculator'
+      preLoaderRoute: typeof OwnerCalculatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/commissions': {
+      id: '/owner/commissions'
+      path: '/owner/commissions'
+      fullPath: '/owner/commissions'
+      preLoaderRoute: typeof OwnerCommissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/countries': {
+      id: '/owner/countries'
+      path: '/owner/countries'
+      fullPath: '/owner/countries'
+      preLoaderRoute: typeof OwnerCountriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/exchange_rates': {
+      id: '/owner/exchange_rates'
+      path: '/owner/exchange_rates'
+      fullPath: '/owner/exchange_rates'
+      preLoaderRoute: typeof OwnerExchange_ratesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/feedback': {
+      id: '/owner/feedback'
+      path: '/owner/feedback'
+      fullPath: '/owner/feedback'
+      preLoaderRoute: typeof OwnerFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/grace_periods': {
+      id: '/owner/grace_periods'
+      path: '/owner/grace_periods'
+      fullPath: '/owner/grace_periods'
+      preLoaderRoute: typeof OwnerGrace_periodsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/marketers': {
+      id: '/owner/marketers'
+      path: '/owner/marketers'
+      fullPath: '/owner/marketers'
+      preLoaderRoute: typeof OwnerMarketersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/points_caps': {
+      id: '/owner/points_caps'
+      path: '/owner/points_caps'
+      fullPath: '/owner/points_caps'
+      preLoaderRoute: typeof OwnerPoints_capsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/recharge_instructions': {
+      id: '/owner/recharge_instructions'
+      path: '/owner/recharge_instructions'
+      fullPath: '/owner/recharge_instructions'
+      preLoaderRoute: typeof OwnerRecharge_instructionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/recharges': {
+      id: '/owner/recharges'
+      path: '/owner/recharges'
+      fullPath: '/owner/recharges'
+      preLoaderRoute: typeof OwnerRechargesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/reports': {
+      id: '/owner/reports'
+      path: '/owner/reports'
+      fullPath: '/owner/reports'
+      preLoaderRoute: typeof OwnerReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/settings': {
+      id: '/owner/settings'
+      path: '/owner/settings'
+      fullPath: '/owner/settings'
+      preLoaderRoute: typeof OwnerSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/withdrawals': {
+      id: '/owner/withdrawals'
+      path: '/owner/withdrawals'
+      fullPath: '/owner/withdrawals'
+      preLoaderRoute: typeof OwnerWithdrawalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pickup/$cafeRef': {
+      id: '/pickup/$cafeRef'
+      path: '/pickup/$cafeRef'
+      fullPath: '/pickup/$cafeRef'
+      preLoaderRoute: typeof PickupCafeRefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/account': {
+      id: '/settings/account'
+      path: '/settings/account'
+      fullPath: '/settings/account'
+      preLoaderRoute: typeof SettingsAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/notifications': {
+      id: '/settings/notifications'
+      path: '/settings/notifications'
+      fullPath: '/settings/notifications'
+      preLoaderRoute: typeof SettingsNotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup/cafeteria': {
+      id: '/signup/cafeteria'
+      path: '/signup/cafeteria'
+      fullPath: '/signup/cafeteria'
+      preLoaderRoute: typeof SignupCafeteriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup/driver': {
+      id: '/signup/driver'
+      path: '/signup/driver'
+      fullPath: '/signup/driver'
+      preLoaderRoute: typeof SignupDriverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup/marketer': {
+      id: '/signup/marketer'
+      path: '/signup/marketer'
+      fullPath: '/signup/marketer'
+      preLoaderRoute: typeof SignupMarketerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staff/history': {
+      id: '/staff/history'
+      path: '/staff/history'
+      fullPath: '/staff/history'
+      preLoaderRoute: typeof StaffHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staff/orders': {
+      id: '/staff/orders'
+      path: '/staff/orders'
+      fullPath: '/staff/orders'
+      preLoaderRoute: typeof StaffOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staff/tables': {
+      id: '/staff/tables'
+      path: '/staff/tables'
+      fullPath: '/staff/tables'
+      preLoaderRoute: typeof StaffTablesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/t/$qrToken': {
+      id: '/t/$qrToken'
+      path: '/t/$qrToken'
+      fullPath: '/t/$qrToken'
+      preLoaderRoute: typeof TQrTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/m/delivery/$token': {
+      id: '/m/delivery/$token'
+      path: '/m/delivery/$token'
+      fullPath: '/m/delivery/$token'
+      preLoaderRoute: typeof MDeliveryTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/m/my-orders/$ref': {
@@ -1385,12 +1350,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MMyOrdersRefRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/m/delivery/$token': {
-      id: '/m/delivery/$token'
-      path: '/m/delivery/$token'
-      fullPath: '/m/delivery/$token'
-      preLoaderRoute: typeof MDeliveryTokenRouteImport
+    '/m/order/$id': {
+      id: '/m/order/$id'
+      path: '/m/order/$id'
+      fullPath: '/m/order/$id'
+      preLoaderRoute: typeof MOrderIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/m/takeaway/$token': {
+      id: '/m/takeaway/$token'
+      path: '/m/takeaway/$token'
+      fullPath: '/m/takeaway/$token'
+      preLoaderRoute: typeof MTakeawayTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketer/children_/$ref': {
+      id: '/marketer/children_/$ref'
+      path: '/marketer/children/$ref'
+      fullPath: '/marketer/children/$ref'
+      preLoaderRoute: typeof MarketerChildrenRefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/cafeterias_/$ref': {
+      id: '/owner/cafeterias_/$ref'
+      path: '/owner/cafeterias/$ref'
+      fullPath: '/owner/cafeterias/$ref'
+      preLoaderRoute: typeof OwnerCafeteriasRefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/marketers_/$ref': {
+      id: '/owner/marketers_/$ref'
+      path: '/owner/marketers/$ref'
+      fullPath: '/owner/marketers/$ref'
+      preLoaderRoute: typeof OwnerMarketersRefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/recharges/$id': {
+      id: '/owner/recharges/$id'
+      path: '/$id'
+      fullPath: '/owner/recharges/$id'
+      preLoaderRoute: typeof OwnerRechargesIdRouteImport
+      parentRoute: typeof OwnerRechargesRoute
     }
   }
 }
